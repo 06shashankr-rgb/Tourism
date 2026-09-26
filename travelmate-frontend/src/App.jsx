@@ -1,16 +1,133 @@
-import React,{useEffect,useMemo,useState}from"react";import{Routes,Route,NavLink,Link,useNavigate}from"react-router-dom";import{MapContainer,TileLayer,Marker,Circle,useMap}from"react-leaflet";
+import {useEffect,useMemo,useState} from "react";
+import {Routes,Route,NavLink,Link,useNavigate} from "react-router-dom";
+import {MapContainer,TileLayer,Marker,Circle,useMap} from "react-leaflet";
+import {places,events} from "./data";
+import {translations} from "./i18n";
 
-const places=[{id:1,name:"Mysore Palace",category:"Heritage",lat:12.3052,lng:76.6552,rating:4.8,price:100,desc:"Historic palace and major Mysuru attraction."},{id:2,name:"Chamundi Hill",category:"Nature",lat:12.2746,lng:76.6737,rating:4.7,price:0,desc:"Scenic hill with panoramic views and temple."},{id:3,name:"Brindavan Gardens",category:"Garden",lat:12.4244,lng:76.5722,rating:4.6,price:50,desc:"Landscaped gardens famous for musical fountains."},{id:4,name:"St. Philomena's Cathedral",category:"Heritage",lat:12.3176,lng:76.6497,rating:4.6,price:0,desc:"Prominent neo-Gothic cathedral in Mysuru."},{id:5,name:"Karanji Lake",category:"Nature",lat:12.2994,lng:76.6695,rating:4.5,price:30,desc:"Lake, bird watching and nature trails."}];
-const events=[{id:101,name:"Mysuru Cultural Evening",place:"Town Hall",date:"2026-10-03",time:"18:00",lat:12.3022,lng:76.6546,price:150,seats:120,desc:"Music, dance and regional cultural performances."},{id:102,name:"Heritage Walk",place:"Mysore Palace Gate",date:"2026-10-05",time:"07:00",lat:12.3052,lng:76.6552,price:250,seats:25,desc:"Guided walk covering major heritage landmarks."},{id:103,name:"Local Food Festival",place:"Dasara Exhibition Ground",date:"2026-10-10",time:"11:00",lat:12.2997,lng:76.6508,price:100,seats:200,desc:"Discover local food and regional traditions."}];
-const languages={English:{home:"Home",places:"Places",events:"Events",ai:"AI Assistant",planner:"Planner",login:"Login"},Kannada:{home:"ಮುಖಪುಟ",places:"ಸ್ಥಳಗಳು",events:"ಕಾರ್ಯಕ್ರಮಗಳು",ai:"AI ಸಹಾಯಕ",planner:"ಯೋಜಕ",login:"ಲಾಗಿನ್"},Hindi:{home:"होम",places:"स्थान",events:"कार्यक्रम",ai:"AI सहायक",planner:"योजना",login:"लॉगिन"},Tamil:{home:"முகப்பு",places:"இடங்கள்",events:"நிகழ்வுகள்",ai:"AI உதவியாளர்",planner:"திட்டம்",login:"உள்நுழைவு"},Telugu:{home:"హోమ్",places:"ప్రదేశాలు",events:"ఈవెంట్లు",ai:"AI సహాయకుడు",planner:"ప్లానర్",login:"లాగిన్"}};
-const fallback={lat:12.2958,lng:76.6394,label:"Mysuru"};
-function distance(a,b,c,d){const R=6371,A=(c-a)*Math.PI/180,B=(d-b)*Math.PI/180,x=Math.sin(A/2)**2+Math.cos(a*Math.PI/180)*Math.cos(c*Math.PI/180)*Math.sin(B/2)**2;return 2*R*Math.atan2(Math.sqrt(x),Math.sqrt(1-x))}
-function Recenter({p}){const map=useMap();useEffect(()=>map.setView(p,13),[map,p]);return null}
+const defaultLocation={lat:12.2958,lng:76.6394,label:"Mysuru"};
+const radii=[50,100,150,200];
 
-export default function App(){const[lang,setLang]=useState("English"),[loc,setLoc]=useState(fallback),[plan,setPlan]=useState([]),[bookings,setBookings]=useState([]);const t=languages[lang];function gps(){if(!navigator.geolocation)return alert("Geolocation is not supported.");navigator.geolocation.getCurrentPosition(p=>setLoc({lat:p.coords.latitude,lng:p.coords.longitude,label:"Current location"}),()=>alert("Location permission denied. Using Mysuru."))}function add(x,type){if(!plan.some(a=>a.id===x.id&&a.type===type))setPlan(p=>[...p,{...x,type}])}return <><header><Link className="logo" to="/">✦ TravelMate</Link><nav><NavLink to="/">{t.home}</NavLink><NavLink to="/places">{t.places}</NavLink><NavLink to="/events">{t.events}</NavLink><NavLink to="/ai">{t.ai}</NavLink><NavLink to="/planner">{t.planner}</NavLink></nav><select value={lang} onChange={e=>setLang(e.target.value)}>{Object.keys(languages).map(x=><option key={x}>{x}</option>)}</select><Link className="login" to="/login">{t.login}</Link></header><Routes><Route path="/" element={<Home gps={gps}/>}/><Route path="/places" element={<Places loc={loc} gps={gps} add={add}/>}/><Route path="/events" element={<Events loc={loc} add={add} book={x=>setBookings(b=>[...b,x])}/>}/><Route path="/ai" element={<AI loc={loc}/>}/><Route path="/planner" element={<Planner plan={plan} bookings={bookings}/>}/><Route path="/login" element={<Login/>}/></Routes><footer>TravelMate • Smart Tourism Management System • Explore • Events • AI • Plan • Book</footer></>}
-function Home({gps}){const nav=useNavigate();return <main className="hero"><div><small>SMART TOURISM • AI • MULTILINGUAL</small><h1>Explore. Discover. <em>Plan.</em> Travel.</h1><p>Find tourist places and events using your location, get AI travel assistance, build an itinerary and book eligible events.</p><button onClick={gps}>📍 Use My Location</button><button className="light" onClick={()=>nav("/places")}>Explore Nearby Places</button></div><div className="heroCard"><h2>🧭 One platform for your trip</h2><div className="features"><span>📍 Nearby places</span><span>🎟️ Events</span><span>🤖 AI assistant</span><span>🗺️ Trip planner</span><span>🌐 Languages</span><span>📏 Distance filter</span></div></div></main>}
-function Places({loc,gps,add}){const[r,setR]=useState(50),[q,setQ]=useState("");const data=useMemo(()=>places.map(x=>({...x,d:distance(loc.lat,loc.lng,x.lat,x.lng)})).filter(x=>x.d<=r&&x.name.toLowerCase().includes(q.toLowerCase())),[loc,r,q]);return <main className="page"><small>EXPLORE</small><h2>Nearby Tourist Places</h2><div className="tools"><input placeholder="Search places..." value={q} onChange={e=>setQ(e.target.value)}/><select value={r} onChange={e=>setR(+e.target.value)}>{[1,5,10,25,50,100].map(x=><option key={x} value={x}>{x} km</option>)}</select><button onClick={gps}>📍 My Location</button></div><div className="mapgrid"><MapContainer className="map" center={[loc.lat,loc.lng]} zoom={13}><Recenter p={[loc.lat,loc.lng]}/><TileLayer attribution='&copy; OpenStreetMap' url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"/><Circle center={[loc.lat,loc.lng]} radius={r*1000}/>{data.map(x=><Marker key={x.id} position={[x.lat,x.lng]}/>)}</MapContainer><div className="cards">{data.map(x=><article className="card" key={x.id}><div className="pic">{x.category}</div><h3>{x.name}</h3><p>{x.desc}</p><span>📍 {x.d.toFixed(1)} km • ★ {x.rating} • ₹{x.price}</span><button onClick={()=>add(x,"place")}>Add to Planner</button></article>)}</div></div></main>}
-function Events({loc,add,book}){return <main className="page"><small>EVENTS</small><h2>Nearby Events</h2><div className="cards three">{events.map(x=>{const d=distance(loc.lat,loc.lng,x.lat,x.lng);return <article className="card" key={x.id}><div className="pic event">EVENT</div><h3>{x.name}</h3><p>{x.desc}</p><span>📅 {x.date} • {x.time}<br/>📍 {d.toFixed(1)} km • ₹{x.price} • {x.seats} seats</span><button onClick={()=>{const n=+(prompt("Number of tickets","1")||1);book({...x,tickets:n,total:n*x.price});alert("Booking saved.")}}>Book Now</button><button className="light" onClick={()=>add(x,"event")}>Add to Planner</button></article>})}</div></main>}
-function AI({loc}){const[q,setQ]=useState(""),[m,setM]=useState(["Hi! Ask me about nearby places, events, booking or your trip."]);function ask(){if(!q.trim())return;let s=q.toLowerCase(),a=s.includes("place")||s.includes("near")?places.map(x=>({...x,d:distance(loc.lat,loc.lng,x.lat,x.lng)})).sort((a,b)=>a.d-b.d).slice(0,3).map(x=>x.name+" ("+x.d.toFixed(1)+" km)").join(", "):s.includes("event")?"Open Events to see nearby events and booking.":s.includes("plan")?"Add places and events to Planner to build your itinerary.":"Try: What places are near me?";setM(x=>[...x,"You: "+q,a]);setQ("")}return <main className="page narrow"><small>AI TRAVEL ASSISTANT</small><h2>TravelMate AI</h2><div className="chat">{m.map((x,i)=><div className={i%2?"msg user":"msg"} key={i}>{x}</div>)}<div className="input"><input value={q} onChange={e=>setQ(e.target.value)} onKeyDown={e=>e.key==="Enter"&&ask()} placeholder="Ask a travel question..."/><button onClick={ask}>Ask</button></div></div></main>}
-function Planner({plan,bookings}){return <main className="page"><small>TRIP PLANNER</small><h2>Your Itinerary</h2>{plan.length?plan.map(x=><article className="item" key={x.type+x.id}><b>{x.type.toUpperCase()}</b><h3>{x.name}</h3></article>):<div className="empty">No items yet. Add places or events from Explore or Events.</div>}<aside><h3>Bookings</h3>{bookings.length?bookings.map((x,i)=><p key={i}>{x.name} — ₹{x.total}</p>):<p>No bookings yet.</p>}</aside></main>}
-function Login(){return <main className="loginPage"><form onSubmit={e=>{e.preventDefault();alert("Demo login. Connect backend later.")}}><h2>TravelMate Login</h2><input required type="email" placeholder="Email"/><input required type="password" placeholder="Password"/><button>Login</button></form></main>}
+function distanceKm(a,b,c,d){const R=6371,x=(c-a)*Math.PI/180,y=(d-b)*Math.PI/180,z=Math.sin(x/2)**2+Math.cos(a*Math.PI/180)*Math.cos(c*Math.PI/180)*Math.sin(y/2)**2;return 2*R*Math.atan2(Math.sqrt(z),Math.sqrt(1-z))}
+function Recenter({center}){const map=useMap();useEffect(()=>map.setView(center,12),[map,center]);return null}
+
+export default function App(){
+ const[language,setLanguage]=useState(localStorage.getItem("language")||"English");
+ const[theme,setTheme]=useState(localStorage.getItem("theme")||"light");
+ const[location,setLocation]=useState(()=>JSON.parse(localStorage.getItem("location")||"null")||defaultLocation);
+ const[live,setLive]=useState(false);
+ const[user,setUser]=useState(()=>JSON.parse(localStorage.getItem("tmUser")||"null"));
+ const[users,setUsers]=useState(()=>JSON.parse(localStorage.getItem("tmUsers")||"[]"));
+ const[planner,setPlanner]=useState(()=>JSON.parse(localStorage.getItem("tmPlanner")||"[]"));
+ const[bookings,setBookings]=useState(()=>JSON.parse(localStorage.getItem("tmBookings")||"[]"));
+ const[bookingEvent,setBookingEvent]=useState(null);
+ const t=translations[language];
+
+ useEffect(()=>localStorage.setItem("language",language),[language]);
+ useEffect(()=>localStorage.setItem("theme",theme),[theme]);
+ useEffect(()=>localStorage.setItem("location",JSON.stringify(location)),[location]);
+ useEffect(()=>localStorage.setItem("tmUser",JSON.stringify(user)),[user]);
+ useEffect(()=>localStorage.setItem("tmUsers",JSON.stringify(users)),[users]);
+ useEffect(()=>localStorage.setItem("tmPlanner",JSON.stringify(planner)),[planner]);
+ useEffect(()=>localStorage.setItem("tmBookings",JSON.stringify(bookings)),[bookings]);
+
+ useEffect(()=>{
+   if(!live||!navigator.geolocation)return;
+   const watchId=navigator.geolocation.watchPosition(
+     p=>setLocation({lat:p.coords.latitude,lng:p.coords.longitude,label:t.live}),
+     ()=>setLive(false),
+     {enableHighAccuracy:true,maximumAge:5000,timeout:10000}
+   );
+   return()=>navigator.geolocation.clearWatch(watchId);
+ },[live,t.live]);
+
+ function startGps(){
+   if(!navigator.geolocation){alert("GPS is not supported by this browser.");return}
+   navigator.geolocation.getCurrentPosition(
+     p=>{setLocation({lat:p.coords.latitude,lng:p.coords.longitude,label:t.live});setLive(true)},
+     ()=>alert("Location permission was denied.")
+   );
+ }
+ function add(item,type){if(!planner.some(x=>x.id===item.id&&x.type===type))setPlanner(x=>[...x,{...item,type}])}
+ function remove(id,type){setPlanner(x=>x.filter(i=>!(i.id===id&&i.type===type)))}
+ function logout(){setUser(null);localStorage.removeItem("tmUser")}
+
+ function saveBooking(item){
+   setBookings(x=>[...x,{...item,id:"TM-"+Date.now(),userEmail:user.email}]);
+   setBookingEvent(null);
+ }
+
+ return <div className={`app theme-${theme}`}>
+   <Header t={t} language={language} setLanguage={setLanguage} theme={theme} setTheme={setTheme} user={user} logout={logout}/>
+   <Routes>
+     <Route path="/" element={<Home t={t} location={location} live={live} startGps={startGps}/>}/>
+     <Route path="/places" element={<Places t={t} location={location} live={live} startGps={startGps} add={add}/>}/>
+     <Route path="/events" element={<Events t={t} location={location} user={user} add={add} openBooking={setBookingEvent}/>}/>
+     <Route path="/ai" element={<Assistant t={t} location={location}/>}/>
+     <Route path="/planner" element={<Planner t={t} planner={planner} bookings={bookings} remove={remove}/>}/>
+     <Route path="/login" element={<Auth t={t} users={users} setUsers={setUsers} setUser={setUser} loginMode/>}/>
+     <Route path="/signup" element={<Auth t={t} users={users} setUsers={setUsers} setUser={setUser}/>}/>
+   </Routes>
+   {bookingEvent&&<BookingModal t={t} event={bookingEvent} user={user} close={()=>setBookingEvent(null)} save={saveBooking}/>}
+   <footer>TravelMate • Smart Tourism Management System • Explore • Events • AI • Plan • Book</footer>
+ </div>
+}
+
+function Header({t,language,setLanguage,theme,setTheme,user,logout}){
+ return <header className="header">
+  <Link className="logo" to="/">✦ TravelMate</Link>
+  <nav><NavLink to="/">{t.home}</NavLink><NavLink to="/places">{t.places}</NavLink><NavLink to="/events">{t.events}</NavLink><NavLink to="/ai">{t.ai}</NavLink><NavLink to="/planner">{t.planner}</NavLink></nav>
+  <div className="controls">
+   <select value={language} onChange={e=>setLanguage(e.target.value)}>{Object.keys(translations).map(x=><option key={x}>{x}</option>)}</select>
+   <select value={theme} onChange={e=>setTheme(e.target.value)}><option value="light">{t.light}</option><option value="dark">{t.dark}</option><option value="nature">{t.nature}</option><option value="sunset">{t.sunset}</option></select>
+   {user?<><span className="user">{user.name}</span><button className="small ghost" onClick={logout}>{t.logout}</button></>:<><Link className="small ghost" to="/login">{t.signIn}</Link><Link className="small" to="/signup">{t.signUp}</Link></>}
+  </div>
+ </header>
+}
+
+function Home({t,location,live,startGps}){
+ const nav=useNavigate();
+ return <main className="hero"><div><small>SMART TOURISM • AI • MULTILINGUAL</small><h1>{t.homeTitle}</h1><p>{t.homeText}</p>
+  <button onClick={startGps}>📍 {t.gps}</button><button className="light" onClick={()=>nav("/places")}>{t.explore}</button>
+  <div className="location"><i className={live?"live-dot":""}></i>{live?t.locationUpdating:location.label}<br/><small>{location.lat.toFixed(5)}, {location.lng.toFixed(5)}</small></div>
+ </div><div className="hero-card"><h2>🧭 TravelMate</h2><div className="features"><span>📍 GPS nearby places</span><span>🎟️ Location events</span><span>🤖 AI assistant</span><span>🗺️ Trip planner</span><span>🌐 5 languages</span><span>🎫 Booking</span></div></div></main>
+}
+
+function Places({t,location,live,startGps,add}){
+ const[radius,setRadius]=useState(50),[search,setSearch]=useState("");
+ const nearby=useMemo(()=>places.map(p=>({...p,distance:distanceKm(location.lat,location.lng,p.lat,p.lng)})).filter(p=>p.distance<=radius&&p.name.toLowerCase().includes(search.toLowerCase())).sort((a,b)=>a.distance-b.distance),[location,radius,search]);
+ return <main className="page"><small>EXPLORE</small><h2>{t.nearby}</h2><div className="toolbar"><input value={search} onChange={e=>setSearch(e.target.value)} placeholder={t.search}/><select value={radius} onChange={e=>setRadius(+e.target.value)}>{radii.map(r=><option key={r} value={r}>{r} km</option>)}</select><button onClick={startGps}>{live?"🟢":"📍"} {t.gps}</button></div>
+ <div className="map-layout"><MapContainer className="map" center={[location.lat,location.lng]} zoom={12}><Recenter center={[location.lat,location.lng]}/><TileLayer attribution='&copy; OpenStreetMap contributors' url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"/><Circle center={[location.lat,location.lng]} radius={radius*1000}/>{nearby.map(p=><Marker key={p.id} position={[p.lat,p.lng]}/>)}</MapContainer>
+ <div className="cards">{nearby.length?nearby.map(p=><article className="card" key={p.id}><div className="image">{p.category}</div><div className="content"><h3>{p.name}</h3><p>{p.description}</p><span>📍 {p.distance.toFixed(1)} km • ★ {p.rating} • ₹{p.price}</span><button onClick={()=>add(p,"place")}>{t.add}</button></div></article>):<div className="empty">{t.noPlaces}</div>}</div></div></main>
+}
+
+function Events({t,location,user,add,openBooking}){
+ const[radius,setRadius]=useState(50);
+ const nearPlaces=useMemo(()=>places.filter(p=>distanceKm(location.lat,location.lng,p.lat,p.lng)<=radius),[location,radius]);
+ const ids=new Set(nearPlaces.map(p=>p.id));
+ const nearEvents=events.filter(e=>ids.has(e.placeId)).map(e=>({...e,distance:distanceKm(location.lat,location.lng,e.lat,e.lng)})).sort((a,b)=>a.distance-b.distance);
+ return <main className="page"><small>EVENTS</small><h2>{t.eventsNear}</h2><div className="toolbar"><select value={radius} onChange={e=>setRadius(+e.target.value)}>{radii.map(r=><option key={r} value={r}>{r} km</option>)}</select><span className="pill">📍 {nearPlaces.length} {t.places}</span></div>
+ <div className="cards three">{nearEvents.length?nearEvents.map(e=><article className="card" key={e.id}><div className="event-image">EVENT</div><div className="content"><h3>{e.name}</h3><p>{e.description}</p><p>📍 {e.venue}<br/>📅 {e.date} • {e.time}</p><span>📏 {e.distance.toFixed(1)} km • ₹{e.price} • {e.seats} {t.tickets}</span><div><button onClick={()=>user?openBooking(e):alert(t.loginRequired)}>{t.book}</button><button className="light" onClick={()=>add(e,"event")}>{t.add}</button></div><a className="external" href={e.sourceUrl} target="_blank" rel="noreferrer">{t.external} ↗</a><small className="source">{t.source}: {e.source}</small></div></article>):<div className="empty">{t.noEvents}</div>}</div></main>
+}
+
+function BookingModal({t,event,user,close,save}){
+ const[tickets,setTickets]=useState(1),[name,setName]=useState(user?.name||""),[email,setEmail]=useState(user?.email||"");
+ const total=tickets*event.price;
+ function submit(e){e.preventDefault();save({eventId:event.id,eventName:event.name,date:event.date,time:event.time,venue:event.venue,tickets,total,name,email});alert(t.bookingSaved)}
+ return <div className="overlay"><div className="modal"><button className="x" onClick={close}>×</button><small>{t.book}</small><h2>{event.name}</h2><p>{event.venue} • {event.date} • {event.time}</p><form onSubmit={submit}><label>{t.name}<input required value={name} onChange={e=>setName(e.target.value)}/></label><label>{t.email}<input required type="email" value={email} onChange={e=>setEmail(e.target.value)}/></label><label>{t.tickets}<input type="number" min="1" max={event.seats} value={tickets} onChange={e=>setTickets(+e.target.value)}/></label><div className="total"><span>{t.total}</span><b>₹{total}</b></div><button type="submit">{t.confirm}</button><a className="external center" href={event.sourceUrl} target="_blank" rel="noreferrer">{t.external} ↗</a></form></div></div>
+}
+
+function Auth({t,users,setUsers,setUser,loginMode=false}){
+ const nav=useNavigate(),[mode,setMode]=useState(loginMode?"login":"signup"),[form,setForm]=useState({name:"",email:"",password:"",confirm:""});
+ function submit(e){e.preventDefault();const email=form.email.trim().toLowerCase();if(mode==="signup"){if(form.password!==form.confirm)return alert("Passwords do not match.");if(users.some(u=>u.email===email))return alert("Email already registered.");const u={name:form.name,email,password:form.password};setUsers(x=>[...x,u]);setUser(u);nav("/")}else{const u=users.find(x=>x.email===email&&x.password===form.password);if(!u)return alert("Invalid email or password.");setUser(u);nav("/")}}
+ return <main className="auth-page"><form className="auth-card" onSubmit={submit}><div className="auth-tabs"><button type="button" className={mode==="login"?"active":""} onClick={()=>setMode("login")}>{t.signIn}</button><button type="button" className={mode==="signup"?"active":""} onClick={()=>setMode("signup")}>{t.signUp}</button></div><h2>{mode==="login"?t.signIn:t.create}</h2>{mode==="signup"&&<label>{t.name}<input required value={form.name} onChange={e=>setForm({...form,name:e.target.value})}/></label>}<label>{t.email}<input required type="email" value={form.email} onChange={e=>setForm({...form,email:e.target.value})}/></label><label>{t.password}<input required type="password" value={form.password} onChange={e=>setForm({...form,password:e.target.value})}/></label>{mode==="signup"&&<label>{t.confirmPassword}<input required type="password" value={form.confirm} onChange={e=>setForm({...form,confirm:e.target.value})}/></label>}<button type="submit">{mode==="login"?t.signIn:t.signUp}</button></form></main>
+}
+
+function Assistant({t,location}){
+ const[q,setQ]=useState(""),[messages,setMessages]=useState([t.aiWelcome||t.homeText]);
+ function ask(){if(!q.trim())return;const s=q.toLowerCase();let a=t.bookingQuestion;if(s.includes("place")||s.includes("near"))a=places.map(p=>({...p,d:distanceKm(location.lat,location.lng,p.lat,p.lng)})).sort((a,b)=>a.d-b.d).slice(0,3).map(p=>p.name+" ("+p.d.toFixed(1)+" km)").join(", ");else if(s.includes("event"))a=t.eventsNear;else if(s.includes("plan"))a=t.itinerary;setMessages(x=>[...x,"You: "+q,a]);setQ("")}
+ return <main className="page narrow"><small>AI TRAVEL ASSISTANT</small><h2>{t.ai}</h2><div className="chips"><button onClick={()=>setQ(t.nearQuestion)}>{t.nearQuestion}</button><button onClick={()=>setQ(t.eventQuestion)}>{t.eventQuestion}</button><button onClick={()=>setQ(t.planQuestion)}>{t.planQuestion}</button></div><div className="chat">{messages.map((m,i)=><div className={i%2?"message user":"message"} key={i}>{m}</div>)}<div className="chat-input"><input value={q} onChange={e=>setQ(e.target.value)} onKeyDown={e=>e.key==="Enter"&&ask()} placeholder={t.aiPlaceholder}/><button onClick={ask}>{t.ask}</button></div></div></main>
+}
+
+function Planner({t,planner,bookings,remove}){
+ return <main className="page"><small>TRIP PLANNER</small><h2>{t.itinerary}</h2>{planner.length?planner.map(x=><article className="planner" key={x.type+x.id}><div><span>{x.type}</span><h3>{x.name}</h3><p>{x.description}</p></div><button className="danger" onClick={()=>remove(x.id,x.type)}>{t.remove}</button></article>):<div className="empty">{t.noPlan}</div>}<section className="booking-history"><h3>{t.bookings}</h3>{bookings.length?bookings.map(b=><div className="booking-row" key={b.id}><span><b>{b.eventName}</b><br/>{b.date} • {b.tickets} {t.tickets}</span><b>₹{b.total}</b></div>):<p>{t.noBookings}</p>}</section></main>
+}
