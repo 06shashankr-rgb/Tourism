@@ -3,7 +3,6 @@ import {Routes,Route,NavLink,Link,useNavigate} from "react-router-dom";
 import {MapContainer,TileLayer,Marker,Circle,useMap} from "react-leaflet";
 import {places,events} from "./data";
 import {translations} from "./i18n";
-import WeatherPage from "./WeatherPage";
 
 const defaultLocation={lat:12.2958,lng:76.6394,label:"Mysuru"};
 const radii=[50,100,150,200];
@@ -63,7 +62,6 @@ export default function App(){
      <Route path="/" element={<Home t={t} location={location} live={live} startGps={startGps}/>}/>
      <Route path="/places" element={<Places t={t} location={location} live={live} startGps={startGps} add={add}/>}/>
      <Route path="/events" element={<Events t={t} location={location} user={user} add={add} openBooking={setBookingEvent}/>}/>
-     <Route path="/weather" element={<WeatherPage location={location} startGps={startGps}/>}/>
      <Route path="/ai" element={<Assistant t={t} location={location}/>}/>
      <Route path="/planner" element={<Planner t={t} planner={planner} bookings={bookings} remove={remove}/>}/>
      <Route path="/login" element={<Auth t={t} users={users} setUsers={setUsers} setUser={setUser} loginMode/>}/>
@@ -77,7 +75,7 @@ export default function App(){
 function Header({t,language,setLanguage,theme,setTheme,user,logout}){
  return <header className="header">
   <Link className="logo" to="/">✦ TravelMate</Link>
-  <nav><NavLink to="/">{t.home}</NavLink><NavLink to="/places">{t.places}</NavLink><NavLink to="/events">{t.events}</NavLink><NavLink to="/weather">Weather</NavLink><NavLink to="/ai">{t.ai}</NavLink><NavLink to="/planner">{t.planner}</NavLink></nav>
+  <nav><NavLink to="/">{t.home}</NavLink><NavLink to="/places">{t.places}</NavLink><NavLink to="/events">{t.events}</NavLink><NavLink to="/ai">{t.ai}</NavLink><NavLink to="/planner">{t.planner}</NavLink></nav>
   <div className="controls">
    <select value={language} onChange={e=>setLanguage(e.target.value)}>{Object.keys(translations).map(x=><option key={x}>{x}</option>)}</select>
    <select value={theme} onChange={e=>setTheme(e.target.value)}><option value="light">{t.light}</option><option value="dark">{t.dark}</option><option value="nature">{t.nature}</option><option value="sunset">{t.sunset}</option></select>
