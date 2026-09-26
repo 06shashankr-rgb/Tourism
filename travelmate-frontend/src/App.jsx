@@ -1,4 +1,4 @@
-import {useEffect,useMemo,useState} from "react";
+import React,{useEffect,useMemo,useState} from "react";
 import {Routes,Route,NavLink,Link,useNavigate} from "react-router-dom";
 import {MapContainer,TileLayer,Marker,Circle,useMap} from "react-leaflet";
 import {places,events} from "./data";
