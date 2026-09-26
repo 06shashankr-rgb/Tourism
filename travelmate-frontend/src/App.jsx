@@ -20,7 +20,7 @@ export default function App(){
  const[planner,setPlanner]=useState(()=>JSON.parse(localStorage.getItem("tmPlanner")||"[]"));
  const[bookings,setBookings]=useState(()=>JSON.parse(localStorage.getItem("tmBookings")||"[]"));
  const[bookingEvent,setBookingEvent]=useState(null);
- const t=translations[language];
+ const t=translations[language] || translations.English;
 
  useEffect(()=>localStorage.setItem("language",language),[language]);
  useEffect(()=>localStorage.setItem("theme",theme),[theme]);
