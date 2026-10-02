@@ -6,7 +6,6 @@ export const seedPlaces = [
   { id: 5, name: "Karanji Lake", category: "Nature", lat: 12.2994, lng: 76.6695, rating: 4.5, price: 30, description: "Lake, bird watching and nature trails." },
   { id: 6, name: "Mysuru Railway Museum", category: "Museum", lat: 12.3182, lng: 76.6424, rating: 4.4, price: 50, description: "Railway heritage museum with historic coaches." }
 ];
-
 export const seedEvents = [
   { id: 101, placeId: 1, name: "Mysuru Events & Shows", venue: "Mysore Palace area", lat: 12.3052, lng: 76.6552, price: 150, seats: 120, source: "BookMyShow", sourceUrl: "https://in.bookmyshow.com/explore/events-mysuru-mysore", date: "Check live listing", time: "Varies", description: "Live event listings around Mysuru." },
   { id: 102, placeId: 2, name: "Chamundi Hill Events", venue: "Chamundi Hill area", lat: 12.2746, lng: 76.6737, price: 250, seats: 25, source: "AllEvents", sourceUrl: "https://allevents.in/mysore", date: "Check live listing", time: "Varies", description: "Current events and activities around Mysuru." },
