@@ -8,18 +8,18 @@ import{places as localPlaces,events as localEvents}from"./data";
 const defaultLocation={lat:12.2958,lng:76.6394,label:"Mysuru"};
 const radii=[0.5,1,5,10,25,50,100,200];
 const images={
-"Mysore Palace":"https://images.unsplash.com/photo-1599661046289-e31897846e41?auto=format&fit=crop&w=1200&q=85",
-"Chamundi Hill":"https://images.unsplash.com/photo-1548013146-72479768bada?auto=format&fit=crop&w=1200&q=85",
-"Brindavan Gardens":"https://images.unsplash.com/photo-1582510003544-4d00b7f74220?auto=format&fit=crop&w=1200&q=85",
-"St. Philomena's Cathedral":"https://images.unsplash.com/photo-1548013146-72479768bada?auto=format&fit=crop&w=1200&q=85",
-"Karanji Lake":"https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=1200&q=85",
-"Mysuru Railway Museum":"https://images.unsplash.com/photo-1519501025264-65ba15a82390?auto=format&fit=crop&w=1200&q=85"
+"Mysore Palace":"https://upload.wikimedia.org/wikipedia/commons/7/71/Mysore_Palace%2C_Mysore%2C_Karnataka.jpg",
+"Chamundi Hill":"https://upload.wikimedia.org/wikipedia/commons/5/55/Chamundi_Hills_Mysore.jpg",
+"Brindavan Gardens":"https://upload.wikimedia.org/wikipedia/commons/6/68/Brindavan_Gardens%2C_Mysore.jpg",
+"St. Philomena's Cathedral":"https://upload.wikimedia.org/wikipedia/commons/5/55/Chamundi_Hills_Mysore.jpg",
+"Karanji Lake":"https://upload.wikimedia.org/wikipedia/commons/0/02/Karanji_Lake.jpg",
+"Mysuru Railway Museum":"https://commons.wikimedia.org/wiki/Special:FilePath/St.%20Philomena%27s%20Cathedral.jpg"
 };
 const iconPaths={compass:"M12 2l3.1 7.9L23 13l-7.9 3.1L12 24l-3.1-7.9L1 13l7.9-3.1L12 2z",pin:"M12 22s7-6.1 7-12a7 7 0 10-14 0c0 5.9 7 12 7 12z",spark:"M12 2l1.8 7.2L21 11l-7.2 1.8L12 20l-1.8-7.2L3 11l7.2-1.8L12 2z",arrow:"M5 12h13M13 6l6 6-6 6",calendar:"M5 4h14v16H5zM8 2v4M16 2v4M5 9h14",map:"M3 6l6-3 6 3 6-3v18l-6 3-6-3-6 3V6z",user:"M20 21a8 8 0 00-16 0M12 13a4 4 0 100-8 4 4 0 000 8z"};
 function Icon({name,size=18}){return <svg aria-hidden="true" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round"><path d={iconPaths[name]||iconPaths.spark}/></svg>}
 function distanceKm(a,b,c,d){const R=6371,x=(c-a)*Math.PI/180,y=(d-b)*Math.PI/180,z=Math.sin(x/2)**2+Math.cos(a*Math.PI/180)*Math.cos(c*Math.PI/180)*Math.sin(y/2)**2;return 2*R*Math.atan2(Math.sqrt(z),Math.sqrt(1-z))}
 function Recenter({center}){const map=useMap();useEffect(()=>map.setView(center,13),[map,center]);return null}
-function placeImage(name){return images[name]||"https://images.unsplash.com/photo-1500534623283-312aade485b7?auto=format&fit=crop&w=1200&q=85"}
+function placeImage(name){return images[name]||"https://upload.wikimedia.org/wikipedia/commons/7/71/Mysore_Palace%2C_Mysore%2C_Karnataka.jpg"}
 
 export default function App(){
 const[language,setLanguage]=useState(localStorage.getItem("language")||"English"),[theme,setTheme]=useState(localStorage.getItem("theme")==="dark"?"dark":"light"),[location,setLocation]=useState(()=>JSON.parse(localStorage.getItem("location")||"null")||defaultLocation),[live,setLive]=useState(false),[user,setUser]=useState(()=>JSON.parse(localStorage.getItem("tmUser")||"null")),[places,setPlaces]=useState([]),[events,setEvents]=useState([]),[planner,setPlanner]=useState([]),[bookings,setBookings]=useState([]),[bookingEvent,setBookingEvent]=useState(null),[loading,setLoading]=useState(true),[locationQuery,setLocationQuery]=useState(""),[locationSuggestions,setLocationSuggestions]=useState([]),[searchingLocation,setSearchingLocation]=useState(false);
