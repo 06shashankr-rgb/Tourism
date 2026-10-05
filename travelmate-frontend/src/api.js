@@ -13,6 +13,4 @@ export const api={
  bookings:()=>request("/bookings"),
  createBooking:p=>request("/bookings",{method:"POST",body:JSON.stringify(p)}),
  assistant:(question,location)=>request("/assistant",{method:"POST",body:JSON.stringify({question,lat:location?.lat,lng:location?.lng})}),
- translate:(texts,target)=>request("/translate",{method:"POST",body:JSON.stringify({texts,target})}),
- translationStatus:()=>request("/translation/status")
 };
