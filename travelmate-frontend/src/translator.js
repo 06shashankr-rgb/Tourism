@@ -75,7 +75,7 @@ async function applyTranslation(){
   const attrs=allAttributeEntries();
   const values=[...texts,...attrs.map(x=>x.value)].filter(Boolean);
   if(!values.length)return;
-  const map=await translateUnique(values,currentLanguage);
+  try{\n    const map=await translateUnique(values,currentLanguage);
   nodes.forEach((node,index)=>{
     const source=texts[index];
     if(node.isConnected)node.nodeValue=map.get(source)||source;
