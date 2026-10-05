@@ -82,7 +82,7 @@ async function applyTranslation(){
     if(node.isConnected)node.nodeValue=map.get(source)||source;
   });
   attrs.forEach(({el,name,value})=>{if(el.isConnected)el.setAttribute(name,map.get(value)||value)});
-  translating=false;
+  }finally{translating=false}
 }
 
 function scheduleTranslation(){
