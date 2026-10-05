@@ -1,6 +1,6 @@
 import "dotenv/config";
 import express from "express";import cors from "cors";import bcrypt from "bcryptjs";import jwt from "jsonwebtoken";
-import {connectDatabase,closeDatabase,collection,isMongo,memoryStore} from "./db.js";import {distanceKm,makeId,safeUser} from "./utils.js";import {requireAuth} from "./middleware/auth.js";import {livePlacesConfigured,liveEventsConfigured,searchLivePlaces,searchLiveEvents} from "./liveData.js";import {isTranslationConfigured,translateTexts,supportedLanguages} from "./translate.js";
+import {connectDatabase,closeDatabase,collection,isMongo,memoryStore} from "./db.js";import {distanceKm,makeId,safeUser} from "./utils.js";import {requireAuth} from "./middleware/auth.js";import {livePlacesConfigured,liveEventsConfigured,searchLivePlaces,searchLiveEvents} from "./liveData.js";
 const app=express(),PORT=Number(process.env.PORT||5000),FRONTEND_URL=process.env.FRONTEND_URL||"http://localhost:5173",JWT_SECRET=process.env.JWT_SECRET||"travelmate-local-development-secret";
 const allowedOrigins=FRONTEND_URL.split(",").map(x=>x.trim()).filter(Boolean);
 app.use(cors({origin:(origin,callback)=>{if(!origin||allowedOrigins.includes(origin))return callback(null,true);return callback(new Error("CORS origin not allowed."));},methods:["GET","POST","DELETE","OPTIONS"],allowedHeaders:["Content-Type","Authorization"]}));app.use(express.json({limit:"1mb"}));
@@ -19,21 +19,7 @@ async function geocodeLocation(query){
   return rows.map(x=>({label:x.display_name,lat:Number(x.lat),lng:Number(x.lon),type:x.type}));
 }
 
-app.get("/api/health",(_q,r)=>r.json({ok:true,service:"TravelMate API",database:isMongo()?"mongodb":"memory",translation:{provider:"Google Cloud Translation",configured:isTranslationConfigured(),languages:Object.keys(supportedLanguages).length},liveData:{places:livePlacesConfigured(),events:liveEventsConfigured()}}));
-app.get("/api/translation/status",(_q,r)=>r.json({provider:"Google Cloud Translation",configured:isTranslationConfigured(),languages:supportedLanguages}));
-app.post("/api/translate",async(q,r)=>{
-  try{
-    const texts=Array.isArray(q.body.texts)?q.body.texts.map(x=>String(x)).filter(Boolean):[];
-    const target=String(q.body.target||"en");
-    if(!texts.length)return r.status(400).json({message:"texts must be a non-empty array."});
-    if(texts.length>128)return r.status(400).json({message:"A maximum of 128 strings can be translated per request."});
-    if(!supportedLanguages[target])return r.status(400).json({message:"Unsupported language."});
-    const totalChars=texts.reduce((n,x)=>n+x.length,0);
-    if(totalChars>90000)return r.status(413).json({message:"Translation batch is too large."});
-    const translations=await translateTexts(texts,target);
-    r.json({source:"en",target,translations});
-  }catch(e){console.error("Translation error:",e);r.status(503).json({message:e.message||"Translation service unavailable."})}
-});
+app.get("/api/health",(_q,r)=>r.json({ok:true,service:"TravelMate API",database:isMongo()?"mongodb":"memory",translation:{provider:"Local frontend translations",configured:true,languages:5},liveData:{places:livePlacesConfigured(),events:liveEventsConfigured()}}));
 app.post("/api/auth/signup",async(q,r)=>{try{const name=String(q.body.name||"").trim(),email=String(q.body.email||"").trim().toLowerCase(),password=String(q.body.password||"");if(!name||!email||password.length<6)return r.status(400).json({message:"Name, email and a password of at least 6 characters are required."});if(await findOne("users",{email}))return r.status(409).json({message:"Email already registered."});const u={id:makeId("USER"),name,email,passwordHash:await bcrypt.hash(password,12),createdAt:new Date().toISOString()};await insertOne("users",u);r.status(201).json({token:token(u),user:safeUser(u)})}catch(e){console.error(e);r.status(500).json({message:"Could not create account."})}});
 app.post("/api/auth/login",async(q,r)=>{try{const email=String(q.body.email||"").trim().toLowerCase(),password=String(q.body.password||""),u=await findOne("users",{email});if(!u||!(await bcrypt.compare(password,u.passwordHash)))return r.status(401).json({message:"Invalid email or password."});r.json({token:token(u),user:safeUser(u)})}catch(e){console.error(e);r.status(500).json({message:"Could not sign in."})}});
 app.get("/api/auth/me",requireAuth,async(q,r)=>{const u=await findOne("users",{id:q.user.id});if(!u)return r.status(404).json({message:"User not found."});r.json({user:safeUser(u)})});
