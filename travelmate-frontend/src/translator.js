@@ -1,114 +1,82 @@
-import{api}from"./api";
+import{translations}from"./i18n";
 
 const attributeNames=["placeholder","title","aria-label"];
-const textOriginals=new Map();
-const attributeOriginals=new Map();
-const clientCache=new Map();
+const originalText=new Map();
+const originalAttrs=new Map();
 let observer=null;
 let currentLanguage="English";
-let translating=false;
-let scheduled=null;
+let applying=false;
+let timer=null;
 
-function isIgnored(node){
+function ignored(node){
   const el=node.nodeType===Node.ELEMENT_NODE?node:node.parentElement;
-  if(!el)return true;
-  return Boolean(el.closest("script,style,noscript,svg,[data-no-translate],.language-select"));
+  return !el||Boolean(el.closest("script,style,noscript,svg,[data-no-translate],.language-select"));
 }
 
-function collect(){
-  const texts=[];
-  const nodes=[];
+function normalize(value){
+  return String(value||"").replace(/\s+/g," ").trim();
+}
+
+function buildMap(language){
+  const source=translations.English||{};
+  const target=translations[language]||source;
+  const map=new Map();
+  Object.keys(source).forEach(key=>{
+    if(source[key]&&target[key]&&source[key]!==target[key])map.set(normalize(source[key]),target[key]);
+  });
+  return map;
+}
+
+function restore(){
+  for(const[node,value]of originalText)if(node.isConnected)node.nodeValue=value;
+  for(const[el,attrs]of originalAttrs)if(el.isConnected)Object.entries(attrs).forEach(([name,value])=>el.setAttribute(name,value));
+}
+
+function apply(){
+  if(currentLanguage==="English"){restore();return}
+  applying=true;
+  const map=buildMap(currentLanguage);
   const root=document.getElementById("root")||document.body;
   const walker=document.createTreeWalker(root,NodeFilter.SHOW_TEXT);
   let node;
   while(node=walker.nextNode()){
-    const value=node.nodeValue?.replace(/\s+/g," ").trim();
-    if(!value||isIgnored(node)||value.length<2)continue;
-    if(!textOriginals.has(node))textOriginals.set(node,node.nodeValue);
-    const source=textOriginals.get(node);
-    if(source?.trim()){nodes.push(node);texts.push(source.replace(/\s+/g," ").trim());}
+    if(ignored(node))continue;
+    const value=normalize(node.nodeValue);
+    if(!value||value.length<2)continue;
+    if(!originalText.has(node))originalText.set(node,node.nodeValue);
+    const source=normalize(originalText.get(node));
+    const translated=map.get(source);
+    if(translated)node.nodeValue=node.nodeValue.replace(source,translated);
   }
   root.querySelectorAll?.("[placeholder],[title],[aria-label]").forEach(el=>{
-    if(isIgnored(el))return;
-    if(!attributeOriginals.has(el))attributeOriginals.set(el,{});
-    for(const name of attributeNames){
+    if(ignored(el))return;
+    if(!originalAttrs.has(el))originalAttrs.set(el,{});
+    const record=originalAttrs.get(el);
+    attributeNames.forEach(name=>{
       const value=el.getAttribute(name);
-      if(!value)continue;
-      const record=attributeOriginals.get(el);
-      if(record[name]===undefined)record[name]=value;
-    }
-  });
-  return{nodes,texts};
-}
-
-function allAttributeEntries(){
-  const entries=[];
-  for(const [el,attrs] of attributeOriginals){
-    if(!el.isConnected)continue;
-    for(const [name,value] of Object.entries(attrs))entries.push({el,name,value});
-  }
-  return entries;
-}
-
-async function translateUnique(values,target){
-  const result=new Map(),missing=[];
-  for(const value of [...new Set(values)]){
-    const key=target+"::"+value;
-    if(clientCache.has(key))result.set(value,clientCache.get(key));else missing.push(value);
-  }
-  for(let i=0;i<missing.length;i+=128){
-    const batch=missing.slice(i,i+128);
-    const response=await api.translate(batch,target);
-    batch.forEach((source,index)=>{
-      const translated=response.translations?.[index]||source;
-      clientCache.set(target+"::"+source,translated);
-      result.set(source,translated);
+      if(value!==null&&record[name]===undefined)record[name]=value;
+      const source=record[name];
+      const translated=source&&map.get(normalize(source));
+      if(translated)el.setAttribute(name,translated);
     });
-  }
-  return result;
-}
-
-async function applyTranslation(){
-  if(currentLanguage==="English")return;
-  translating=true;
-  const{nodes,texts}=collect();
-  const attrs=allAttributeEntries();
-  const values=[...texts,...attrs.map(x=>x.value)].filter(Boolean);
-  if(!values.length){translating=false;return;}
-  try{
-    const map=await translateUnique(values,currentLanguage);
-  nodes.forEach((node,index)=>{
-    const source=texts[index];
-    if(node.isConnected)node.nodeValue=map.get(source)||source;
   });
-  attrs.forEach(({el,name,value})=>{if(el.isConnected)el.setAttribute(name,map.get(value)||value)});
-  }finally{translating=false}
+  applying=false;
 }
 
-function scheduleTranslation(){
-  clearTimeout(scheduled);
-  scheduled=setTimeout(()=>applyTranslation().catch(console.error),250);
+function schedule(){
+  clearTimeout(timer);
+  timer=setTimeout(()=>apply(),80);
 }
 
-function restoreEnglish(){
-  for(const[node,source]of textOriginals)if(node.isConnected)node.nodeValue=source;
-  for(const[el,attrs]of attributeOriginals)if(el.isConnected)for(const[name,value]of Object.entries(attrs))el.setAttribute(name,value);
-}
-
-export async function setWebsiteLanguage(language){
-  currentLanguage=language||"English";
-  document.documentElement.lang=currentLanguage==="English"?"en":String(currentLanguage).slice(0,2).toLowerCase();
+export function setWebsiteLanguage(language){
+  currentLanguage=translations[language]?language:"English";
+  document.documentElement.lang=currentLanguage==="English"?"en":({Kannada:"kn",Hindi:"hi",Tamil:"ta",Telugu:"te"}[currentLanguage]||"en");
   if(observer)observer.disconnect();
-  if(currentLanguage==="English"){
-    restoreEnglish();
-  }else{
-    await applyTranslation();
-    observer=new MutationObserver(()=>{if(!translating)scheduleTranslation()});
-    observer.observe(document.getElementById("root")||document.body,{subtree:true,childList:true});
-  }
+  apply();
+  observer=new MutationObserver(()=>{if(!applying)schedule()});
+  observer.observe(document.getElementById("root")||document.body,{subtree:true,childList:true});
 }
 
 export function startWebsiteTranslator(language){
-  currentLanguage=language||"English";
-  setWebsiteLanguage(currentLanguage).catch(console.error);
+  setWebsiteLanguage(language);
 }
