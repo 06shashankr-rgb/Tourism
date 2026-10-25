@@ -323,3 +323,67 @@ Hindi:{searchLocation:"मैसूर खोजें",language:"भाषा",
 Tamil:{searchLocation:"மைசூரைத் தேடு",language:"மொழி",toggleTheme:"டார்க் மோட்",heroOverline:"ஸ்மார்ட் சுற்றுலா / மைசூர்",heroTitle:"வழக்கமான பயணத்தை",heroTitleAccent:"தாண்டிச் செல்லுங்கள்.",heroText:"மைசூரின் இடங்கள், உள்ளூர் நிகழ்வுகள், AI பயண உதவி மற்றும் பயணத் திட்டத்தை ஒரே அனுபவத்தில் கண்டறியுங்கள்.",startExploring:"ஆராயத் தொடங்கு",useLocation:"என் இடத்தைப் பயன்படுத்து",heroNote:"உங்கள் அடுத்த அனுபவத்தை கண்டறிய ஒரு இடம்.",stat1:"அருகிலுள்ள தேடல்",stat1a:"மீட்டர் அல்லது கிலோமீட்டரில் தேடுங்கள்",stat2:"மைசூர் நிகழ்வுகள்",stat2a:"உள்ளூர் நிகழ்வுகளைப் பாருங்கள்",stat3:"AI உதவி",stat3a:"உள்ளூர் பயண வழிகாட்டுதல்",stat4:"பயணத் திட்டம்",stat4a:"இடங்களை ஒரே திட்டத்தில் சேமிக்கவும்",discoverFirst:"முதலில் கண்டறியுங்கள்",placesWorth:"செல்லத் தகுந்த இடங்கள்.",viewAll:"அனைத்தையும் காண்க",loading:"ஏற்றப்படுகிறது...",idea:"TRAVELMATE யோசனை",lessSearch:"குறைந்த தேடல்.",moreExperience:"அதிக அனுபவம்.",manifesto:"TravelMate மைசூர் இடங்கள், நிகழ்வுகள், AI உதவி, பதிவு மற்றும் பயணத் திட்டத்தை ஒரே இடத்தில் இணைக்கிறது.",findYour:"உங்கள்",nextPlace:"அடுத்த இடத்தைக் கண்டறியுங்கள்.",placesIntro:"வரம்பைத் தேர்ந்தெடுத்து மைசூர் இடங்களை ஆராயுங்கள்.",destinations:"இடங்கள்",inRange:"வரம்பில்",searchRadius:"தேடல் வரம்பு",rating:"மதிப்பீடு",free:"இலவசம்",visitBook:"காண / பதிவு",locationOn:"இடம் இயக்கத்தில்",useGps:"GPS பயன்படுத்து",aiTitle:"ஒவ்வொரு பயணத்திற்கும்",aiAccent:"சிறந்த பதில்.",aiIntro:"TravelMate AI தேடல் பணம் செலுத்தும் AI அல்லது மொழிபெயர்ப்பு API இல்லாமல் உள்ளூர் மைசூர் தரவைப் பயன்படுத்துகிறது.",conversation:"உரையாடல்",locationContext:"இடம்",aiResults:"AI தேடல் முடிவுகள்",aiWelcome:"மைசூர் இடங்கள், நிகழ்வுகள் அல்லது பயணத் திட்டம் பற்றி கேளுங்கள்.",aiPlaces:"அருகிலுள்ள இடங்கள்:",aiNearbySuffix:"நல்ல தேர்வுகள்.",aiEvents:"கிடைக்கும் மைசூர் நிகழ்வு பட்டியல்கள் இங்கே.",thinking:"தேடுகிறது",askTravelMate:"TravelMate கேள்",eventsTitle:"என்ன நடக்கிறது",aroundYou:"உங்களைச் சுற்றி.",eventsIntro:"மைசூர் நிகழ்வு பட்டியல்களைப் பாருங்கள். பதிவு கட்டாயமில்லை.",nearbyWord:"அருகில்",mysuruListings:"மைசூர் நிகழ்வு பட்டியல்கள்",checkListing:"பட்டியலைப் பார்க்க",listedEvent:"பட்டியலிடப்பட்ட நிகழ்வு",save:"சேமி",openListing:"பட்டியலைத் திற",yourTrip:"உங்கள் பயணம்,",yourWay:"உங்கள் முறையில்.",plannerIntro:"இடங்கள் மற்றும் நிகழ்வுகளைச் சேமித்து, பதிவுகளை ஒரே பயணத்தில் பாருங்கள்.",saved:"சேமித்த",items:"உருப்படிகள்",savedJourney:"சேமித்த பயணம்",emptyPlanner:"உங்கள் திட்டம் காலியாக உள்ளது. Explore-ல் இருந்து இடம் அல்லது நிகழ்வைச் சேர்க்கவும்.",makeJourney:"பயணத்தை",yours:"உங்களுடையதாக மாற்றுங்கள்.",authIntro:"இடங்களைச் சேமித்து, கேள்விகள் கேட்டு, மைசூருக்கான சிறந்த பயணத் திட்டத்தை உருவாக்குங்கள்.",welcomeBack:"மீண்டும் வரவேற்கிறோம்.",createAccount:"உங்கள் கணக்கை உருவாக்குங்கள்.",passwordMismatch:"கடவுச்சொற்கள் பொருந்தவில்லை.",pleaseWait:"காத்திருக்கவும்...",footerTitle:"ஸ்மார்ட் சுற்றுலா மேலாண்மை அமைப்பு",footerTag:"உள்ளூரில் கண்டறியுங்கள். புத்திசாலித்தனமாகத் திட்டமிடுங்கள்.",gpsUnsupported:"இந்த உலாவி GPS-ஐ ஆதரிக்கவில்லை.",locationDenied:"இட அனுமதி மறுக்கப்பட்டது."},
 Telugu:{searchLocation:"మైసూర్ వెతకండి",language:"భాష",toggleTheme:"డార్క్ మోడ్",heroOverline:"స్మార్ట్ టూరిజం / మైసూర్",heroTitle:"సాధారణ ప్రయాణాన్ని",heroTitleAccent:"దాటి వెళ్లండి.",heroText:"మైసూర్ ప్రదేశాలు, స్థానిక ఈవెంట్లు, AI ప్రయాణ సహాయం మరియు ట్రిప్ ప్లానింగ్‌ను ఒకే అనుభవంలో కనుగొనండి.",startExploring:"అన్వేషణ ప్రారంభించండి",useLocation:"నా స్థానాన్ని ఉపయోగించండి",heroNote:"మీ తదుపరి అనుభవాన్ని కనుగొనడానికి ఒకే స్థలం.",stat1:"సమీప అన్వేషణ",stat1a:"మీటర్లు లేదా కిలోమీటర్లలో వెతకండి",stat2:"మైసూర్ ఈవెంట్లు",stat2a:"స్థానిక ఈవెంట్లను చూడండి",stat3:"AI సహాయం",stat3a:"స్థానిక ప్రయాణ మార్గదర్శనం",stat4:"ట్రిప్ ప్లానింగ్",stat4a:"ప్రదేశాలను ఒకే ప్లాన్‌లో సేవ్ చేయండి",discoverFirst:"ముందుగా అన్వేషించండి",placesWorth:"చూడదగిన ప్రదేశాలు.",viewAll:"అన్నీ చూడండి",loading:"లోడ్ అవుతోంది...",idea:"TRAVELMATE ఆలోచన",lessSearch:"తక్కువ శోధన.",moreExperience:"ఎక్కువ అనుభవం.",manifesto:"TravelMate మైసూర్ ప్రదేశాలు, ఈవెంట్లు, AI సహాయం, బుకింగ్ మరియు ట్రిప్ ప్లానింగ్‌ను ఒకే చోట కలుపుతుంది.",findYour:"మీ",nextPlace:"తదుపరి ప్రదేశాన్ని కనుగొనండి.",placesIntro:"పరిధిని ఎంచుకుని మైసూర్ ప్రదేశాలను అన్వేషించండి.",destinations:"ప్రదేశాలు",inRange:"పరిధిలో",searchRadius:"శోధన పరిధి",rating:"రేటింగ్",free:"ఉచితం",visitBook:"చూడండి / బుక్",locationOn:"స్థానం ఆన్",useGps:"GPS ఉపయోగించండి",aiTitle:"ప్రతి ప్రయాణానికి",aiAccent:"మెరుగైన సమాధానం.",aiIntro:"TravelMate AI శోధన చెల్లింపు AI లేదా అనువాద API లేకుండా స్థానిక మైసూర్ డేటాను ఉపయోగిస్తుంది.",conversation:"సంభాషణ",locationContext:"స్థానం",aiResults:"AI శోధన ఫలితాలు",aiWelcome:"మైసూర్ ప్రదేశాలు, ఈవెంట్లు లేదా ట్రిప్ ప్లానింగ్ గురించి అడగండి.",aiPlaces:"సమీప ప్రదేశాలు:",aiNearbySuffix:"మంచి ఎంపికలు.",aiEvents:"ఇక్కడ అందుబాటులో ఉన్న మైసూర్ ఈవెంట్ జాబితాలు ఉన్నాయి.",thinking:"వెతుకుతోంది",askTravelMate:"TravelMateని అడగండి",eventsTitle:"ఏమి జరుగుతోంది",aroundYou:"మీ చుట్టూ.",eventsIntro:"మైసూర్ ఈవెంట్ జాబితాలను అన్వేషించండి. బుకింగ్ తప్పనిసరి కాదు.",nearbyWord:"సమీపంలో",mysuruListings:"మైసూర్ ఈవెంట్ జాబితాలు",checkListing:"జాబితా చూడండి",listedEvent:"జాబితాలో ఉన్న ఈవెంట్",save:"సేవ్",openListing:"జాబితా తెరవండి",yourTrip:"మీ ప్రయాణం,",yourWay:"మీ విధంగా.",plannerIntro:"ప్రదేశాలు మరియు ఈవెంట్లను సేవ్ చేసి బుకింగ్‌లను ఒకే ప్రయాణంలో చూడండి.",saved:"సేవ్ చేసిన",items:"అంశాలు",savedJourney:"సేవ్ చేసిన ప్రయాణం",emptyPlanner:"మీ ప్లానర్ ఖాళీగా ఉంది. Explore నుండి ప్రదేశం లేదా ఈవెంట్ జోడించండి.",makeJourney:"ప్రయాణాన్ని",yours:"మీదిగా మార్చండి.",authIntro:"ప్రదేశాలను సేవ్ చేసి, ప్రశ్నలు అడిగి, మైసూర్ కోసం మెరుగైన ట్రిప్ ప్లాన్ రూపొందించండి.",welcomeBack:"తిరిగి స్వాగతం.",createAccount:"మీ ఖాతాను సృష్టించండి.",passwordMismatch:"పాస్‌వర్డ్‌లు సరిపోలలేదు.",pleaseWait:"దయచేసి వేచి ఉండండి...",footerTitle:"స్మార్ట్ టూరిజం మేనేజ్‌మెంట్ సిస్టమ్",footerTag:"స్థానికంగా కనుగొనండి. తెలివిగా ప్లాన్ చేయండి.",gpsUnsupported:"ఈ బ్రౌజర్ GPSకు మద్దతు ఇవ్వదు.",locationDenied:"స్థాన అనుమతి నిరాకరించబడింది."}};
 Object.entries(uiAdditions).forEach(([lang,values])=>Object.assign(translations[lang],values));
+
+
+// Extra labels used in the header and shared controls. Keep these in the same
+// dictionaries so the website translator can translate them consistently.
+Object.assign(translations.English, {
+  navExplore: "Explore",
+  navEvents: "Events",
+  navAssistant: "AI Assistant",
+  navPlanner: "Planner",
+  locationSearchPlaceholder: "Search a city or location",
+  searchButton: "Search",
+  languageLabel: "Language",
+  toggleThemeLabel: "Toggle dark mode",
+  signInShort: "Sign In",
+  signUpShort: "Sign Up"
+});
+Object.assign(translations.Kannada, {
+  navExplore: "ಅನ್ವೇಷಿಸಿ",
+  navEvents: "ಕಾರ್ಯಕ್ರಮಗಳು",
+  navAssistant: "AI ಸಹಾಯಕ",
+  navPlanner: "ಪ್ರಯಾಣ ಯೋಜನೆ",
+  locationSearchPlaceholder: "ನಗರ ಅಥವಾ ಸ್ಥಳವನ್ನು ಹುಡುಕಿ",
+  searchButton: "ಹುಡುಕಿ",
+  languageLabel: "ಭಾಷೆ",
+  toggleThemeLabel: "ಡಾರ್ಕ್ ಮೋಡ್ ಬದಲಾಯಿಸಿ",
+  signInShort: "ಸೈನ್ ಇನ್",
+  signUpShort: "ಸೈನ್ ಅಪ್"
+});
+Object.assign(translations.Hindi, {
+  navExplore: "खोजें",
+  navEvents: "कार्यक्रम",
+  navAssistant: "AI सहायक",
+  navPlanner: "यात्रा योजनाकार",
+  locationSearchPlaceholder: "शहर या स्थान खोजें",
+  searchButton: "खोजें",
+  languageLabel: "भाषा",
+  toggleThemeLabel: "डार्क मोड बदलें",
+  signInShort: "साइन इन",
+  signUpShort: "साइन अप"
+});
+Object.assign(translations.Tamil, {
+  navExplore: "ஆராயுங்கள்",
+  navEvents: "நிகழ்வுகள்",
+  navAssistant: "AI உதவியாளர்",
+  navPlanner: "பயணத் திட்டம்",
+  locationSearchPlaceholder: "நகரம் அல்லது இடத்தைத் தேடுங்கள்",
+  searchButton: "தேடு",
+  languageLabel: "மொழி",
+  toggleThemeLabel: "டார்க் மோடை மாற்று",
+  signInShort: "உள்நுழை",
+  signUpShort: "பதிவு செய்"
+});
+Object.assign(translations.Telugu, {
+  navExplore: "అన్వేషించండి",
+  navEvents: "ఈవెంట్లు",
+  navAssistant: "AI సహాయకుడు",
+  navPlanner: "ట్రిప్ ప్లానర్",
+  locationSearchPlaceholder: "నగరం లేదా ప్రదేశాన్ని వెతకండి",
+  searchButton: "వెతకండి",
+  languageLabel: "భాష",
+  toggleThemeLabel: "డార్క్ మోడ్ మార్చండి",
+  signInShort: "సైన్ ఇన్",
+  signUpShort: "సైన్ అప్"
+});
