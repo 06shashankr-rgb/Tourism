@@ -7,7 +7,7 @@ Express + MongoDB backend for the **AI-Powered Smart Tourism Management System w
 - JWT authentication and bcrypt password hashing
 - MongoDB persistence (with an in-memory fallback for demos)
 - Nearby place search, events, booking records and user trip planner
-- Node.js assistant fallback plus optional local Python assistant
+- Hybrid assistant route: forwards current place/event data and chat history to the local Python/Ollama model, with a clearly labelled fallback
 - Prepared website translations; optional Python IndicTrans2 translation service
 
 ## Run locally on Windows
@@ -26,7 +26,7 @@ The API runs at http://localhost:5000. Check http://localhost:5000/api/health.
 
 ## Optional Python assistant
 
-Run the service in a second terminal using the instructions in [../python-service/README.md](../python-service/README.md). Set `PYTHON_AI_URL=http://127.0.0.1:8001` in `.env` to use it. If Python is not running, the Node.js assistant automatically falls back to its built-in tourism responses.
+Install Ollama and pull `qwen2.5:3b`, then run the Python service in another terminal using [../python-service/README.md](../python-service/README.md). Set `PYTHON_AI_URL=http://127.0.0.1:8001` in `.env`. The backend sends the user's selected language, recent chat turns, and a limited set of place/event records to Python. If Python is unavailable, Node returns a limited data-backed fallback. If Ollama is unavailable, Python clearly labels its rule-based fallback.
 
 ## Frontend
 
