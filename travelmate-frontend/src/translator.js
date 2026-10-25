@@ -1,4 +1,4 @@
-import{translations}from"./i18n";
+import{translations}from"./translations";
 
 const attributeNames=["placeholder","title","aria-label"];
 const originalText=new Map();
