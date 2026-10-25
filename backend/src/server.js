@@ -31,6 +31,52 @@ app.post("/api/planner",requireAuth,async(q,r)=>{const {item,type}=q.body;if(!it
 app.delete("/api/planner/:type/:itemId",requireAuth,async(q,r)=>{const x=await deleteOne("planner",{userId:q.user.id,type:q.params.type,itemId:String(q.params.itemId)});if(!x.deletedCount)return r.status(404).json({message:"Planner item not found."});r.json({ok:true})});
 app.get("/api/bookings",requireAuth,async(q,r)=>{const x=await findMany("bookings",{userId:q.user.id});r.json(x.sort((a,b)=>String(b.createdAt).localeCompare(String(a.createdAt))))});
 app.post("/api/bookings",requireAuth,async(q,r)=>{const b=q.body;if(!b.eventId||!b.eventName||!b.tickets||!b.email)return r.status(400).json({message:"Event, ticket count and contact email are required."});const x={id:makeId("BOOK"),userId:q.user.id,eventId:String(b.eventId),eventName:b.eventName,date:b.date,time:b.time,venue:b.venue,tickets:Number(b.tickets),total:Number(b.total||0),name:b.name,email:b.email,sourceUrl:b.sourceUrl,status:"confirmed",createdAt:new Date().toISOString()};await insertOne("bookings",x);r.status(201).json(x)});
-app.post("/api/assistant",async(q,r)=>{const question=String(q.body.question||"").trim(),lat=Number(q.body.lat),lng=Number(q.body.lng);if(!question)return r.status(400).json({message:"Question is required."});const pythonUrl=process.env.PYTHON_AI_URL?.trim();if(pythonUrl){try{const response=await fetch(pythonUrl.replace(/\/$/,"")+"/chat",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({message:question,location:"Mysuru"}) ,signal:AbortSignal.timeout(8000)});if(response.ok){const data=await response.json();if(data.reply)return r.json({answer:data.reply,provider:"python-local"})}console.warn("Python assistant returned a non-success response; using Node fallback.")}catch(error){console.warn("Python assistant unavailable; using Node fallback:",error.message)}}const lower=question.toLowerCase();if(lower.includes("place")||lower.includes("near")||lower.includes("visit")||lower.includes("tourist")){let p=await findMany("places");if(Number.isFinite(lat)&&Number.isFinite(lng))p=p.map(x=>({...x,distance:distanceKm(lat,lng,x.lat,x.lng)})).sort((a,b)=>a.distance-b.distance);return r.json({answer:p.slice(0,3).map(x=>`${x.name}${x.distance!==undefined?` (${x.distance.toFixed(1)} km)`:""}`).join(", ")+"."})}if(lower.includes("event")){const e=await findMany("events");return r.json({answer:e.slice(0,3).map(x=>`${x.name} at ${x.venue}`).join("; ")+"."})}if(lower.includes("book"))return r.json({answer:"Open Events, select an event, sign in, choose tickets and confirm the booking."});if(lower.includes("plan")||lower.includes("itinerary"))return r.json({answer:"Open Places, add destinations to Planner, then open Planner to review your itinerary and bookings."});return r.json({answer:"I can help with nearby tourist places, local events, bookings and trip planning. Try asking about places near you or nearby events."})});
+app.post("/api/assistant",async(q,r)=>{
+  const question=String(q.body.question||"").trim();
+  const lat=Number(q.body.lat),lng=Number(q.body.lng);
+  const location=String(q.body.location||"Mysuru").trim().slice(0,120);
+  const language=String(q.body.language||"English").slice(0,40);
+  const history=Array.isArray(q.body.history)?q.body.history.slice(-8).map(m=>({role:m.role,content:String(m.content||"").slice(0,2000)})).filter(m=>["user","assistant"].includes(m.role)&&m.content):[];
+  if(!question)return r.status(400).json({message:"Question is required."});
+
+  let places=[],events=[];
+  try{
+    const allPlaces=await findMany("places");
+    places=allPlaces.map(p=>({...p,distance:Number.isFinite(lat)&&Number.isFinite(lng)?distanceKm(lat,lng,Number(p.lat),Number(p.lng)):undefined}))
+      .sort((a,b)=>(a.distance??999999)-(b.distance??999999)).slice(0,8)
+      .map(p=>({id:p.id,name:p.name,category:p.category,description:p.description,distance:p.distance,lat:p.lat,lng:p.lng}));
+    const allEvents=await findMany("events");
+    events=allEvents.map(e=>({...e,distance:Number.isFinite(lat)&&Number.isFinite(lng)?distanceKm(lat,lng,Number(e.lat),Number(e.lng)):undefined}))
+      .sort((a,b)=>(a.distance??999999)-(b.distance??999999)).slice(0,8)
+      .map(e=>({id:e.id,name:e.name,venue:e.venue,description:e.description,date:e.date,startAt:e.startAt,endAt:e.endAt,distance:e.distance,sourceUrl:e.sourceUrl}));
+  }catch(error){console.warn("Could not build AI context from app data:",error.message)}
+
+  const context={places,events,notes:"Only use these supplied records as TravelMate database facts. Distances are approximate when present."};
+  const pythonUrl=process.env.PYTHON_AI_URL?.trim();
+  if(pythonUrl){
+    try{
+      const response=await fetch(pythonUrl.replace(/\/$/,"")+"/chat",{
+        method:"POST",headers:{"Content-Type":"application/json"},
+        body:JSON.stringify({message:question,location,language,context,history}),
+        signal:AbortSignal.timeout(95000)
+      });
+      const data=await response.json().catch(()=>({}));
+      if(response.ok&&data.reply)return r.json({answer:data.reply,provider:data.provider||"python-local",warning:data.warning||undefined,items:places.slice(0,4)});
+      console.warn("Python assistant returned a non-success response:",data.detail||response.status);
+    }catch(error){console.warn("Python assistant unavailable; using app-data fallback:",error.message)}
+  }
+
+  const lower=question.toLowerCase();
+  if(["event","festival","concert","show"].some(w=>lower.includes(w))){
+    return r.json({answer:events.length?events.slice(0,4).map(e=>`${e.name} at ${e.venue||"venue not listed"}${e.date?" ("+e.date+")":""}`).join("; ")+". Confirm dates with the organiser.":"I couldn't find event records in TravelMate's current data.",provider:"travelmate-data",items:events.slice(0,4)});
+  }
+  if(["place","near","visit","tourist","attraction"].some(w=>lower.includes(w))){
+    return r.json({answer:places.length?places.slice(0,4).map(p=>`${p.name}${Number.isFinite(p.distance)?` (${p.distance.toFixed(1)} km)`:""}`).join(", ")+". Check current opening hours before visiting.":"No matching place records are available in the current TravelMate data.",provider:"travelmate-data",items:places.slice(0,4)});
+  }
+  if(["plan","itinerary","trip"].some(w=>lower.includes(w))){
+    return r.json({answer:`I can help plan a trip around ${location}. Tell me your trip length, budget, interests, and preferred pace. TravelMate currently has ${places.length} place records and ${events.length} event records available for suggestions.`,provider:"travelmate-data",items:places.slice(0,4)});
+  }
+  return r.json({answer:`I can help with destinations, events, and itineraries for ${location}. For richer conversational AI, start the Python service and local Ollama model. I can currently reference ${places.length} places and ${events.length} events from TravelMate.`,provider:"travelmate-data",items:places.slice(0,4)});
+});
 app.use((_q,r)=>r.status(404).json({message:"API route not found."}));
 await connectDatabase();const server=app.listen(PORT,()=>console.log(`TravelMate API running at http://localhost:${PORT}`));process.on("SIGINT",async()=>{await closeDatabase();server.close(()=>process.exit(0))});
