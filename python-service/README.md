@@ -53,3 +53,12 @@ The first translation request downloads model files and needs internet. Once all
 - `POST /translate` — body: `{"text":"...","source":"eng_Latn","target":"kan_Knda"}`
 
 Keep this local service bound to `127.0.0.1` during development. Do not expose it directly to the public internet.
+
+
+## Python files
+
+- `app.py`: FastAPI endpoints (`/chat`, `/translate`, and `/health`).
+- `chatbot.py`: local rule-based tourism chatbot logic; no paid AI API key required.
+- `language_translator.py`: optional IndicTrans2 translation engine and supported language codes.
+
+The frontend keeps its display dictionaries in `travelmate-frontend/src/translations.js`; this is separate from the Python sentence-translation endpoint.
