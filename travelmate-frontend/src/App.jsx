@@ -2,6 +2,7 @@ import React,{useEffect,useMemo,useState}from"react";
 import{Routes,Route,NavLink,Link,useNavigate}from"react-router-dom";
 import{MapContainer,TileLayer,Marker,Circle,useMap}from"react-leaflet";
 import{translations}from"./i18n";
+import { startWebsiteTranslator } from "./translator";
 import{api}from"./api";
 import{places as localPlaces,events as localEvents}from"./data";
 
@@ -24,6 +25,7 @@ function placeImage(name){return images[name]||"https://upload.wikimedia.org/wik
 export default function App(){
 const[language,setLanguage]=useState(localStorage.getItem("language")||"English"),[theme,setTheme]=useState(localStorage.getItem("theme")==="dark"?"dark":"light"),[location,setLocation]=useState(()=>JSON.parse(localStorage.getItem("location")||"null")||defaultLocation),[live,setLive]=useState(false),[user,setUser]=useState(()=>JSON.parse(localStorage.getItem("tmUser")||"null")),[places,setPlaces]=useState([]),[events,setEvents]=useState([]),[planner,setPlanner]=useState([]),[bookings,setBookings]=useState([]),[bookingEvent,setBookingEvent]=useState(null),[loading,setLoading]=useState(true),[locationQuery,setLocationQuery]=useState(""),[locationSuggestions,setLocationSuggestions]=useState([]),[searchingLocation,setSearchingLocation]=useState(false);
 const t=translations[language]||translations.English;
+useEffect(()=>{startWebsiteTranslator(language)},[language]);
 const languageCodes={English:"en",Assamese:"as",Bengali:"bn",Bhojpuri:"bho",Gujarati:"gu",Hindi:"hi",Kannada:"kn",Malayalam:"ml",Marathi:"mr",Maithili:"mai",Manipuri:"mni-Mtei",Mizo:"lus",Nepali:"ne",Odia:"or",Punjabi:"pa",Sanskrit:"sa",Tamil:"ta",Telugu:"te",Urdu:"ur"};
 function changeLanguage(next){setLanguage(next);localStorage.setItem("language",next)}
 async function searchLocation(query=locationQuery){const value=query.trim();if(value.length<2)return;setSearchingLocation(true);try{const rows=await api.locationSearch(value);setLocationSuggestions(rows)}catch(e){alert(e.message)}finally{setSearchingLocation(false)}}
