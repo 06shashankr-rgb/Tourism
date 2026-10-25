@@ -8,7 +8,7 @@ TravelMate uses a React + Vite frontend, Node.js + Express backend, MongoDB, and
 
 - Node.js 18 or newer
 - MongoDB Community Server installed and running
-- Python 3.10 or 3.11 for the optional Python service
+- Python 3.10 or 3.11 for the Python AI service\n- Ollama for local generative AI (free; no paid AI API key required)
 - Internet for package installation; optional IndicTrans2 model downloads are large
 
 ## Open the correct folder in VS Code
@@ -62,7 +62,7 @@ npm run dev
 
 Open the local URL printed by Vite, usually http://localhost:5173. Keep the backend and frontend terminals open.
 
-### Terminal 3 — Optional Python chatbot
+### Terminal 3 — Python hybrid AI assistant
 
 Start this only if you want the separate Python chatbot service:
 
