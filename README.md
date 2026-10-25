@@ -2,65 +2,103 @@
 
 **AI-Powered Smart Tourism Management System with Location-Aware Recommendations and Multilingual Travel Assistance**
 
-This repository contains the existing React + Vite frontend, Node.js + Express backend, MongoDB persistence layer, and an optional local Python assistant/IndicTrans2 translation service.
+TravelMate uses a React + Vite frontend, Node.js + Express backend, MongoDB, and an optional local Python service for the tourism chatbot and sentence translation.
 
 ## Requirements
 
-- Node.js 18+
-- MongoDB Community Server installed and running locally
-- Python 3.10 or 3.11 recommended for the optional Python service
-- Internet for package installation and optional first-time model downloads
+- Node.js 18 or newer
+- MongoDB Community Server installed and running
+- Python 3.10 or 3.11 for the optional Python service
+- Internet for package installation; optional IndicTrans2 model downloads are large
 
-## Start the project on Windows
+## Open the correct folder in VS Code
 
-Open three terminals in VS Code.
+Open the inner project folder, not the outer parent folder:
 
-### Terminal 1 — Backend + MongoDB
+`C:\\Projects\\Tourism\\Tourism`
+
+In VS Code, choose **File → Open Folder** and select that folder. The Explorer should show `backend`, `travelmate-frontend`, and `python-service` at the same level.
+
+If you already cloned the project, update it from a terminal opened at that folder:
 
 ```powershell
-cd backend
-Copy-Item .env.example .env
+git pull origin main
+```
+
+## Start TravelMate
+
+Keep each service running in its own VS Code terminal. Use **Terminal → New Terminal** to create each terminal.
+
+### Terminal 1 — Backend
+
+```powershell
+cd C:\\Projects\\Tourism\\Tourism\\backend
+if (!(Test-Path .env)) { Copy-Item .env.example .env }
 npm install
 npm run dev
 ```
 
-The example environment points to local MongoDB at `mongodb://127.0.0.1:27017`, database `travelmate`. Edit `.env` and set `JWT_SECRET` to a long random value before using accounts. Never commit `.env`.
+Make sure `backend/.env` contains the local database settings:
 
-Check http://localhost:5000/api/health.
+```env
+PORT=5000
+FRONTEND_URL=http://localhost:5173
+MONGODB_URI=mongodb://127.0.0.1:27017
+MONGODB_DB=travelmate
+PYTHON_AI_URL=http://127.0.0.1:8001
+```
+
+Do not overwrite an existing `.env` if you have already configured it. Make sure MongoDB Community Server is running. A successful backend start prints `Connected to MongoDB.` and `TravelMate API running at http://localhost:5000`.
+
+Health check: http://localhost:5000/api/health
 
 ### Terminal 2 — Frontend
 
 ```powershell
-cd travelmate-frontend
+cd C:\\Projects\\Tourism\\Tourism\\travelmate-frontend
 npm install
 npm run dev
 ```
 
-Open the Vite URL printed in the terminal (normally http://localhost:5173).
+Open the local URL printed by Vite, usually http://localhost:5173. Keep the backend and frontend terminals open.
 
-### Terminal 3 — Optional Python assistant
+### Terminal 3 — Optional Python chatbot
+
+Start this only if you want the separate Python chatbot service:
 
 ```powershell
-cd python-service
+cd C:\\Projects\\Tourism\\Tourism\\python-service
 python -m venv .venv
-.venv\Scripts\activate
+.\\.venv\\Scripts\\Activate.ps1
 python -m pip install --upgrade pip
 pip install -r requirements.txt
 python -m uvicorn app:app --host 127.0.0.1 --port 8001
 ```
 
-The Node backend uses the Python assistant when `PYTHON_AI_URL=http://127.0.0.1:8001` is present in `backend/.env`. If the Python service is not running, the Node backend uses its fallback assistant.
+API documentation: http://127.0.0.1:8001/docs
 
-## Offline Indian-language translation
+If PowerShell blocks virtual-environment activation, you can run the environment's Python directly instead:
+` .\\.venv\\Scripts\\python.exe -m pip install -r requirements.txt ` and
+` .\\.venv\\Scripts\\python.exe -m uvicorn app:app --host 127.0.0.1 --port 8001 `.
 
-The frontend already includes prepared interface translations. For translating new text, see [python-service/README.md](python-service/README.md) and the optional `requirements-translation.txt`. IndicTrans2 is not installed by the lightweight default setup; model downloads can be large and memory-intensive on an 8 GB laptop. Start with the chatbot, then install/test translation separately.
+The Node backend uses the Python chatbot when `PYTHON_AI_URL=http://127.0.0.1:8001` is set in `backend/.env` and the Python service is running. Otherwise, the Node backend falls back to its built-in assistant.
 
-## Database
+## Languages and translation
 
-MongoDB Compass is a GUI for your local server; it is not the database server itself. Use `mongodb://127.0.0.1:27017`. The backend creates/uses the `travelmate` database and seeds sample `places` and `events` if empty. User, planner, and booking documents are saved as the application uses those features.
+The website currently has prepared interface translations for **English, Kannada, Hindi, Tamil, and Telugu**. The language selector is not a universal automatic translator: text without a matching dictionary entry can remain in English. The translator module has been fixed so switching between supported languages restores the original text before applying the next language.
 
-## Important
+The separate Python `/translate` endpoint uses optional AI4Bharat IndicTrans2. It is not required to run the website or chatbot, and it is not automatically used to translate every page. See [python-service/README.md](python-service/README.md) and `python-service/requirements-translation.txt` for optional model setup. Model downloads can be large and memory-intensive on an 8 GB laptop.
 
-- This setup is for local development. It does not automatically publish the website to a public hosting provider.
-- Live places/events integrations need their optional API keys; the app includes local sample data.
-- Do not commit secrets or real user information.
+## Database and live data
+
+MongoDB Compass is a GUI client, not the database server. The backend uses local MongoDB at `mongodb://127.0.0.1:27017`, database `travelmate`. Sample places and events are available locally. Live places/events integrations require optional external API keys.
+
+## Troubleshooting
+
+- **`MongoDB URI not set`:** check that `backend/.env` exists and contains `MONGODB_URI=mongodb://127.0.0.1:27017`.
+- **MongoDB connection error:** start MongoDB Community Server, then restart the backend with `Ctrl+C` and `npm run dev`.
+- **Port already in use:** close the other process or stop the previous terminal running the same service.
+- **Frontend cannot reach API:** keep the backend running on port 5000 and the frontend on port 5173.
+- **Python service not running:** this is optional; the backend should fall back to its built-in assistant.
+
+Do not commit `.env` files, passwords, API keys, or real user data. This is a local development setup and does not deploy the website publicly.
