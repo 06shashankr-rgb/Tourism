@@ -9,7 +9,7 @@ from pydantic import BaseModel, Field
 from chatbot import answer_question
 from language_translator import LANGUAGES, translate_text
 
-app = FastAPI(title="TravelMate Local Python Service", version="1.1.0")
+app = FastAPI(title="TravelMate Local Python Service", version="1.2.0")
 app.add_middleware(
     CORSMiddleware,
     allow_origins=os.getenv("ALLOWED_ORIGINS", "http://localhost:5173,http://127.0.0.1:5173").split(","),
@@ -20,7 +20,10 @@ app.add_middleware(
 
 class ChatRequest(BaseModel):
     message: str = Field(min_length=1, max_length=2000)
-    location: Optional[str] = "Mysuru"\n    language: str = Field(default="English", max_length=40)\n    context: dict[str, Any] = Field(default_factory=dict)\n    history: list[dict[str, str]] = Field(default_factory=list)
+    location: Optional[str] = "Mysuru"
+    language: str = Field(default="English", max_length=40)
+    context: dict[str, Any] = Field(default_factory=dict)
+    history: list[dict[str, str]] = Field(default_factory=list)
 
 class TranslateRequest(BaseModel):
     text: str = Field(min_length=1, max_length=1500)
@@ -35,14 +38,22 @@ def root():
 def health():
     return {
         "ok": True,
-        "chatbot": "rule-based local service",
+        "chatbot": "local Ollama AI with rule-based fallback",
+        "aiProvider": os.getenv("AI_PROVIDER", "ollama"),
+        "ollamaModel": os.getenv("OLLAMA_MODEL", "qwen2.5:3b"),
         "translation": "optional IndicTrans2; model loads on first request",
         "languageCodes": sorted(LANGUAGES.keys()),
     }
 
 @app.post("/chat")
 def chat(body: ChatRequest):
-    result = answer_question(\n        body.message.strip(),\n        (body.location or "Mysuru").strip()[:100],\n        body.language,\n        body.context,\n        body.history,\n    )\n    return result
+    return answer_question(
+        body.message.strip(),
+        (body.location or "Mysuru").strip()[:100],
+        body.language,
+        body.context,
+        body.history,
+    )
 
 @app.post("/translate")
 def translate(body: TranslateRequest):
