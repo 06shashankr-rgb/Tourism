@@ -1,6 +1,6 @@
 """FastAPI entry point for TravelMate's local chatbot and translation services."""
 import os
-from typing import Optional
+from typing import Any, Optional
 
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
@@ -20,7 +20,7 @@ app.add_middleware(
 
 class ChatRequest(BaseModel):
     message: str = Field(min_length=1, max_length=2000)
-    location: Optional[str] = "Mysuru"
+    location: Optional[str] = "Mysuru"\n    language: str = Field(default="English", max_length=40)\n    context: dict[str, Any] = Field(default_factory=dict)\n    history: list[dict[str, str]] = Field(default_factory=list)
 
 class TranslateRequest(BaseModel):
     text: str = Field(min_length=1, max_length=1500)
@@ -42,7 +42,7 @@ def health():
 
 @app.post("/chat")
 def chat(body: ChatRequest):
-    return {"reply": answer_question(body.message.strip(), (body.location or "Mysuru").strip()[:100])}
+    result = answer_question(\n        body.message.strip(),\n        (body.location or "Mysuru").strip()[:100],\n        body.language,\n        body.context,\n        body.history,\n    )\n    return result
 
 @app.post("/translate")
 def translate(body: TranslateRequest):
