@@ -1,7 +1,7 @@
 import React,{useEffect,useMemo,useState}from"react";
 import{Routes,Route,NavLink,Link,useNavigate}from"react-router-dom";
 import{MapContainer,TileLayer,Marker,Circle,useMap}from"react-leaflet";
-import{translations}from"./i18n";
+import{translations}from"./translations";
 import { startWebsiteTranslator } from "./translator";
 import{api}from"./api";
 import{places as localPlaces,events as localEvents}from"./data";
