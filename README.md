@@ -104,7 +104,7 @@ The Node backend forwards the user's question, selected language, recent convers
 
 ## Languages and translation
 
-The website has prepared interface dictionaries for English, Kannada, Hindi, Tamil and Telugu. Text missing from those dictionaries may remain in English. AI replies are prompted to use the selected language, but language quality depends on the local model and is not guaranteed to be perfect.
+The language selector displays English and Indian language names in English: Assamese, Bengali, Bhojpuri, Gujarati, Hindi, Kannada, Malayalam, Marathi, Maithili, Manipuri, Mizo, Nepali, Odia, Punjabi, Sanskrit, Tamil, Telugu and Urdu. Prepared interface dictionaries currently cover English, Kannada, Hindi, Tamil and Telugu; other listed languages still need full translation dictionaries, and untranslated text can remain in English. AI replies are prompted to use the selected language, but language quality depends on the local model and is not guaranteed to be perfect.
 
 The separate Python `/translate` endpoint uses optional AI4Bharat IndicTrans2. It is not required for the chatbot and is not automatically applied to every page. See [python-service/README.md](python-service/README.md) and `python-service/requirements-translation.txt` for setup. Model downloads can be large and memory-intensive, especially on laptops with 8 GB RAM.
 
