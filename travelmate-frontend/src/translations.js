@@ -514,3 +514,44 @@ const contentTranslations = {
   }
 };
 Object.entries(contentTranslations).forEach(([language, values]) => Object.assign(translations[language], values));
+
+
+// Additional exact labels used by event cards and dialogs.
+const eventLabelTranslations = {
+  English: {
+    all:"All", categoryYouth:"Youth / Cultural", categoryParade:"Parade", categorySports:"Sports",
+    categoryCulture:"Culture", categoryFood:"Food Festival", categoryExhibition:"Exhibition",
+    categoryTradition:"Festival / Tradition", categoryMusic:"Cultural / Music", categoryProcession:"Grand Procession",
+    categoryTraditionalSport:"Traditional Sport", categoryMysuruEvent:"MYSURU EVENT",
+    continueExternal:"Continue to external listing", bookingHeading:"TRAVELMATE / BOOKING"
+  },
+  Kannada: {
+    all:"ಎಲ್ಲಾ", categoryYouth:"ಯುವ / ಸಾಂಸ್ಕೃತಿಕ", categoryParade:"ಮೆರವಣಿಗೆ", categorySports:"ಕ್ರೀಡೆಗಳು",
+    categoryCulture:"ಸಂಸ್ಕೃತಿ", categoryFood:"ಆಹಾರ ಮೇಳ", categoryExhibition:"ಪ್ರದರ್ಶನ",
+    categoryTradition:"ಹಬ್ಬ / ಸಂಪ್ರದಾಯ", categoryMusic:"ಸಾಂಸ್ಕೃತಿಕ / ಸಂಗೀತ", categoryProcession:"ಭವ್ಯ ಮೆರವಣಿಗೆ",
+    categoryTraditionalSport:"ಸಾಂಪ್ರದಾಯಿಕ ಕ್ರೀಡೆ", categoryMysuruEvent:"ಮೈಸೂರು ಕಾರ್ಯಕ್ರಮ",
+    continueExternal:"ಬಾಹ್ಯ ಪಟ್ಟಿಗೆ ಮುಂದುವರಿಯಿರಿ", bookingHeading:"ಟ್ರಾವೆಲ್‌ಮೇಟ್ / ಬುಕಿಂಗ್"
+  },
+  Hindi: {
+    all:"सभी", categoryYouth:"युवा / सांस्कृतिक", categoryParade:"परेड", categorySports:"खेल",
+    categoryCulture:"संस्कृति", categoryFood:"खाद्य मेला", categoryExhibition:"प्रदर्शनी",
+    categoryTradition:"त्योहार / परंपरा", categoryMusic:"सांस्कृतिक / संगीत", categoryProcession:"भव्य जुलूस",
+    categoryTraditionalSport:"पारंपरिक खेल", categoryMysuruEvent:"मैसूर कार्यक्रम",
+    continueExternal:"बाहरी सूची पर जाएँ", bookingHeading:"ट्रैवलमेट / बुकिंग"
+  },
+  Tamil: {
+    all:"அனைத்தும்", categoryYouth:"இளைஞர் / கலாச்சாரம்", categoryParade:"அணிவகுப்பு", categorySports:"விளையாட்டு",
+    categoryCulture:"கலாச்சாரம்", categoryFood:"உணவுத் திருவிழா", categoryExhibition:"கண்காட்சி",
+    categoryTradition:"திருவிழா / பாரம்பரியம்", categoryMusic:"கலாச்சாரம் / இசை", categoryProcession:"பிரம்மாண்ட ஊர்வலம்",
+    categoryTraditionalSport:"பாரம்பரிய விளையாட்டு", categoryMysuruEvent:"மைசூரு நிகழ்வு",
+    continueExternal:"வெளிப்புறப் பட்டியலுக்குச் செல்லவும்", bookingHeading:"டிராவல்மேட் / முன்பதிவு"
+  },
+  Telugu: {
+    all:"అన్నీ", categoryYouth:"యువ / సాంస్కృతిక", categoryParade:"పరేడ్", categorySports:"క్రీడలు",
+    categoryCulture:"సంస్కృతి", categoryFood:"ఆహార ఉత్సవం", categoryExhibition:"ప్రదర్శన",
+    categoryTradition:"పండుగ / సంప్రదాయం", categoryMusic:"సాంస్కృతిక / సంగీతం", categoryProcession:"భారీ ఊరేగింపు",
+    categoryTraditionalSport:"సంప్రదాయ క్రీడ", categoryMysuruEvent:"మైసూరు ఈవెంట్",
+    continueExternal:"బాహ్య జాబితాకు కొనసాగండి", bookingHeading:"ట్రావెల్‌మేట్ / బుకింగ్"
+  }
+};
+Object.entries(eventLabelTranslations).forEach(([language, values]) => Object.assign(translations[language], values));
