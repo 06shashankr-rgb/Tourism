@@ -555,3 +555,37 @@ const eventLabelTranslations = {
   }
 };
 Object.entries(eventLabelTranslations).forEach(([language, values]) => Object.assign(translations[language], values));
+
+const placeAndEventText = {
+ English: {
+  "Mysore Palace":"Mysore Palace","Chamundi Hill":"Chamundi Hill","Brindavan Gardens":"Brindavan Gardens","St. Philomena's Cathedral":"St. Philomena's Cathedral","Karanji Lake":"Karanji Lake","Mysuru Railway Museum":"Mysuru Railway Museum",
+  "Heritage":"Heritage","Nature":"Nature","Garden":"Garden","Museum":"Museum",
+  "Historic palace and major Mysuru attraction.":"Historic palace and major Mysuru attraction.","Scenic hill with panoramic views and temple.":"Scenic hill with panoramic views and temple.","Landscaped gardens and evening fountains.":"Landscaped gardens and evening fountains.","Prominent neo-Gothic cathedral in Mysuru.":"Prominent neo-Gothic cathedral in Mysuru.","Lake, bird watching and nature trails.":"Lake, bird watching and nature trails.","Railway heritage museum with historic coaches.":"Railway heritage museum with historic coaches.",
+  "Yuva Dasara 2026":"Yuva Dasara 2026","Mysuru Dasara Cultural Programmes":"Mysuru Dasara Cultural Programmes","Dasara Inauguration & Chamundeshwari Puja":"Dasara Inauguration & Chamundeshwari Puja","Dasara Aahara Mela":"Dasara Aahara Mela","Dasara Flower Show":"Dasara Flower Show","Dasara Kambala":"Dasara Kambala","Jumboo Savari":"Jumboo Savari","Torchlight Parade":"Torchlight Parade","Dasara CM Cup 2026":"Dasara CM Cup 2026","Yuva Sambhrama 2026":"Yuva Sambhrama 2026"
+ },
+ Kannada: {
+  "Mysore Palace":"ಮೈಸೂರು ಅರಮನೆ","Chamundi Hill":"ಚಾಮುಂಡಿ ಬೆಟ್ಟ","Brindavan Gardens":"ಬೃಂದಾವನ ಉದ್ಯಾನಗಳು","St. Philomena's Cathedral":"ಸೇಂಟ್ ಫಿಲೋಮಿನಾ ಕ್ಯಾಥೆಡ್ರಲ್","Karanji Lake":"ಕಾರಂಜಿ ಕೆರೆ","Mysuru Railway Museum":"ಮೈಸೂರು ರೈಲು ವಸ್ತುಸಂಗ್ರಹಾಲಯ",
+  "Heritage":"ಪಾರಂಪರಿಕ ಸ್ಥಳ","Nature":"ಪ್ರಕೃತಿ","Garden":"ಉದ್ಯಾನ","Museum":"ವಸ್ತುಸಂಗ್ರಹಾಲಯ",
+  "Historic palace and major Mysuru attraction.":"ಐತಿಹಾಸಿಕ ಅರಮನೆ ಮತ್ತು ಮೈಸೂರಿನ ಪ್ರಮುಖ ಪ್ರವಾಸಿ ಆಕರ್ಷಣೆ.","Scenic hill with panoramic views and temple.":"ವಿಹಂಗಮ ನೋಟಗಳು ಮತ್ತು ದೇವಾಲಯವಿರುವ ಸುಂದರ ಬೆಟ್ಟ.","Landscaped gardens and evening fountains.":"ಸುಂದರ ಉದ್ಯಾನಗಳು ಮತ್ತು ಸಂಜೆ ಕಾರಂಜಿಗಳು.","Prominent neo-Gothic cathedral in Mysuru.":"ಮೈಸೂರಿನ ಪ್ರಸಿದ್ಧ ನವ-ಗೋಥಿಕ್ ಕ್ಯಾಥೆಡ್ರಲ್.","Lake, bird watching and nature trails.":"ಕೆರೆ, ಪಕ್ಷಿ ವೀಕ್ಷಣೆ ಮತ್ತು ಪ್ರಕೃತಿ ನಡಿಗೆ ಹಾದಿಗಳು.","Railway heritage museum with historic coaches.":"ಐತಿಹಾಸಿಕ ರೈಲು ಬೋಗಿಗಳಿರುವ ರೈಲ್ವೆ ವಸ್ತುಸಂಗ್ರಹಾಲಯ.",
+  "Yuva Dasara 2026":"ಯುವ ದಸರಾ 2026","Mysuru Dasara Cultural Programmes":"ಮೈಸೂರು ದಸರಾ ಸಾಂಸ್ಕೃತಿಕ ಕಾರ್ಯಕ್ರಮಗಳು","Dasara Inauguration & Chamundeshwari Puja":"ದಸರಾ ಉದ್ಘಾಟನೆ ಮತ್ತು ಚಾಮುಂಡೇಶ್ವರಿ ಪೂಜೆ","Dasara Aahara Mela":"ದಸರಾ ಆಹಾರ ಮೇಳ","Dasara Flower Show":"ದಸರಾ ಪುಷ್ಪ ಪ್ರದರ್ಶನ","Dasara Kambala":"ದಸರಾ ಕಂಬಳ","Jumboo Savari":"ಜಂಬೂ ಸವಾರಿ","Torchlight Parade":"ಟಾರ್ಚ್‌ಲೈಟ್ ಪರೇಡ್","Dasara CM Cup 2026":"ದಸರಾ ಸಿಎಂ ಕಪ್ 2026","Yuva Sambhrama 2026":"ಯುವ ಸಂಭ್ರಮ 2026"
+ },
+ Hindi: {
+  "Mysore Palace":"मैसूर महल","Chamundi Hill":"चामुंडी पहाड़ी","Brindavan Gardens":"बृंदावन उद्यान","St. Philomena's Cathedral":"सेंट फिलोमेना कैथेड्रल","Karanji Lake":"करंजी झील","Mysuru Railway Museum":"मैसूर रेलवे संग्रहालय",
+  "Heritage":"विरासत","Nature":"प्रकृति","Garden":"उद्यान","Museum":"संग्रहालय",
+  "Historic palace and major Mysuru attraction.":"ऐतिहासिक महल और मैसूर का प्रमुख पर्यटन आकर्षण।","Scenic hill with panoramic views and temple.":"मनोरम दृश्यों और मंदिर वाली सुंदर पहाड़ी।","Landscaped gardens and evening fountains.":"सुव्यवस्थित उद्यान और शाम के फव्वारे।","Prominent neo-Gothic cathedral in Mysuru.":"मैसूर का प्रसिद्ध नव-गॉथिक कैथेड्रल।","Lake, bird watching and nature trails.":"झील, पक्षी दर्शन और प्रकृति पथ।","Railway heritage museum with historic coaches.":"ऐतिहासिक रेल डिब्बों वाला रेलवे संग्रहालय।",
+  "Yuva Dasara 2026":"युवा दशहरा 2026","Mysuru Dasara Cultural Programmes":"मैसूर दशहरा सांस्कृतिक कार्यक्रम","Dasara Inauguration & Chamundeshwari Puja":"दशहरा उद्घाटन और चामुंडेश्वरी पूजा","Dasara Aahara Mela":"दशहरा आहार मेला","Dasara Flower Show":"दशहरा पुष्प प्रदर्शनी","Dasara Kambala":"दशहरा कंबाला","Jumboo Savari":"जंबू सवारी","Torchlight Parade":"टॉर्चलाइट परेड","Dasara CM Cup 2026":"दशहरा सीएम कप 2026","Yuva Sambhrama 2026":"युवा संभ्रम 2026"
+ },
+ Tamil: {
+  "Mysore Palace":"மைசூர் அரண்மனை","Chamundi Hill":"சாமுண்டி மலை","Brindavan Gardens":"பிருந்தாவன் தோட்டங்கள்","St. Philomena's Cathedral":"செயின்ட் பிலோமினா பேராலயம்","Karanji Lake":"கரஞ்சி ஏரி","Mysuru Railway Museum":"மைசூர் ரயில்வே அருங்காட்சியகம்",
+  "Heritage":"பாரம்பரியம்","Nature":"இயற்கை","Garden":"தோட்டம்","Museum":"அருங்காட்சியகம்",
+  "Historic palace and major Mysuru attraction.":"வரலாற்றுச் சிறப்புமிக்க அரண்மனை மற்றும் மைசூரின் முக்கிய சுற்றுலாத் தலம்.","Scenic hill with panoramic views and temple.":"பரந்த காட்சிகளும் கோயிலும் கொண்ட அழகிய மலை.","Landscaped gardens and evening fountains.":"அழகாக அமைக்கப்பட்ட தோட்டங்களும் மாலை நீரூற்றுகளும்.","Prominent neo-Gothic cathedral in Mysuru.":"மைசூரின் புகழ்பெற்ற நவ-கோதிக் பேராலயம்.","Lake, bird watching and nature trails.":"ஏரி, பறவைகள் பார்வை மற்றும் இயற்கை நடைபாதைகள்.","Railway heritage museum with historic coaches.":"வரலாற்று ரயில் பெட்டிகள் கொண்ட ரயில்வே அருங்காட்சியகம்.",
+  "Yuva Dasara 2026":"யுவ தசரா 2026","Mysuru Dasara Cultural Programmes":"மைசூரு தசரா கலாச்சார நிகழ்ச்சிகள்","Dasara Inauguration & Chamundeshwari Puja":"தசரா தொடக்க விழா மற்றும் சாமுண்டேஸ்வரி பூஜை","Dasara Aahara Mela":"தசரா உணவுத் திருவிழா","Dasara Flower Show":"தசரா மலர் கண்காட்சி","Dasara Kambala":"தசரா கம்பளா","Jumboo Savari":"ஜம்பூ சவாரி","Torchlight Parade":"டார்ச் லைட் அணிவகுப்பு","Dasara CM Cup 2026":"தசரா சிஎம் கோப்பை 2026","Yuva Sambhrama 2026":"யுவ சம்ப்ரமா 2026"
+ },
+ Telugu: {
+  "Mysore Palace":"మైసూరు ప్యాలెస్","Chamundi Hill":"చాముండి కొండ","Brindavan Gardens":"బృందావన్ గార్డెన్స్","St. Philomena's Cathedral":"సెయింట్ ఫిలోమినా కేథడ్రల్","Karanji Lake":"కరంజి సరస్సు","Mysuru Railway Museum":"మైసూరు రైల్వే మ్యూజియం",
+  "Heritage":"వారసత్వం","Nature":"ప్రకృతి","Garden":"ఉద్యానం","Museum":"మ్యూజియం",
+  "Historic palace and major Mysuru attraction.":"చారిత్రక రాజభవనం మరియు మైసూరులోని ప్రధాన పర్యాటక ఆకర్షణ.","Scenic hill with panoramic views and temple.":"విస్తృత దృశ్యాలు, ఆలయం ఉన్న అందమైన కొండ.","Landscaped gardens and evening fountains.":"అందంగా రూపొందించిన తోటలు మరియు సాయంత్రపు ఫౌంటెన్లు.","Prominent neo-Gothic cathedral in Mysuru.":"మైసూరులోని ప్రసిద్ధ న్యూ-గోతిక్ కేథడ్రల్.","Lake, bird watching and nature trails.":"సరస్సు, పక్షుల వీక్షణ మరియు ప్రకృతి మార్గాలు.","Railway heritage museum with historic coaches.":"చారిత్రక రైలు బోగీలతో కూడిన రైల్వే మ్యూజియం.",
+  "Yuva Dasara 2026":"యువ దసరా 2026","Mysuru Dasara Cultural Programmes":"మైసూరు దసరా సాంస్కృతిక కార్యక్రమాలు","Dasara Inauguration & Chamundeshwari Puja":"దసరా ప్రారంభోత్సవం మరియు చాముండేశ్వరి పూజ","Dasara Aahara Mela":"దసరా ఆహార మేళా","Dasara Flower Show":"దసరా పుష్ప ప్రదర్శన","Dasara Kambala":"దసరా కంబళ","Jumboo Savari":"జంబూ సవారి","Torchlight Parade":"టార్చ్‌లైట్ పరేడ్","Dasara CM Cup 2026":"దసరా సీఎం కప్ 2026","Yuva Sambhrama 2026":"యువ సంభ్రమ 2026"
+ }
+};
+Object.entries(placeAndEventText).forEach(([language, values]) => Object.assign(translations[language], values));
