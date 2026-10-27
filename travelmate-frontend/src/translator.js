@@ -9,7 +9,7 @@ let applying = false;
 let timer = null;
 
 function normalize(value) {
-  return String(value ?? "").replace(/\\s+/g, " ").trim();
+  return String(value ?? "").replace(/\s+/g, " ").trim();
 }
 
 function isIgnored(node) {
