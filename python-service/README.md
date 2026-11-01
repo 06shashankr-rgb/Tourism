@@ -68,7 +68,7 @@ Open http://127.0.0.1:8001/docs and test `POST /chat`. The Node backend calls th
 
 ## 5. Optional sentence translation with IndicTrans2
 
-The separate `POST /translate` endpoint uses AI4Bharat IndicTrans2. It is not required for the AI chatbot.
+The `POST /translate` and `POST /translate-batch` endpoints use AI4Bharat IndicTrans2. The batch endpoint is used by the React website to translate visible UI strings when Google Cloud Translation is not configured. It is not required for the AI chatbot.
 
 1. Install CPU PyTorch using https://pytorch.org/get-started/locally/
 2. Activate the Python environment and install:
@@ -82,19 +82,20 @@ The separate `POST /translate` endpoint uses AI4Bharat IndicTrans2. It is not re
    {"text":"Welcome to Mysuru","source":"eng_Latn","target":"kan_Knda"}
    ```
 
-The first translation downloads model files and requires internet. Model downloads can be large and memory-intensive, especially on 8 GB RAM laptops. The default model is English-to-Indic; it does not support every language direction.
+The first translation downloads model files and requires internet. Model downloads can be large and memory-intensive, especially on 8 GB RAM laptops. The default model is English-to-Indic. The current local model mapping covers Assamese, Bengali, Gujarati, Hindi, Kannada, Malayalam, Marathi, Maithili, Manipuri, Nepali, Odia, Punjabi, Sanskrit, Tamil, Telugu and Urdu. Bhojpuri and Mizo are not in the local IndicTrans2 mapping; configure Google Cloud Translation and check provider language availability for those selections. This model does not support every language direction.
 
 ## API endpoints
 
 - `GET /` and `GET /health`
 - `POST /chat` — `{"message":"Plan a two-day Mysuru trip","location":"Mysuru","language":"English","context":{},"history":[]}`
 - `POST /translate` — `{"text":"Welcome to Mysuru","source":"eng_Latn","target":"kan_Knda"}`
+- `POST /translate-batch` — `{"texts":["Welcome to Mysuru","Explore nearby places"],"source":"eng_Latn","target":"kan_Knda"}`
 
 ## Python files
 
 - `app.py`: FastAPI routes.
 - `chatbot.py`: Ollama-based conversational AI and fallback logic.
-- `language_translator.py`: optional IndicTrans2 sentence translation.
+- `language_translator.py`: optional IndicTrans2 single and batch translation.
 - `requirements.txt`: lightweight web service dependencies.
 - `requirements-translation.txt`: optional model dependencies.
 
