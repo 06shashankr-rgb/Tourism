@@ -7,7 +7,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field
 
 from chatbot import answer_question
-from language_translator import LANGUAGES, translate_text
+from language_translator import LANGUAGES, translate_text, translate_texts
 
 app = FastAPI(title="TravelMate Local Python Service", version="1.2.0")
 app.add_middleware(
@@ -27,6 +27,11 @@ class ChatRequest(BaseModel):
 
 class TranslateRequest(BaseModel):
     text: str = Field(min_length=1, max_length=1500)
+    source: str = "eng_Latn"
+    target: str = Field(default="kan_Knda", min_length=3, max_length=20)
+
+class TranslateBatchRequest(BaseModel):
+    texts: list[str] = Field(min_length=1, max_length=50)
     source: str = "eng_Latn"
     target: str = Field(default="kan_Knda", min_length=3, max_length=20)
 
@@ -54,6 +59,17 @@ def chat(body: ChatRequest):
         body.context,
         body.history,
     )
+
+@app.post("/translate-batch")
+def translate_batch(body: TranslateBatchRequest):
+    try:
+        return translate_texts(body.texts, body.source, body.target)
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
+    except RuntimeError as exc:
+        raise HTTPException(status_code=503, detail=str(exc)) from exc
+    except Exception as exc:
+        raise HTTPException(status_code=500, detail=f"Translation failed: {exc}") from exc
 
 @app.post("/translate")
 def translate(body: TranslateRequest):
