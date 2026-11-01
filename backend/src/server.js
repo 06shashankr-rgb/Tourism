@@ -53,7 +53,7 @@ app.post("/api/translate",async(q,r)=>{
       const indicCodes={"as":"asm_Beng","bn":"ben_Beng","gu":"guj_Gujr","hi":"hin_Deva","kn":"kan_Knda","ml":"mal_Mlym","mr":"mar_Deva","mai":"mai_Deva","mni-Mtei":"mni_Mtei","ne":"npi_Deva","or":"ory_Orya","pa":"pan_Guru","sa":"san_Deva","ta":"tam_Taml","te":"tel_Telu","ur":"urd_Arab"};
       const pythonUrl=process.env.PYTHON_AI_URL?.trim();
       if(pythonUrl&&indicCodes[targetLanguage]){
-        const pythonResponse=await fetch(pythonUrl.replace(/\\/$/,"")+"/translate-batch",{
+        const pythonResponse=await fetch(pythonUrl.replace(/\/+$/,"")+"/translate-batch",{
           method:"POST",headers:{"Content-Type":"application/json"},
           body:JSON.stringify({texts,source:"eng_Latn",target:indicCodes[targetLanguage]}),
           signal:AbortSignal.timeout(120000)
