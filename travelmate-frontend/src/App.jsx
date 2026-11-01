@@ -20,10 +20,9 @@ const iconPaths={compass:"M12 2l3.1 7.9L23 13l-7.9 3.1L12 24l-3.1-7.9L1 13l7.9-3
 function Icon({name,size=18}){return <svg aria-hidden="true" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round"><path d={iconPaths[name]||iconPaths.spark}/></svg>}
 function distanceKm(a,b,c,d){const R=6371,x=(c-a)*Math.PI/180,y=(d-b)*Math.PI/180,z=Math.sin(x/2)**2+Math.cos(a*Math.PI/180)*Math.cos(c*Math.PI/180)*Math.sin(y/2)**2;return 2*R*Math.atan2(Math.sqrt(z),Math.sqrt(1-z))}
 function Recenter({center}){const map=useMap();useEffect(()=>map.setView(center,13),[map,center]);return null}
-function placeImage(name,imageUrl){
+function placeImage(name,imageUrl,category=""){
   const raw=String(name||"").trim();
-  // Curated images for seeded Mysuru attractions take priority over API photo URLs,
-  // because nearby-search photo URLs can belong to a different result.
+  // Prefer curated attraction photos, then a record's own photo, then a relevant category fallback.
   if(images[raw])return images[raw];
   for(const dict of Object.values(translations)){
     for(const [english,translated] of Object.entries(dict||{})){
@@ -31,7 +30,13 @@ function placeImage(name,imageUrl){
     }
   }
   if(typeof imageUrl==="string"&&/^https?:\/\//i.test(imageUrl))return imageUrl;
-  return "";
+  const subject=(raw+" "+category).toLowerCase();
+  if(/hill|mountain|nature|forest|lake|waterfall|garden|park|bird/.test(subject))return "https://images.unsplash.com/photo-1470770841072-f978cf4d019e?auto=format&fit=crop&w=1200&q=85";
+  if(/temple|palace|heritage|church|cathedral|museum|fort|monument|historic/.test(subject))return "https://images.unsplash.com/photo-1564507592333-c60657eea523?auto=format&fit=crop&w=1200&q=85";
+  if(/food|restaurant|cuisine|market|shopping|cafe/.test(subject))return "https://images.unsplash.com/photo-1504674900247-0877df9cc836?auto=format&fit=crop&w=1200&q=85";
+  if(/beach|sea|coast|island/.test(subject))return "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=1200&q=85";
+  if(/event|festival|music|concert|parade|culture|dance|sport/.test(subject))return "https://images.unsplash.com/photo-1492684223066-81342ee5ff30?auto=format&fit=crop&w=1200&q=85";
+  return "https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=1200&q=85";
 }
 
 export default function App(){
@@ -81,7 +86,7 @@ function Header({t,language,setLanguage,theme,setTheme,user,logout}){const nav=[
 <option value="English">English</option>
 </select><button className="theme-button" aria-label="Toggle dark mode" onClick={()=>setTheme(theme==="light"?"dark":"light")}>🌙</button>{user?<div className="account-menu"><span className="avatar">{user.name?.charAt(0)?.toUpperCase()||"U"}</span><span className="account-name">{user.name}</span><button className="outline-button" onClick={logout}>{t.logout}</button></div>:<div className="auth-links"><Link className="outline-button" to="/login">{t.signIn}</Link><Link className="solid-button" to="/signup">{t.signUp}</Link></div>}</div></header>}
 
-function Home({t,location,live,startGps,places}){const nav=useNavigate(),featured=places.slice(0,3);return <main><section className="hero-v2"><div className="hero-v2-copy"><div className="overline"><span></span>{t.heroOverline}</div><h1>{t.heroTitle}<br/><i>{t.heroTitleAccent}</i></h1><p>{t.heroText}</p><div className="hero-cta"><button className="solid-button large" onClick={()=>nav("/places")}>{t.startExploring} <Icon name="arrow"/></button><button className="outline-button large" onClick={startGps}><Icon name="pin"/> {t.useLocation}</button></div><div className="hero-location"><span className={live?"pulse":""}></span><b>{live?t.live:"Mysuru"}</b><small>{location.lat.toFixed(4)}, {location.lng.toFixed(4)}</small></div></div><div className="hero-collage"><div className="hero-main-image" style={{backgroundImage:"url("+placeImage("Mysore Palace")+")"}}><span>01 / {t.heritageCategory}</span><b>Mysore Palace</b></div><div className="hero-side-image" style={{backgroundImage:"url("+placeImage("Chamundi Hill")+")"}}><span>02 / {t.natureCategory}</span><b>Chamundi Hill</b></div><div className="hero-note"><strong>TravelMate</strong><span>{t.heroNote}</span></div></div></section><section className="stat-band"><div><strong>01</strong><span>{t.stat1}</span><small>{t.stat1a}</small></div><div><strong>02</strong><span>{t.stat2}</span><small>{t.stat2a}</small></div><div><strong>03</strong><span>{t.stat3}</span><small>{t.stat3a}</small></div><div><strong>04</strong><span>{t.stat4}</span><small>{t.stat4a}</small></div></section><section className="home-section"><div className="section-title"><div><span>{t.discoverFirst}</span><h2>{t.placesWorth}</h2></div><Link to="/places">{t.viewAll} <Icon name="arrow" size={15}/></Link></div><div className="feature-grid">{featured.length?featured.map((p,i)=><Link to="/places" className={"feature-card "+(i===0?"featured":"")} key={p.id} style={{backgroundImage:"url("+placeImage(p.name,p.imageUrl)+")"}}><div className="feature-shade"></div><div className="feature-card-content"><small>{String(p.category).toUpperCase()}</small><h3>{p.name}</h3><span>{p.distance!==undefined?p.distance.toFixed(1)+" km away":t.nearby} <Icon name="arrow" size={14}/></span></div></Link>):<div className="loading-block">Loading destinations...</div>}</div></section><section className="manifesto"><div className="manifesto-number">TM</div><div><span>{t.idea}</span><h2>{t.lessSearch}<br/><em>{t.moreExperience}</em></h2></div><p>{t.manifesto}</p></section></main>}
+function Home({t,location,live,startGps,places}){const nav=useNavigate(),featured=places.slice(0,3);return <main><section className="hero-v2"><div className="hero-v2-copy"><div className="overline"><span></span>{t.heroOverline}</div><h1>{t.heroTitle}<br/><i>{t.heroTitleAccent}</i></h1><p>{t.heroText}</p><div className="hero-cta"><button className="solid-button large" onClick={()=>nav("/places")}>{t.startExploring} <Icon name="arrow"/></button><button className="outline-button large" onClick={startGps}><Icon name="pin"/> {t.useLocation}</button></div><div className="hero-location"><span className={live?"pulse":""}></span><b>{live?t.live:"Mysuru"}</b><small>{location.lat.toFixed(4)}, {location.lng.toFixed(4)}</small></div></div><div className="hero-collage"><div className="hero-main-image" style={{backgroundImage:"url("+placeImage("Mysore Palace")+")"}}><span>01 / {t.heritageCategory}</span><b>Mysore Palace</b></div><div className="hero-side-image" style={{backgroundImage:"url("+placeImage("Chamundi Hill")+")"}}><span>02 / {t.natureCategory}</span><b>Chamundi Hill</b></div><div className="hero-note"><strong>TravelMate</strong><span>{t.heroNote}</span></div></div></section><section className="stat-band"><div><strong>01</strong><span>{t.stat1}</span><small>{t.stat1a}</small></div><div><strong>02</strong><span>{t.stat2}</span><small>{t.stat2a}</small></div><div><strong>03</strong><span>{t.stat3}</span><small>{t.stat3a}</small></div><div><strong>04</strong><span>{t.stat4}</span><small>{t.stat4a}</small></div></section><section className="home-section"><div className="section-title"><div><span>{t.discoverFirst}</span><h2>{t.placesWorth}</h2></div><Link to="/places">{t.viewAll} <Icon name="arrow" size={15}/></Link></div><div className="feature-grid">{featured.length?featured.map((p,i)=><Link to="/places" className={"feature-card "+(i===0?"featured":"")} key={p.id} style={{backgroundImage:"url("+placeImage(p.name,p.imageUrl,p.category)+")"}}><div className="feature-shade"></div><div className="feature-card-content"><small>{String(p.category).toUpperCase()}</small><h3>{p.name}</h3><span>{p.distance!==undefined?p.distance.toFixed(1)+" km away":t.nearby} <Icon name="arrow" size={14}/></span></div></Link>):<div className="loading-block">Loading destinations...</div>}</div></section><section className="manifesto"><div className="manifesto-number">TM</div><div><span>{t.idea}</span><h2>{t.lessSearch}<br/><em>{t.moreExperience}</em></h2></div><p>{t.manifesto}</p></section></main>}
 
 function Places({t,location,live,startGps,add,places,loading}){const[radius,setRadius]=useState(25),[search,setSearch]=useState(""),[category,setCategory]=useState("All");const categories=["All",...new Set(places.map(p=>p.category).filter(Boolean))];const nearby=useMemo(()=>places.map(p=>({...p,distance:p.distance??distanceKm(location.lat,location.lng,p.lat,p.lng)})).filter(p=>p.distance<=radius).filter(p=>p.name.toLowerCase().includes(search.toLowerCase())).filter(p=>category==="All"||p.category===category).sort((a,b)=>a.distance-b.distance),[places,location,radius,search,category]);return <main className="page-v2"><div className="page-intro"><div><span>01 / {t.navExplore.toUpperCase()}</span><h2>{t.findYour}<br/><em>{t.nextPlace}</em></h2><p>{t.placesIntro}</p></div><div className="intro-side"><b>{nearby.length}</b><span>{t.destinations}<br/>{t.inRange}</span></div></div><div className="explore-toolbar"><div className="search-field"><span>⌕</span><input value={search} onChange={e=>setSearch(e.target.value)} placeholder={t.search}/></div><select value={category} onChange={e=>setCategory(e.target.value)}>{categories.map(x=><option key={x} value={x}>{x==="All"?(t.all||x):x}</option>)}</select><select value={radius} onChange={e=>setRadius(+e.target.value)}>{radii.map(x=><option key={x} value={x}>{x<1?x*1000+" m":x+" km"}</option>)}</select><button className="outline-button" onClick={startGps}><Icon name="pin"/> {live?t.locationOn:t.useGps}</button></div><div className="explore-layout"><div className="map-shell"><MapContainer className="map-v2" center={[location.lat,location.lng]} zoom={13}><Recenter center={[location.lat,location.lng]}/><TileLayer attribution="&copy; OpenStreetMap contributors" url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"/><Circle center={[location.lat,location.lng]} radius={radius*1000}/>{nearby.map(p=><Marker key={p.id} position={[p.lat,p.lng]}/>)}</MapContainer><div className="map-caption"><span><i></i> {t.searchRadius}</span><span>{location.label}</span></div></div><div className="destination-list">{loading?<div className="loading-block">Loading destinations...</div>:nearby.length?nearby.map((p,index)=><DestinationCard key={p.id} p={p} index={index} add={add} t={t}/>):<div className="empty-v2">{t.noPlaces}</div>}</div></div></main>}
 
@@ -93,12 +98,12 @@ function BookingModal({t,event,user,close,save}){const[tickets,setTickets]=useSt
 
 function Assistant({t,location,language}){
 const[q,setQ]=useState(""),[messages,setMessages]=useState([{role:"ai",text:t.aiWelcome}]),[results,setResults]=useState([]),[busy,setBusy]=useState(false),[provider,setProvider]=useState("");
-async function ask(){
-  const prompt=q.trim();
+async function ask(value=q){
+  const prompt=String(value||"").trim();
   if(!prompt||busy)return;
   const previous=messages.filter(m=>m.role==="user"||m.role==="ai").slice(-8).map(m=>({role:m.role==="ai"?"assistant":"user",content:m.text}));
   setMessages(x=>[...x,{role:"user",text:prompt}]);
-  setQ("");setBusy(true);setProvider("");
+  setQ("");setBusy(true);setProvider("");setResults([]);
   try{
     const response=await api.assistant(prompt,location,language,previous);
     setMessages(x=>[...x,{role:"ai",text:response.answer||"I couldn't prepare an answer. Please try again."}]);
@@ -106,19 +111,28 @@ async function ask(){
     setProvider(response.provider||"TravelMate AI");
   }catch(error){
     setMessages(x=>[...x,{role:"ai",text:"I couldn't connect to the TravelMate assistant. Check that the backend is running, then try again. Details: "+error.message}]);
-    setResults([]);setProvider("connection issue");
+    setProvider("connection issue");
   }finally{setBusy(false)}
 }
-const suggestions=[t.nearQuestion,t.eventQuestion,t.planQuestion];
+function resetChat(){setMessages([{role:"ai",text:t.aiWelcome}]);setResults([]);setProvider("");setQ("")}
+const suggestions=[t.nearQuestion,t.eventQuestion,t.planQuestion,t.bookingQuestion,"Find nature and food experiences"];
 return <main className="page-v2 ai-page">
-  <div className="ai-header"><div><span>03 / AI ASSISTANT</span><h2>{t.aiTitle}<br/><em>{t.aiAccent}</em></h2><p>{t.aiIntro}</p><small className="ai-provider-note">Hybrid assistant · TravelMate places and events · {language}</small></div><div className="ai-orb"><Icon name="spark" size={42}/><span>TRAVELMATE<br/>AI</span></div></div>
-  <div className="suggestions">{suggestions.map(s=><button key={s} onClick={()=>setQ(s)} disabled={busy}>{s}<Icon name="arrow" size={13}/></button>)}</div>
-  <div className="chat-v2"><div className="chat-top"><span>{t.conversation}</span><small>{t.locationContext}: {location.label}</small></div>
+  <div className="ai-header">
+    <div className="ai-heading-copy"><span>03 / AI ASSISTANT</span><h2>{t.aiTitle}<br/><em>{t.aiAccent}</em></h2><p>{t.aiIntro}</p><small className="ai-provider-note"><i/> TravelMate destination guide · {location.label} · {language}</small></div>
+    <div className="ai-visual" aria-label="Travel inspiration photographs">
+      <div className="ai-visual-main"><img src="https://images.unsplash.com/photo-1548013146-72479768bada?auto=format&fit=crop&w=900&q=85" alt="Indian heritage architecture"/><span>DESTINATIONS</span></div>
+      <div className="ai-visual-side"><div><img src="https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=500&q=85" alt="Nature travel landscape"/><span>NATURE</span></div><div><img src="https://images.unsplash.com/photo-1492684223066-81342ee5ff30?auto=format&fit=crop&w=500&q=85" alt="Cultural event lights"/><span>EVENTS</span></div></div>
+    </div>
+  </div>
+  <section className="ai-prompt-section"><div className="ai-section-heading"><div><span>PLAN WITH A LITTLE HELP</span><h3>What would you like to discover?</h3></div><small>Choose a suggestion or ask your own question</small></div><div className="suggestions">{suggestions.map((s,i)=><button key={s} onClick={()=>ask(s)} disabled={busy}><span className="suggestion-number">0{i+1}</span>{s}<Icon name="arrow" size={13}/></button>)}</div></section>
+  <div className="chat-v2">
+    <div className="chat-top"><div><span className="chat-live-dot"/><b>{t.conversation}</b><small>{t.locationContext}: {location.label}</small></div><button className="chat-reset" onClick={resetChat} disabled={busy}>New conversation ↺</button></div>
     <div className="messages-v2" aria-live="polite">{messages.map((m,i)=><div className={"chat-message "+m.role} key={i}><span>{m.role==="ai"?"TRAVELMATE":"YOU"}</span><p>{m.text}</p></div>)}{busy&&<div className="chat-message ai"><span>TRAVELMATE</span><p>Thinking…</p></div>}</div>
-    <div className="chat-compose"><input value={q} onChange={e=>setQ(e.target.value)} onKeyDown={e=>e.key==="Enter"&&!busy&&ask()} placeholder={t.aiPlaceholder} disabled={busy} aria-label={t.aiPlaceholder}/><button className="solid-button" onClick={ask} disabled={busy||!q.trim()}>{busy?"Thinking…":t.askTravelMate}<Icon name="arrow" size={14}/></button></div>
+    <div className="chat-compose"><input value={q} onChange={e=>setQ(e.target.value)} onKeyDown={e=>e.key==="Enter"&&!busy&&ask()} placeholder={t.aiPlaceholder} disabled={busy} aria-label={t.aiPlaceholder}/><button className="solid-button" onClick={()=>ask()} disabled={busy||!q.trim()}>{busy?"Thinking…":t.askTravelMate}<Icon name="arrow" size={14}/></button></div>
+    <div className="ai-compose-hint">Ask about nearby attractions, events, food, transport, budgets or day-by-day itineraries.</div>
     {provider&&<div className="ai-provider-status">Response source: {provider}</div>}
   </div>
-  {results.length>0&&<section className="ai-results"><div className="subhead"><h3>{t.aiResults}</h3><span>{results.length}</span></div><div className="feature-grid">{results.map((p,i)=><article className="feature-card" key={p.id||p.name||i} style={{backgroundImage:"url("+placeImage(p.name,p.imageUrl)+")"}}><div className="feature-shade"></div><div className="feature-card-content"><small>{String(p.category||p.type||"TRAVELMATE").toUpperCase()}</small><h3>{p.name||p.eventName}</h3><span>{p.distance!==undefined&&Number.isFinite(Number(p.distance))?Number(p.distance).toFixed(1)+" km":p.venue||""}</span></div></article>)}</div></section>}
+  {results.length>0&&<section className="ai-results"><div className="subhead"><h3>{t.aiResults}</h3><span>{results.length}</span></div><div className="feature-grid">{results.map((p,i)=><article className="feature-card" key={p.id||p.name||i} style={{backgroundImage:"url("+placeImage(p.name||p.eventName,p.imageUrl,p.category||p.type)+")"}}><div className="feature-shade"/><div className="feature-card-content"><small>{String(p.category||p.type||"TRAVELMATE").toUpperCase()}</small><h3>{p.name||p.eventName}</h3><span>{p.distance!==undefined&&Number.isFinite(Number(p.distance))?Number(p.distance).toFixed(1)+" km":p.venue||""}</span></div></article>)}</div></section>}
 </main>
 }
 
