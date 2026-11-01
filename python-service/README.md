@@ -64,7 +64,7 @@ Open http://127.0.0.1:8001/docs and test `POST /chat`. The Node backend calls th
 - The system prompt asks the model not to invent prices, opening hours, event availability, or completed bookings.
 - If Ollama is not running or the model is missing, a rule-based fallback is returned with a warning in the reply. The response's `provider` field identifies the path used.
 - The model may reply in English, Kannada, Hindi, Tamil or Telugu when asked; this is model-generated language, not a guarantee of perfect translation.
-- The React website's five interface dictionaries remain in `travelmate-frontend/src/translations.js`. This is separate from dynamic AI replies.
+- The React website uses prepared dictionaries for English, Kannada, Hindi, Tamil and Telugu, plus the backend batch-translation pipeline for other selected languages. AI replies are separately prompted to use the visitor's selected language.
 
 ## 5. Optional sentence translation with IndicTrans2
 
