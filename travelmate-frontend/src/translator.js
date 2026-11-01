@@ -96,6 +96,19 @@ function apply() {
   }
 }
 
+function splitForTranslation(value, limit = 1000) {
+  const parts = [];
+  let rest = value;
+  while (rest.length > limit) {
+    let cut = rest.lastIndexOf(" ", limit);
+    if (cut < Math.floor(limit * 0.6)) cut = limit;
+    parts.push(rest.slice(0, cut).trim());
+    rest = rest.slice(cut).trim();
+  }
+  if (rest) parts.push(rest);
+  return parts;
+}
+
 function collectUntranslated() {
   if (currentLanguage === "English") return [];
   const root = document.getElementById("root") || document.body;
@@ -136,18 +149,22 @@ async function translateRemaining() {
   translating = true;
   try {
     while (language === currentLanguage) {
-      const texts = collectUntranslated().slice(0, 50);
+      const texts = collectUntranslated().slice(0, 5);
       if (!texts.length) break;
+      const jobs = texts.map(text => ({ text, parts: splitForTranslation(text) }));
+      const batch = jobs.flatMap(job => job.parts);
       texts.forEach(text => pendingKeys.add(language + "::" + text));
       try {
-        const response = await api.translateBatch(texts, targetLanguage);
+        const response = await api.translateBatch(batch, targetLanguage);
         const translated = Array.isArray(response.translations) ? response.translations : [];
-        texts.forEach((text, index) => {
-          const result = translated[index];
-          if (typeof result === "string" && result.trim()) {
-            remoteCache.set(language + "::" + text, result);
+        let offset = 0;
+        jobs.forEach(job => {
+          const pieces = translated.slice(offset, offset + job.parts.length);
+          offset += job.parts.length;
+          if (pieces.length === job.parts.length && pieces.every(value => typeof value === "string" && value.trim())) {
+            remoteCache.set(language + "::" + job.text, pieces.join(" "));
           }
-          pendingKeys.delete(language + "::" + text);
+          pendingKeys.delete(language + "::" + job.text);
         });
         if (language === currentLanguage) apply();
       } catch (error) {
