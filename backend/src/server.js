@@ -49,7 +49,23 @@ app.post("/api/translate",async(q,r)=>{
     if(!/^[a-zA-Z]{2,3}(-[a-zA-Z0-9]{2,8})?$/.test(targetLanguage))
       return r.status(400).json({error:"Invalid target language code."});
     const projectId=process.env.GCP_PROJECT_ID?.trim();
-    if(!projectId)return r.status(503).json({error:"Translation is not configured. Set GCP_PROJECT_ID and Google Application Default Credentials."});
+    if(!projectId){
+      const indicCodes={"as":"asm_Beng","bn":"ben_Beng","gu":"guj_Gujr","hi":"hin_Deva","kn":"kan_Knda","ml":"mal_Mlym","mr":"mar_Deva","mai":"mai_Deva","mni-Mtei":"mni_Mtei","ne":"npi_Deva","or":"ory_Orya","pa":"pan_Guru","sa":"san_Deva","ta":"tam_Taml","te":"tel_Telu","ur":"urd_Arab"};
+      const pythonUrl=process.env.PYTHON_AI_URL?.trim();
+      if(pythonUrl&&indicCodes[targetLanguage]){
+        const pythonResponse=await fetch(pythonUrl.replace(/\\/$/,"")+"/translate-batch",{
+          method:"POST",headers:{"Content-Type":"application/json"},
+          body:JSON.stringify({texts,source:"eng_Latn",target:indicCodes[targetLanguage]}),
+          signal:AbortSignal.timeout(120000)
+        });
+        const pythonData=await pythonResponse.json().catch(()=>({}));
+        if(pythonResponse.ok&&Array.isArray(pythonData.translations)&&pythonData.translations.length===texts.length)
+          return r.json({success:true,targetLanguage,translations:pythonData.translations,provider:"IndicTrans2"});
+        return r.status(pythonResponse.status||503).json({error:pythonData.detail||"Local IndicTrans2 translation is unavailable. Install its optional translation dependencies and start the Python service."});
+      }
+      if(targetLanguage==="en")return r.json({success:true,targetLanguage,translations:texts});
+      return r.status(503).json({error:"Translation is not configured for this language. Configure Google Cloud Translation or the local IndicTrans2 service."});
+    }
     const [response]=await translationClient.translateText({
       parent:`projects/${projectId}/locations/global`,
       contents:texts,
