@@ -95,11 +95,11 @@ app.post("/api/assistant",async(q,r)=>{
     const allPlaces=await findMany("places");
     places=allPlaces.map(p=>({...p,distance:Number.isFinite(lat)&&Number.isFinite(lng)?distanceKm(lat,lng,Number(p.lat),Number(p.lng)):undefined}))
       .sort((a,b)=>(a.distance??999999)-(b.distance??999999)).slice(0,8)
-      .map(p=>({id:p.id,name:p.name,category:p.category,description:p.description,distance:p.distance,lat:p.lat,lng:p.lng}));
+      .map(p=>({id:p.id,name:p.name,category:p.category,description:p.description,imageUrl:p.imageUrl,distance:p.distance,lat:p.lat,lng:p.lng}));
     const allEvents=await findMany("events");
     events=allEvents.map(e=>({...e,distance:Number.isFinite(lat)&&Number.isFinite(lng)?distanceKm(lat,lng,Number(e.lat),Number(e.lng)):undefined}))
       .sort((a,b)=>(a.distance??999999)-(b.distance??999999)).slice(0,8)
-      .map(e=>({id:e.id,name:e.name,venue:e.venue,description:e.description,date:e.date,startAt:e.startAt,endAt:e.endAt,distance:e.distance,sourceUrl:e.sourceUrl}));
+      .map(e=>({id:e.id,name:e.name,category:e.category,venue:e.venue,description:e.description,imageUrl:e.imageUrl,date:e.date,startAt:e.startAt,endAt:e.endAt,price:e.price,distance:e.distance,sourceUrl:e.sourceUrl}));
   }catch(error){console.warn("Could not build AI context from app data:",error.message)}
 
   const context={places,events,notes:"Only use these supplied records as TravelMate database facts. Distances are approximate when present."};
