@@ -26,7 +26,7 @@ The API runs at http://localhost:5000. Check http://localhost:5000/api/health.
 
 ## Website-wide Google Cloud Translation
 
-The React frontend now sends untranslated visible page text, button labels, headings, placeholders, and accessibility labels to the backend in batches when a visitor changes the language. Existing prepared Kannada, Hindi, Tamil, and Telugu translations are used immediately; other selected languages use Google Cloud Translation when configured. Newly rendered UI text is translated as the visitor navigates and interacts with the site.
+The React frontend now sends untranslated visible page text, button labels, headings, placeholders, image alternative text, and accessibility labels to the backend in batches when a visitor changes the language. Existing prepared Kannada, Hindi, Tamil, and Telugu translations are used immediately. When Google Cloud Translation is not configured, the backend can use the optional local IndicTrans2 batch endpoint for supported Indic languages. Newly rendered UI text is translated as the visitor navigates and interacts with the site.
 
 The backend exposes `POST /api/translate` and accepts batches:
 
@@ -39,13 +39,19 @@ The backend exposes `POST /api/translate` and accepts batches:
 
 The response contains a `translations` array in the same order. Batches are limited to 80 text strings and 30,000 total characters. The frontend sends smaller batches to keep requests manageable. Supported language availability depends on Google Cloud Translation for the requested language code; a dropdown option does not guarantee that Google's provider supports it.
 
-### Enable it locally
+### Enable a translation provider
 
+**Google Cloud (recommended for broad language coverage):**
 1. Enable the Cloud Translation API in your Google Cloud project and configure billing and API permissions.
 2. Copy `.env.example` to `.env` and set `GCP_PROJECT_ID`.
 3. Configure Google Application Default Credentials. For local development, set `GOOGLE_APPLICATION_CREDENTIALS` to a service-account JSON key stored outside this repository. In production, use the hosting platform's workload identity where possible.
-4. Run `npm install` and restart the backend.
-5. Start the frontend and select a language. If the translation service is unavailable, the frontend keeps the prepared dictionary translations and leaves unmatched text in its original language.
+
+**Local IndicTrans2 (no cloud translation key):**
+1. Follow the optional IndicTrans2 installation steps in [../python-service/README.md](../python-service/README.md).
+2. Start the Python service at `http://127.0.0.1:8001` and keep `PYTHON_AI_URL=http://127.0.0.1:8001` in the backend `.env`.
+3. The local model mapping covers Assamese, Bengali, Gujarati, Hindi, Kannada, Malayalam, Marathi, Maithili, Manipuri, Nepali, Odia, Punjabi, Sanskrit, Tamil, Telugu and Urdu. Bhojpuri and Mizo require a Google Cloud provider that supports those codes.
+
+Then run `npm install`, restart the backend, start the frontend and select a language. If neither translation provider is configured and running, prepared dictionary translations still work, but unmatched text remains in its original language.
 
 Google Cloud Translation can incur charges based on the amount of text translated. Avoid committing service-account JSON keys, `.env` files, API secrets, or user data. The website caches translated strings in the current browser session to avoid repeatedly translating identical text.
 
