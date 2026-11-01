@@ -38,17 +38,33 @@ def load_translator():
     except Exception as exc:
         raise RuntimeError(f"Could not load model '{model_name}'. Check internet access/model access and available RAM. Details: {exc}") from exc
 
-def translate_text(text: str, source: str = "eng_Latn", target: str = "kan_Knda") -> dict:
-    """Translate one sentence with IndicTrans2; returns metadata with the text."""
+def translate_texts(texts: list[str], source: str = "eng_Latn", target: str = "kan_Knda") -> dict:
+    """Translate a batch of English UI strings with IndicTrans2."""
     supported = set(LANGUAGES.values())
     if source not in supported or target not in supported:
-        raise ValueError("Unsupported language code. Use a supported IndicTrans2 code such as eng_Latn, kan_Knda, or hin_Deva.")
+        raise ValueError("Unsupported language code. Use a supported IndicTrans2 code.")
+    cleaned = [str(item).strip() for item in texts]
+    if not cleaned or len(cleaned) > 50 or any(not item for item in cleaned):
+        raise ValueError("Provide 1–50 non-empty text strings.")
+    if any(len(item) > 1500 for item in cleaned):
+        raise ValueError("Each text string must be 1,500 characters or fewer.")
     torch, tokenizer, model, processor = load_translator()
-    prepared = processor.preprocess_batch([text.strip()], src_lang=source, tgt_lang=target)
+    prepared = processor.preprocess_batch(cleaned, src_lang=source, tgt_lang=target)
     inputs = tokenizer(prepared, return_tensors="pt", padding=True, truncation=True, max_length=256)
     with torch.no_grad():
         generated = model.generate(**inputs, max_length=256, num_beams=2)
     decoded = tokenizer.batch_decode(generated, skip_special_tokens=True)
     result = processor.postprocess_batch(decoded, lang=target)
-    return {"translatedText": result[0], "source": source, "target": target,
-            "model": os.getenv("INDICTRANS_MODEL", "ai4bharat/indictrans2-en-indic-dist-200M")}
+    return {
+        "translations": result,
+        "source": source,
+        "target": target,
+        "model": os.getenv("INDICTRANS_MODEL", "ai4bharat/indictrans2-en-indic-dist-200M"),
+    }
+
+
+def translate_text(text: str, source: str = "eng_Latn", target: str = "kan_Knda") -> dict:
+    """Backward-compatible single-string translation helper."""
+    result = translate_texts([text], source, target)
+    return {"translatedText": result["translations"][0], "source": source,
+            "target": target, "model": result["model"]}
