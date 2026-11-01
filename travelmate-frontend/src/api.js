@@ -1,5 +1,5 @@
 const API_BASE=import.meta.env.VITE_API_URL||(window.location.hostname==="localhost"||window.location.hostname==="127.0.0.1"?"http://localhost:5000/api":"/api");
-async function request(path,options={}){const token=localStorage.getItem("tmToken");const r=await fetch(API_BASE+path,{...options,headers:{"Content-Type":"application/json",...(token?{Authorization:"Bearer "+token}:{}),...(options.headers||{})}});const body=await r.json().catch(()=>({}));if(!r.ok)throw new Error(body.message||"Request failed.");return body}
+async function request(path,options={}){const token=localStorage.getItem("tmToken");const r=await fetch(API_BASE+path,{...options,headers:{"Content-Type":"application/json",...(token?{Authorization:"Bearer "+token}:{}),...(options.headers||{})}});const body=await r.json().catch(()=>({}));if(!r.ok)throw new Error(body.message||body.error||body.detail||"Request failed.");return body}
 export const api={
  signup:p=>request("/auth/signup",{method:"POST",body:JSON.stringify(p)}),
  login:p=>request("/auth/login",{method:"POST",body:JSON.stringify(p)}),
@@ -13,4 +13,5 @@ export const api={
  bookings:()=>request("/bookings"),
  createBooking:p=>request("/bookings",{method:"POST",body:JSON.stringify(p)}),
  assistant:(question,location,language="English",history=[])=>request("/assistant",{method:"POST",body:JSON.stringify({question,lat:location?.lat,lng:location?.lng,location:location?.label||"Mysuru",language,history})}),
+ translateBatch:(texts,targetLanguage)=>request("/translate",{method:"POST",body:JSON.stringify({texts,targetLanguage})}),
 };
