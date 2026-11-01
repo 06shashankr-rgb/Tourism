@@ -96,7 +96,7 @@ app.post("/api/assistant",async(q,r)=>{
         signal:AbortSignal.timeout(95000)
       });
       const data=await response.json().catch(()=>({}));
-      if(response.ok&&data.reply){const lower=question.toLowerCase();const eventIntent=["event","festival","concert","show","parade","programme"].some(word=>lower.includes(word));const placeIntent=["place","near","visit","tourist","attraction","nature","food","restaurant","temple","museum"].some(word=>lower.includes(word));const relevantItems=eventIntent&&!placeIntent?events.slice(0,4):placeIntent&&!eventIntent?places.slice(0,4):[...places.slice(0,2),...events.slice(0,2)];return r.json({answer:data.reply,provider:data.provider||"python-local",warning:data.warning||undefined,items:relevantItems});}
+      if(response.ok&&data.reply){const lower=question.toLowerCase();const eventIntent=["event","festival","concert","show","parade","programme"].some(word=>lower.includes(word));const placeIntent=["place","places","visit","tourist","attraction","nature","food","restaurant","temple","museum"].some(word=>lower.includes(word));const relevantItems=eventIntent&&!placeIntent?events.slice(0,4):placeIntent&&!eventIntent?places.slice(0,4):[...places.slice(0,2),...events.slice(0,2)];return r.json({answer:data.reply,provider:data.provider||"python-local",warning:data.warning||undefined,items:relevantItems});}
       console.warn("Python assistant returned a non-success response:",data.detail||response.status);
     }catch(error){console.warn("Python assistant unavailable; using app-data fallback:",error.message)}
   }
