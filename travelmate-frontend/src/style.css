@@ -75,3 +75,47 @@ footer{border-top:1px solid var(--line);padding:25px 4.5%;display:flex;justify-c
  .header .header-actions{width:100%;justify-content:flex-start;flex-wrap:wrap}
  .header .language-select{width:min(190px,55vw);min-width:120px}
 }
+
+
+/* TravelMate AI assistant: richer visual hierarchy and useful empty-state content */
+.ai-page{max-width:1240px}
+.ai-header{padding:12px 0 30px;min-height:300px;align-items:center}
+.ai-heading-copy{max-width:570px}
+.ai-heading-copy>span{margin-bottom:14px}
+.ai-provider-note{display:flex;align-items:center;gap:8px;margin-top:18px;color:var(--muted);font-size:10px;letter-spacing:.2px}
+.ai-provider-note i,.chat-live-dot{width:7px;height:7px;border-radius:50%;background:#2b9b68;display:inline-block;box-shadow:0 0 0 4px #2b9b681c}
+.ai-visual{width:min(430px,43%);height:245px;display:grid;grid-template-columns:1.25fr .75fr;gap:10px;flex:none}
+.ai-visual-main,.ai-visual-side>div{position:relative;overflow:hidden;border-radius:7px;background:var(--surface2)}
+.ai-visual-main img,.ai-visual-side img{width:100%;height:100%;object-fit:cover;display:block}
+.ai-visual-main:after,.ai-visual-side>div:after{content:"";position:absolute;inset:35% 0 0;background:linear-gradient(transparent,#0009)}
+.ai-visual-main span,.ai-visual-side span{position:absolute;z-index:1;bottom:14px;left:14px;color:white;font-size:9px;font-weight:800;letter-spacing:1.4px}
+.ai-visual-side{display:grid;grid-template-rows:1fr 1fr;gap:10px;min-height:0}
+.ai-prompt-section{margin:4px 0 18px;padding:20px 22px;border:1px solid var(--line);background:color-mix(in srgb,var(--surface) 84%,transparent)}
+.ai-section-heading{display:flex;align-items:end;justify-content:space-between;gap:16px}
+.ai-section-heading>div>span{font-size:9px;letter-spacing:1.6px;color:var(--accent);font-weight:850}
+.ai-section-heading h3{font:600 21px "Space Grotesk";margin:6px 0 0}
+.ai-section-heading>small{font-size:10px;color:var(--muted)}
+.ai-prompt-section .suggestions{margin:16px 0 0;gap:8px}
+.ai-prompt-section .suggestions button{min-height:48px;flex:1 1 190px;justify-content:flex-start;text-align:left;border-radius:7px;padding:9px 11px;font-size:10px}
+.ai-prompt-section .suggestions button>svg{margin-left:auto;flex:none}
+.suggestion-number{font-size:9px;color:var(--accent);font-weight:850;letter-spacing:1px}
+.chat-v2{border-radius:9px;overflow:hidden;box-shadow:0 14px 36px #0000000b}
+.chat-top{align-items:center;min-height:54px;padding:12px 18px}
+.chat-top>div{display:flex;align-items:center;gap:10px}
+.chat-top>div>small{padding-left:12px;border-left:1px solid var(--line);font-size:10px}
+.chat-reset{border:0;background:transparent;color:var(--accent);font-size:10px;font-weight:800;padding:8px}
+.messages-v2{min-height:300px;max-height:520px;padding:24px;background:linear-gradient(180deg,var(--surface),color-mix(in srgb,var(--surface2) 30%,var(--surface)))}
+.chat-message{padding:13px 15px;border:1px solid var(--line);border-radius:9px;background:var(--bg);margin-bottom:14px}
+.chat-message.ai{background:var(--surface);border-left:3px solid var(--accent)}
+.chat-message.user{max-width:80%;background:color-mix(in srgb,var(--accent) 9%,var(--surface));border-color:color-mix(in srgb,var(--accent) 25%,var(--line))}
+.chat-message p{white-space:pre-wrap}
+.chat-compose{padding:15px;align-items:center;background:var(--surface)}
+.chat-compose input{min-height:46px;border-radius:7px;font-size:12px}
+.chat-compose .solid-button{min-height:46px;white-space:nowrap}
+.ai-compose-hint{padding:0 16px 13px;color:var(--muted);font-size:9px;background:var(--surface)}
+.ai-provider-status{padding:9px 16px;border-top:1px solid var(--line);font-size:9px;color:var(--muted)}
+.ai-results{margin-top:38px}
+.ai-results .feature-grid{min-height:260px}
+.ai-results .feature-card{min-height:260px}
+@media(max-width:850px){.ai-header{min-height:0;gap:22px}.ai-visual{width:40%;height:210px}.ai-section-heading{align-items:flex-start;flex-direction:column}}
+@media(max-width:600px){.ai-header{align-items:flex-start;flex-direction:column}.ai-visual{width:100%;height:205px}.ai-prompt-section{padding:16px 13px}.ai-prompt-section .suggestions button{flex-basis:100%}.chat-top{align-items:flex-start;gap:8px}.chat-top>div{flex-wrap:wrap}.chat-top>div>small{padding-left:0;border:0;flex-basis:100%}.chat-compose{flex-direction:column;align-items:stretch}.chat-compose input,.chat-compose .solid-button{width:100%}.chat-message.user{max-width:95%}}
