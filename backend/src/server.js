@@ -36,30 +36,36 @@ app.post("/api/bookings",requireAuth,async(q,r)=>{const b=q.body;if(!b.eventId||
 // Google Cloud Translation API. Credentials are loaded through Application Default
 // Credentials (GOOGLE_APPLICATION_CREDENTIALS locally, or the runtime identity in production).
 const translationClient = new TranslationServiceClient();
-const supportedTranslationLanguages = new Set(["en","as","bn","gu","hi","kn","ml","mr","ne","or","pa","ta","te","ur"]);
+// Google Cloud Translation supports single and batched website text translation.
 app.post("/api/translate",async(q,r)=>{
   try{
-    const text=typeof q.body?.text==="string"?q.body.text.trim():"";
-    const targetLanguage=typeof q.body?.targetLanguage==="string"?q.body.targetLanguage.trim().toLowerCase():"";
-    if(!text||!targetLanguage)return r.status(400).json({error:"Text and targetLanguage are required fields."});
-    if(text.length>5000)return r.status(413).json({error:"Text must be 5000 characters or fewer."});
-    if(!supportedTranslationLanguages.has(targetLanguage))return r.status(400).json({error:"Unsupported target language code."});
+    const requested=Array.isArray(q.body?.texts)?q.body.texts:[q.body?.text];
+    const texts=requested.map(value=>typeof value==="string"?value.trim():"");
+    const targetLanguage=typeof q.body?.targetLanguage==="string"?q.body.targetLanguage.trim():"";
+    if(!texts.length||texts.length>80||texts.some(text=>!text)||!targetLanguage)
+      return r.status(400).json({error:"Provide 1–80 non-empty texts and a targetLanguage."});
+    if(texts.some(text=>text.length>5000)||texts.reduce((sum,text)=>sum+text.length,0)>30000)
+      return r.status(413).json({error:"Translation batch is too large. Use up to 30,000 characters per request."});
+    if(!/^[a-zA-Z]{2,3}(-[a-zA-Z0-9]{2,8})?$/.test(targetLanguage))
+      return r.status(400).json({error:"Invalid target language code."});
     const projectId=process.env.GCP_PROJECT_ID?.trim();
-    if(!projectId)return r.status(503).json({error:"Translation service is not configured. Set GCP_PROJECT_ID and Google Application Default Credentials."});
+    if(!projectId)return r.status(503).json({error:"Translation is not configured. Set GCP_PROJECT_ID and Google Application Default Credentials."});
     const [response]=await translationClient.translateText({
       parent:`projects/${projectId}/locations/global`,
-      contents:[text],
+      contents:texts,
       mimeType:"text/plain",
       targetLanguageCode:targetLanguage
     });
-    const translatedText=response.translations?.[0]?.translatedText;
-    if(!translatedText)return r.status(502).json({error:"Translation provider returned no translated text."});
-    return r.json({success:true,originalText:text,translatedText,targetLanguage});
+    const translations=response.translations?.map(item=>item.translatedText||"")||[];
+    if(translations.length!==texts.length||translations.some(value=>!value))
+      return r.status(502).json({error:"Translation provider returned an incomplete batch."});
+    return r.json({success:true,targetLanguage,translations});
   }catch(error){
     console.error("Google Cloud Translation error:",error.message);
-    return r.status(502).json({error:"Translation failed. Check Google Cloud Translation API, billing, project permissions, and credentials."});
+    return r.status(502).json({error:"Translation failed. Check the selected language, Google Cloud Translation API, billing, permissions, and credentials."});
   }
 });
+
 app.post("/api/assistant",async(q,r)=>{
   const question=String(q.body.question||"").trim();
   const lat=Number(q.body.lat),lng=Number(q.body.lng);
