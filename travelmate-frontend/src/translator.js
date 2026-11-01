@@ -179,6 +179,7 @@ async function translateRemaining() {
     }
   } finally {
     translating = false;
+    if (language !== currentLanguage) translateRemaining();
   }
 }
 
@@ -191,7 +192,8 @@ function schedule() {
 }
 
 export function setWebsiteLanguage(language) {
-  currentLanguage = translations[language] || languageCodes[language] ? language : "English";
+  currentLanguage = (translations[language] || languageCodes[language]) ? language : "English";
+  failedLanguages.delete(currentLanguage);
   document.documentElement.lang = languageCodes[currentLanguage] || "en";
   if (observer) observer.disconnect();
   apply();
