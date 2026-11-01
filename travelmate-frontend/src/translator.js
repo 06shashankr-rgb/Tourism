@@ -6,6 +6,7 @@ const originalText = new WeakMap();
 const originalAttrs = new WeakMap();
 const remoteCache = new Map();
 const pendingKeys = new Set();
+const failedLanguages = new Set();
 let observer = null;
 let currentLanguage = "English";
 let applying = false;
@@ -128,7 +129,7 @@ function collectUntranslated() {
 }
 
 async function translateRemaining() {
-  if (translating || currentLanguage === "English") return;
+  if (translating || currentLanguage === "English" || failedLanguages.has(currentLanguage)) return;
   const language = currentLanguage;
   const targetLanguage = languageCodes[language];
   if (!targetLanguage) return;
@@ -151,6 +152,7 @@ async function translateRemaining() {
         if (language === currentLanguage) apply();
       } catch (error) {
         texts.forEach(text => pendingKeys.delete(language + "::" + text));
+        failedLanguages.add(language);
         if (!warned) {
           console.warn("TravelMate website translation service is not available:", error.message);
           warned = true;
