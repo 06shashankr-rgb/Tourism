@@ -180,7 +180,7 @@ export function setWebsiteLanguage(language) {
   observer = new MutationObserver(() => {
     if (!applying) schedule();
   });
-  observer.observe(root, { subtree: true, childList: true, characterData: true });
+  observer.observe(root, { subtree: true, childList: true });
   translateRemaining();
 }
 
