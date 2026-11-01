@@ -119,3 +119,13 @@ footer{border-top:1px solid var(--line);padding:25px 4.5%;display:flex;justify-c
 .ai-results .feature-card{min-height:260px}
 @media(max-width:850px){.ai-header{min-height:0;gap:22px}.ai-visual{width:40%;height:210px}.ai-section-heading{align-items:flex-start;flex-direction:column}}
 @media(max-width:600px){.ai-header{align-items:flex-start;flex-direction:column}.ai-visual{width:100%;height:205px}.ai-prompt-section{padding:16px 13px}.ai-prompt-section .suggestions button{flex-basis:100%}.chat-top{align-items:flex-start;gap:8px}.chat-top>div{flex-wrap:wrap}.chat-top>div>small{padding-left:0;border:0;flex-basis:100%}.chat-compose{flex-direction:column;align-items:stretch}.chat-compose input,.chat-compose .solid-button{width:100%}.chat-message.user{max-width:95%}}
+
+
+/* Event cards now include a visual thumbnail with responsive layout */
+.event-card-v2{grid-template-columns:42px 62px 128px minmax(0,1fr) 145px;gap:14px}
+.event-image{width:100%;height:104px;min-width:0;border-radius:5px;background-color:var(--surface2);background-size:cover;background-position:center;box-shadow:inset 0 0 0 1px #00000012}
+.event-copy{min-width:0}
+.event-copy h3{overflow-wrap:anywhere}
+.event-copy p{overflow-wrap:anywhere}
+@media(max-width:1000px){.event-card-v2{grid-template-columns:36px 58px 105px minmax(0,1fr);gap:12px}.event-actions{grid-column:4;display:flex;flex-wrap:wrap}.event-image{grid-column:3;grid-row:1 / span 2;height:100%;min-height:110px}.event-copy{grid-column:4;grid-row:1 / span 2}}
+@media(max-width:650px){.event-card-v2{grid-template-columns:30px 52px minmax(0,1fr);gap:10px;padding:13px}.event-image{grid-column:3;grid-row:auto;height:145px}.event-copy{grid-column:3;grid-row:auto}.event-actions{grid-column:3;grid-row:auto;display:flex;flex-wrap:wrap;align-items:center}.event-copy>div{flex-wrap:wrap;gap:7px 12px}}
