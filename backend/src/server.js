@@ -96,7 +96,7 @@ app.post("/api/assistant",async(q,r)=>{
         signal:AbortSignal.timeout(95000)
       });
       const data=await response.json().catch(()=>({}));
-      if(response.ok&&data.reply)return r.json({answer:data.reply,provider:data.provider||"python-local",warning:data.warning||undefined,items:places.slice(0,4)});
+      if(response.ok&&data.reply){const lower=question.toLowerCase();const eventIntent=["event","festival","concert","show","parade","programme"].some(word=>lower.includes(word));const placeIntent=["place","near","visit","tourist","attraction","nature","food","restaurant","temple","museum"].some(word=>lower.includes(word));const relevantItems=eventIntent&&!placeIntent?events.slice(0,4):placeIntent&&!eventIntent?places.slice(0,4):[...places.slice(0,2),...events.slice(0,2)];return r.json({answer:data.reply,provider:data.provider||"python-local",warning:data.warning||undefined,items:relevantItems});}
       console.warn("Python assistant returned a non-success response:",data.detail||response.status);
     }catch(error){console.warn("Python assistant unavailable; using app-data fallback:",error.message)}
   }
@@ -109,7 +109,7 @@ app.post("/api/assistant",async(q,r)=>{
     return r.json({answer:places.length?places.slice(0,4).map(p=>`${p.name}${Number.isFinite(p.distance)?` (${p.distance.toFixed(1)} km)`:""}`).join(", ")+". Check current opening hours before visiting.":"No matching place records are available in the current TravelMate data.",provider:"travelmate-data",items:places.slice(0,4)});
   }
   if(["plan","itinerary","trip"].some(w=>lower.includes(w))){
-    return r.json({answer:`I can help plan a trip around ${location}. Tell me your trip length, budget, interests, and preferred pace. TravelMate currently has ${places.length} place records and ${events.length} event records available for suggestions.`,provider:"travelmate-data",items:places.slice(0,4)});
+    return r.json({answer:`I can help plan a trip around ${location}. Tell me your trip length, budget, interests, and preferred pace. TravelMate currently has ${places.length} place records and ${events.length} event records available for suggestions.`,provider:"travelmate-data",items:[...places.slice(0,2),...events.slice(0,2)]});
   }
   return r.json({answer:`I can help with destinations, events, and itineraries for ${location}. For richer conversational AI, start the Python service and local Ollama model. I can currently reference ${places.length} places and ${events.length} events from TravelMate.`,provider:"travelmate-data",items:places.slice(0,4)});
 });
