@@ -1,7 +1,7 @@
 import { translations } from "./translations";
 import { api } from "./api";
 
-const attributeNames = ["placeholder", "title", "aria-label"];
+const attributeNames = ["placeholder", "title", "aria-label", "alt"];
 const originalText = new WeakMap();
 const originalAttrs = new WeakMap();
 const remoteCache = new Map();
