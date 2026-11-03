@@ -32,6 +32,108 @@ app.delete("/api/planner/:type/:itemId",requireAuth,async(q,r)=>{const x=await d
 app.get("/api/bookings",requireAuth,async(q,r)=>{const x=await findMany("bookings",{userId:q.user.id});r.json(x.sort((a,b)=>String(b.createdAt).localeCompare(String(a.createdAt))))});
 app.post("/api/bookings",requireAuth,async(q,r)=>{const b=q.body;if(!b.eventId||!b.eventName||!b.tickets||!b.email)return r.status(400).json({message:"Event, ticket count and contact email are required."});const x={id:makeId("BOOK"),userId:q.user.id,eventId:String(b.eventId),eventName:b.eventName,date:b.date,time:b.time,venue:b.venue,tickets:Number(b.tickets),total:Number(b.total||0),name:b.name,email:b.email,sourceUrl:b.sourceUrl,status:"confirmed",createdAt:new Date().toISOString()};await insertOne("bookings",x);r.status(201).json(x)});
 
+// Hybrid AI assistant: combines the local Python/Ollama model with TravelMate data.
+app.post("/api/assistant", async (q, r) => {
+  const question = String(q.body?.question || "").trim();
+  if (!question) return r.status(400).json({ message: "Question is required." });
+  if (question.length > 2000) return r.status(413).json({ message: "Question is too long." });
+
+  const lat = Number(q.body?.lat);
+  const lng = Number(q.body?.lng);
+  const location = String(q.body?.location || "Mysuru").slice(0, 120);
+  const language = String(q.body?.language || "English").slice(0, 40);
+  const history = Array.isArray(q.body?.history)
+    ? q.body.history.slice(-8).map(item => ({
+        role: item?.role,
+        content: String(item?.content || "").slice(0, 2000)
+      })).filter(item => ["user", "assistant"].includes(item.role) && item.content)
+    : [];
+
+  let places = [];
+  let events = [];
+  try {
+    const allPlaces = await findMany("places");
+    places = allPlaces.map(place => ({
+      ...place,
+      distance: Number.isFinite(lat) && Number.isFinite(lng)
+        ? distanceKm(lat, lng, Number(place.lat), Number(place.lng))
+        : undefined
+    })).sort((a, b) => (a.distance ?? 999999) - (b.distance ?? 999999))
+      .slice(0, 10)
+      .map(({ id, name, category, description, distance, lat: placeLat, lng: placeLng, rating, price }) => ({
+        id, name, category, description, distance, lat: placeLat, lng: placeLng, rating, price
+      }));
+
+    const allEvents = await findMany("events");
+    events = allEvents.map(event => ({
+      ...event,
+      distance: Number.isFinite(lat) && Number.isFinite(lng)
+        ? distanceKm(lat, lng, Number(event.lat), Number(event.lng))
+        : undefined
+    })).sort((a, b) => (a.distance ?? 999999) - (b.distance ?? 999999))
+      .slice(0, 10)
+      .map(({ id, name, venue, description, date, time, price, distance, sourceUrl, category }) => ({
+        id, name, venue, description, date, time, price, distance, sourceUrl, category
+      }));
+  } catch (error) {
+    console.warn("TravelMate assistant context could not be loaded:", error.message);
+  }
+
+  const context = {
+    places,
+    events,
+    notes: "Use only these records for claims about TravelMate data. Do not invent opening hours, ticket availability or booking confirmations."
+  };
+  const pythonUrl = process.env.PYTHON_AI_URL?.trim();
+  if (pythonUrl) {
+    try {
+      const response = await fetch(pythonUrl.replace(/\/$/, "") + "/chat", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ message: question, location, language, context, history }),
+        signal: AbortSignal.timeout(130000)
+      });
+      const data = await response.json().catch(() => ({}));
+      if (response.ok && data.reply) {
+        return r.json({
+          answer: data.reply,
+          provider: data.provider || "python-local",
+          warning: data.warning || undefined,
+          items: places.slice(0, 4)
+        });
+      }
+      console.warn("Python assistant returned an error:", data.detail || response.status);
+    } catch (error) {
+      console.warn("Python assistant unavailable; using data fallback:", error.message);
+    }
+  }
+
+  const lower = question.toLowerCase();
+  if (/(event|festival|concert|show)/.test(lower)) {
+    const answer = events.length
+      ? "TravelMate event records: " + events.slice(0, 5).map(event =>
+          event.name + " at " + (event.venue || "venue not listed") +
+          (event.date ? " (" + event.date + ")" : "")
+        ).join("; ") + ". Please confirm current dates and ticket information with the organiser."
+      : "I could not find event records in TravelMate's current data for " + location + ".";
+    return r.json({ answer, provider: "travelmate-data-fallback", items: events.slice(0, 4) });
+  }
+  if (/(place|near|visit|tourist|attraction|sightseeing)/.test(lower)) {
+    const answer = places.length
+      ? "Places in TravelMate's current data: " + places.slice(0, 5).map(place =>
+          place.name + (Number.isFinite(place.distance) ? " (" + place.distance.toFixed(1) + " km)" : "")
+        ).join(", ") + ". Check official sources for current opening hours."
+      : "No matching place records are available in TravelMate's current data.";
+    return r.json({ answer, provider: "travelmate-data-fallback", items: places.slice(0, 4) });
+  }
+  return r.json({
+    answer: "I can help plan trips, find places and explore events in " + location +
+      ". The local AI service is not connected right now. Start the Python service and Ollama for natural conversations.",
+    provider: "travelmate-data-fallback",
+    items: places.slice(0, 4)
+  });
+});
+
 // Free local IndicTrans2 translation proxy. No paid cloud translation API is used.
 app.post("/api/translate", async (q, r) => {
   const texts = Array.isArray(q.body?.texts) ? q.body.texts : [];
@@ -63,7 +165,7 @@ app.post("/api/translate", async (q, r) => {
     return r.status(503).json({ message: "Local translation is not configured. Start the TravelMate Python service on port 8001." });
   }
   try {
-    const response = await fetch(pythonUrl.replace(/\\/$/, "") + "/translate-batch", {
+    const response = await fetch(pythonUrl.replace(/\/$/, "") + "/translate-batch", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ texts, source: "eng_Latn", target }),
@@ -77,7 +179,7 @@ app.post("/api/translate", async (q, r) => {
         data.translations.some(value => typeof value !== "string" || !value.trim())) {
       return r.status(502).json({ message: "Local translation returned an incomplete batch." });
     }
-    return r.json({ ...data, provider: "IndicTrans2-local" });
+    return r.json({ ...data, provider: data.provider || "local-translation" });
   } catch (error) {
     console.error("Local IndicTrans2 translation error:", error.message);
     return r.status(503).json({ message: "Local translation service is unavailable. Check that Python is running and the IndicTrans2 model dependencies are installed." });
