@@ -78,7 +78,7 @@ function apply() {
       }
     }
 
-    root.querySelectorAll("[placeholder],[title],[aria-label],[alt]").forEach((element) => {
+    root.querySelectorAll("[placeholder],[title],[aria-label],[alt],[alt]").forEach((element) => {
       if (isIgnored(element)) return;
       if (!originalAttrs.has(element)) originalAttrs.set(element, {});
       const record = originalAttrs.get(element);
@@ -124,7 +124,7 @@ function collectUntranslated() {
     const key = currentLanguage + "::" + text;
     if (!remoteCache.has(key) && !pendingKeys.has(key)) found.add(text);
   }
-  root.querySelectorAll("[placeholder],[title],[aria-label]").forEach((element) => {
+  root.querySelectorAll("[placeholder],[title],[aria-label],[alt]").forEach((element) => {
     if (isIgnored(element)) return;
     if (!originalAttrs.has(element)) originalAttrs.set(element, {});
     const record = originalAttrs.get(element);
