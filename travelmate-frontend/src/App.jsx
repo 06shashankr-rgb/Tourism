@@ -9,12 +9,12 @@ import{places as localPlaces,events as localEvents}from"./data";
 const defaultLocation={lat:12.2958,lng:76.6394,label:"Mysuru"};
 const radii=[0.5,1,5,10,25,50,100,200];
 const images={
-"Mysore Palace":"https://upload.wikimedia.org/wikipedia/commons/7/71/Mysore_Palace%2C_Mysore%2C_Karnataka.jpg",
-"Chamundi Hill":"https://commons.wikimedia.org/wiki/Special:FilePath/Chamundi_Hills_Mysore.jpg",
-"Brindavan Gardens":"https://upload.wikimedia.org/wikipedia/commons/6/68/Brindavan_Gardens%2C_Mysore.jpg",
-"St. Philomena's Cathedral":"https://commons.wikimedia.org/wiki/Special:FilePath/St._Philomena%27s_Cathedral.jpg",
-"Karanji Lake":"https://commons.wikimedia.org/wiki/Special:FilePath/At_karanji_lake%2C_mysore.jpg",
-"Mysuru Railway Museum":"https://commons.wikimedia.org/wiki/Special:FilePath/Mysuru_Rail_Museum_-_IMG20240125135843.jpg"
+"Mysore Palace":"https://upload.wikimedia.org/wikipedia/commons/thumb/a/a4/Mysore_Palace_Morning.jpg/1280px-Mysore_Palace_Morning.jpg",
+"Chamundi Hill":"https://www.tripplannersindia.com/assets/blog/images/placestovisitinmysore/Chamundi_Hills.webp",
+"Brindavan Gardens":"https://etimg.etb2bimg.com/photo/112049626.cms",
+"St. Philomena's Cathedral":"https://www.travel4pictures.com/img/s/v-10/p3463335904-4.jpg",
+"Karanji Lake":"https://images.mindtrip.ai/attractions/7f1f/6177/6697/a047/21dd/8029/6a3b/c75b",
+"Mysuru Railway Museum":"https://shop.museumsofindia.org/sites/default/files/2017-11/ES-506.jpg"
 };
 const iconPaths={compass:"M12 2l3.1 7.9L23 13l-7.9 3.1L12 24l-3.1-7.9L1 13l7.9-3.1L12 2z",pin:"M12 22s7-6.1 7-12a7 7 0 10-14 0c0 5.9 7 12 7 12z",spark:"M12 2l1.8 7.2L21 11l-7.2 1.8L12 20l-1.8-7.2L3 11l7.2-1.8L12 2z",arrow:"M5 12h13M13 6l6 6-6 6",calendar:"M5 4h14v16H5zM8 2v4M16 2v4M5 9h14",map:"M3 6l6-3 6 3 6-3v18l-6 3-6-3-6 3V6z",user:"M20 21a8 8 0 00-16 0M12 13a4 4 0 100-8 4 4 0 000 8z"};
 function Icon({name,size=18}){return <svg aria-hidden="true" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round"><path d={iconPaths[name]||iconPaths.spark}/></svg>}
