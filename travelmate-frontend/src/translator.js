@@ -178,8 +178,7 @@ export function setWebsiteLanguage(language) {
   observer = new MutationObserver(() => {
     if (!applying) schedule();
   });
-  observer.observe(root, { subtree: true, childList: true, characterData: true, attributes: true,
-    attributeFilter: attributeNames });
+  observer.observe(root, { subtree: true, childList: true, characterData: true });
   translateRemaining();
 }
 export function startWebsiteTranslator(language) {
