@@ -35,7 +35,7 @@ const indicTargets = {
 };
 
 function normalize(value) {
-  return String(value ?? "").replace(/\\s+/g, " ").trim();
+  return String(value ?? "").replace(/\s+/g, " ").trim();
 }
 
 function isIgnored(node) {
