@@ -35,111 +35,54 @@ app.post("/api/bookings",requireAuth,async(q,r)=>{const b=q.body;if(!b.eventId||
 // Google Cloud Translation API. Credentials are loaded through Application Default
 // Credentials (GOOGLE_APPLICATION_CREDENTIALS locally, or the runtime identity in production).
 // Google Cloud Translation supports single and batched website text translation.
-app.post("/api/translate",async(q,r)=>{
-  const requested=Array.isArray(q.body?.texts)?q.body.texts:[q.body?.text];
-  const texts=requested.map(value=>typeof value==="string"?value.trim():"");
-  const targetLanguage=typeof q.body?.targetLanguage==="string"?q.body.targetLanguage.trim():"";
-  if(!texts.length||texts.length>50||texts.some(text=>!text)||!targetLanguage)
-    return r.status(400).json({error:"Provide 1–50 non-empty texts and a targetLanguage."});
-  if(texts.some(text=>text.length>1500)||texts.reduce((sum,text)=>sum+text.length,0)>30000)
-    return r.status(413).json({error:"Translation batch is too large."});
-  const indicCodes={"as":"asm_Beng","bn":"ben_Beng","gu":"guj_Gujr","hi":"hin_Deva","kn":"kan_Knda","ml":"mal_Mlym","mr":"mar_Deva","mai":"mai_Deva","mni-Mtei":"mni_Mtei","ne":"npi_Deva","or":"ory_Orya","pa":"pan_Guru","sa":"san_Deva","ta":"tam_Taml","te":"tel_Telu","ur":"urd_Arab"};
-  if(targetLanguage==="en")return r.json({success:true,targetLanguage,translations:texts,provider:"identity"});
-  if(!indicCodes[targetLanguage])
-    return r.status(422).json({error:"This language is not supported by the free local IndicTrans2 model. Prepared translations still work where available."});
-  const pythonUrl=process.env.PYTHON_AI_URL?.trim();
-  if(!pythonUrl)
-    return r.status(503).json({error:"Local translation service is not configured. Start the TravelMate Python service on port 8001."});
-  try{
-    const pythonResponse=await fetch(pythonUrl.replace(/\/+$/, "")+"/translate-batch",{
-      method:"POST",headers:{"Content-Type":"application/json"},
-      body:JSON.stringify({texts,source:"eng_Latn",target:indicCodes[targetLanguage]}),
-      signal:AbortSignal.timeout(120000)
-    });
-    const pythonData=await pythonResponse.json().catch(()=>({}));
-    if(!pythonResponse.ok)
-      return r.status(pythonResponse.status||503).json({error:pythonData.detail||"Local IndicTrans2 translation failed."});
-    if(!Array.isArray(pythonData.translations)||pythonData.translations.length!==texts.length||pythonData.translations.some(value=>typeof value!=="string"||!value.trim()))
-      return r.status(502).json({error:"Local translation returned an incomplete batch."});
-    return r.json({success:true,targetLanguage,translations:pythonData.translations,provider:"IndicTrans2-local"});
-  }catch(error){
-    console.error("Local IndicTrans2 translation error:",error.message);
-    return r.status(503).json({error:"Local translation service is unavailable. Check that Python is running and the IndicTrans2 model dependencies are installed."});
-  }
-});
-
-app.post("/api/assistant",async(q,r)=>{
-  const question=String(q.body.question||"").trim();
-  const lat=Number(q.body.lat),lng=Number(q.body.lng);
-  const location=String(q.body.location||"Mysuru").trim().slice(0,120);
-  const language=String(q.body.language||"English").slice(0,40);
-  const history=Array.isArray(q.body.history)?q.body.history.slice(-8).map(m=>({role:m.role,content:String(m.content||"").slice(0,2000)})).filter(m=>["user","assistant"].includes(m.role)&&m.content):[];
-  if(!question)return r.status(400).json({message:"Question is required."});
-
-  let places=[],events=[];
-  try{
-    const allPlaces=await findMany("places");
-    places=allPlaces.map(p=>({...p,distance:Number.isFinite(lat)&&Number.isFinite(lng)?distanceKm(lat,lng,Number(p.lat),Number(p.lng)):undefined}))
-      .sort((a,b)=>(a.distance??999999)-(b.distance??999999)).slice(0,8)
-      .map(p=>({id:p.id,name:p.name,category:p.category,description:p.description,imageUrl:p.imageUrl,distance:p.distance,lat:p.lat,lng:p.lng}));
-    const allEvents=await findMany("events");
-    events=allEvents.map(e=>({...e,distance:Number.isFinite(lat)&&Number.isFinite(lng)?distanceKm(lat,lng,Number(e.lat),Number(e.lng)):undefined}))
-      .sort((a,b)=>(a.distance??999999)-(b.distance??999999)).slice(0,8)
-      .map(e=>({id:e.id,name:e.name,category:e.category,venue:e.venue,description:e.description,imageUrl:e.imageUrl,date:e.date,startAt:e.startAt,endAt:e.endAt,price:e.price,distance:e.distance,sourceUrl:e.sourceUrl}));
-  }catch(error){console.warn("Could not build AI context from app data:",error.message)}
-
-  const context={places,events,notes:"Only use these supplied records as TravelMate database facts. Distances are approximate when present."};
-  const pythonUrl=process.env.PYTHON_AI_URL?.trim();
-  if(pythonUrl){
-    try{
-      const response=await fetch(pythonUrl.replace(/\/$/,"")+"/chat",{
-        method:"POST",headers:{"Content-Type":"application/json"},
-        body:JSON.stringify({message:question,location,language,context,history}),
-        signal:AbortSignal.timeout(95000)
-      });
-      const data=await response.json().catch(()=>({}));
-      if(response.ok&&data.reply){const lower=question.toLowerCase();const eventIntent=["event","festival","concert","show","parade","programme"].some(word=>lower.includes(word));const placeIntent=["place","places","visit","tourist","attraction","nature","food","restaurant","temple","museum"].some(word=>lower.includes(word));const relevantItems=eventIntent&&!placeIntent?events.slice(0,4):placeIntent&&!eventIntent?places.slice(0,4):[...places.slice(0,2),...events.slice(0,2)];return r.json({answer:data.reply,provider:data.provider||"python-local",warning:data.warning||undefined,items:relevantItems});}
-      console.warn("Python assistant returned a non-success response:",data.detail||response.status);
-    }catch(error){console.warn("Python assistant unavailable; using app-data fallback:",error.message)}
-  }
-
-  const lower=question.toLowerCase();
-  if(["event","festival","concert","show"].some(w=>lower.includes(w))){
-    return r.json({answer:events.length?events.slice(0,4).map(e=>`${e.name} at ${e.venue||"venue not listed"}${e.date?" ("+e.date+")":""}`).join("; ")+". Confirm dates with the organiser.":"I couldn't find event records in TravelMate's current data.",provider:"travelmate-data",items:events.slice(0,4)});
-  }
-  if(["place","near","visit","tourist","attraction"].some(w=>lower.includes(w))){
-    return r.json({answer:places.length?places.slice(0,4).map(p=>`${p.name}${Number.isFinite(p.distance)?` (${p.distance.toFixed(1)} km)`:""}`).join(", ")+". Check current opening hours before visiting.":"No matching place records are available in the current TravelMate data.",provider:"travelmate-data",items:places.slice(0,4)});
-  }
-  if(["plan","itinerary","trip"].some(w=>lower.includes(w))){
-    return r.json({answer:`I can help plan a trip around ${location}. Tell me your trip length, budget, interests, and preferred pace. TravelMate currently has ${places.length} place records and ${events.length} event records available for suggestions.`,provider:"travelmate-data",items:[...places.slice(0,2),...events.slice(0,2)]});
-  }
-  return r.json({answer:`I can help with destinations, events, and itineraries for ${location}. For richer conversational AI, start the Python service and local Ollama model. I can currently reference ${places.length} places and ${events.length} events from TravelMate.`,provider:"travelmate-data",items:places.slice(0,4)});
-});
-
-// Batch text translation proxy. Keep the IndicTrans2 model and its heavy
-// Python dependencies out of the Node process.
+// Free local IndicTrans2 translation proxy. No paid cloud API is used.
 app.post("/api/translate", async (q, r) => {
-  const texts = Array.isArray(q.body.texts) ? q.body.texts : [];
-  const target = String(q.body.target || "").trim();
-  const pythonUrl = process.env.PYTHON_AI_URL?.trim();
-  if (!texts.length || texts.length > 50 || texts.some(x => typeof x !== "string" || !x.trim() || x.length > 1500)) {
+  const texts = Array.isArray(q.body?.texts) ? q.body.texts : [];
+  const target = String(q.body?.target || "").trim();
+  const supportedTargets = new Set([
+    "asm_Beng", "ben_Beng", "brx_Deva", "doi_Deva", "guj_Gujr",
+    "hin_Deva", "kan_Knda", "mai_Deva", "mal_Mlym", "mni_Mtei",
+    "mar_Deva", "npi_Deva", "ory_Orya", "pan_Guru", "san_Deva",
+    "tam_Taml", "tel_Telu", "urd_Arab"
+  ]);
+
+  if (!texts.length || texts.length > 50 ||
+      texts.some(value => typeof value !== "string" || !value.trim() || value.length > 1500)) {
     return r.status(400).json({ message: "Provide 1–50 non-empty text strings (maximum 1,500 characters each)." });
   }
-  if (!target) return r.status(400).json({ message: "Target language code is required." });
-  if (!pythonUrl) return r.status(503).json({ message: "PYTHON_AI_URL is not configured." });
+  if (texts.reduce((total, value) => total + value.length, 0) > 30000) {
+    return r.status(413).json({ message: "Translation batch is too large." });
+  }
+  if (target === "eng_Latn") {
+    return r.json({ translations: texts, source: "eng_Latn", target, provider: "identity" });
+  }
+  if (!supportedTargets.has(target)) {
+    return r.status(422).json({ message: "This target language is not supported by the configured local IndicTrans2 model." });
+  }
+
+  const pythonUrl = process.env.PYTHON_AI_URL?.trim();
+  if (!pythonUrl) {
+    return r.status(503).json({ message: "Local translation is not configured. Start the TravelMate Python service on port 8001." });
+  }
   try {
-    const response = await fetch(pythonUrl.replace(/\/$/, "") + "/translate-batch", {
+    const response = await fetch(pythonUrl.replace(/\\/$/, "") + "/translate-batch", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ texts, source: "eng_Latn", target }),
       signal: AbortSignal.timeout(180000)
     });
     const data = await response.json().catch(() => ({}));
-    if (!response.ok) return r.status(response.status).json({ message: data.detail || "Translation service failed." });
-    return r.json(data);
+    if (!response.ok) {
+      return r.status(response.status || 503).json({ message: data.detail || "Local IndicTrans2 translation failed." });
+    }
+    if (!Array.isArray(data.translations) || data.translations.length !== texts.length ||
+        data.translations.some(value => typeof value !== "string" || !value.trim())) {
+      return r.status(502).json({ message: "Local translation returned an incomplete batch." });
+    }
+    return r.json({ ...data, provider: "IndicTrans2-local" });
   } catch (error) {
-    console.error("IndicTrans2 batch translation unavailable:", error.message);
-    return r.status(503).json({ message: "Start the Python service and install the optional IndicTrans2 dependencies. " + error.message });
+    console.error("Local IndicTrans2 translation error:", error.message);
+    return r.status(503).json({ message: "Local translation service is unavailable. Check that Python is running and the IndicTrans2 model dependencies are installed." });
   }
 });
 app.use((_q,r)=>r.status(404).json({message:"API route not found."}));
