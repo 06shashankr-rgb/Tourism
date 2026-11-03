@@ -15,18 +15,22 @@ let translating = false;
 let warned = false;
 
 const languageCodes = {
-  English: "en", Assamese: "as", Bengali: "bn", Gujarati: "gu",
-  Hindi: "hi", Kannada: "kn", Malayalam: "ml", Marathi: "mr",
-  Maithili: "mai", Manipuri: "mni-Mtei", Nepali: "ne", Odia: "or",
-  Punjabi: "pa", Sanskrit: "sa", Tamil: "ta", Telugu: "te", Urdu: "ur"
+  English: "en", Assamese: "as", Bengali: "bn", Bodo: "brx",
+  Dogri: "doi", Gujarati: "gu", Hindi: "hi", Kannada: "kn",
+  Kashmiri: "ks", Konkani: "kok", Maithili: "mai", Malayalam: "ml",
+  Manipuri: "mni", Marathi: "mr", Nepali: "ne", Odia: "or",
+  Punjabi: "pa", Sanskrit: "sa", Santali: "sat", Sindhi: "sd",
+  Tamil: "ta", Telugu: "te", Urdu: "ur"
 };
 
 const indicTargets = {
-  Assamese: "asm_Beng", Bengali: "ben_Beng", Gujarati: "guj_Gujr",
-  Hindi: "hin_Deva", Kannada: "kan_Knda", Malayalam: "mal_Mlym",
-  Marathi: "mar_Deva", Maithili: "mai_Deva", Manipuri: "mni_Mtei",
-  Nepali: "npi_Deva", Odia: "ory_Orya", Punjabi: "pan_Guru",
-  Sanskrit: "san_Deva", Tamil: "tam_Taml", Telugu: "tel_Telu",
+  Assamese: "asm_Beng", Bengali: "ben_Beng", Bodo: "brx_Deva",
+  Dogri: "doi_Deva", Gujarati: "guj_Gujr", Hindi: "hin_Deva",
+  Kannada: "kan_Knda", Kashmiri: "kas_Arab", Konkani: "gom_Deva",
+  Maithili: "mai_Deva", Malayalam: "mal_Mlym", Manipuri: "mni_Mtei",
+  Marathi: "mar_Deva", Nepali: "npi_Deva", Odia: "ory_Orya",
+  Punjabi: "pan_Guru", Sanskrit: "san_Deva", Santali: "sat_Olck",
+  Sindhi: "snd_Arab", Tamil: "tam_Taml", Telugu: "tel_Telu",
   Urdu: "urd_Arab"
 };
 
