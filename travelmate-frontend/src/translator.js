@@ -23,7 +23,7 @@ const languageCodes = {
 };
 
 function normalize(value) {
-  return String(value ?? "").replace(/\\s+/g, " ").trim();
+  return String(value ?? "").replace(/\s+/g, " ").trim();
 }
 
 function isIgnored(node) {
@@ -78,7 +78,7 @@ function apply() {
       }
     }
 
-    root.querySelectorAll("[placeholder],[title],[aria-label],[alt],[alt]").forEach((element) => {
+    root.querySelectorAll("[placeholder],[title],[aria-label],[alt]").forEach((element) => {
       if (isIgnored(element)) return;
       if (!originalAttrs.has(element)) originalAttrs.set(element, {});
       const record = originalAttrs.get(element);
