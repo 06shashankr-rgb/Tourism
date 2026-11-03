@@ -113,31 +113,48 @@ TravelMate uses two local translation layers:
 
 No paid cloud translation API is used. The local models translate from English into supported Indic languages; they do not guarantee every language direction or perfect translation quality. The model may take time to translate a page, especially on a CPU-only laptop. Review translations before using them for official information.
 
-### Install IndicTrans2 on Windows (recommended)
+### Install IndicTrans2 on Windows using WSL2 (recommended)
 
-From PowerShell, run:
+The IndicTransToolkit used by the Hugging Face IndicTrans2 model is documented for Linux/macOS and is not officially supported on native Windows. Run the Python translation service inside Ubuntu on WSL2; the React and Node services can remain on Windows.
 
-```powershell
-cd C:\Projects\Tourism\Tourism-New\python-service
-Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass
-.\install-indictrans2.ps1
-```
-
-This creates the `.venv` environment if needed, installs CPU-only PyTorch and the standard Python + IndicTrans2 dependencies. It does not require an NVIDIA GPU or paid API. You need internet for the initial package/model download; after the checkpoint is cached, inference runs locally. The distilled 200M checkpoint is smaller than the 1B base model, but still needs disk space and RAM.
-
-Start the service after installation:
+1. Install WSL2 and Ubuntu from an Administrator PowerShell terminal:
 
 ```powershell
-.\.venv\Scripts\Activate.ps1
-$env:TRANSLATION_FALLBACK="none"
-python -m uvicorn app:app --host 127.0.0.1 --port 8001
+wsl --install -d Ubuntu
 ```
 
-Setting `TRANSLATION_FALLBACK=none` is useful for confirming IndicTrans2 itself is working. Remove that setting or set it to `ollama` to allow the local Ollama fallback when IndicTrans2 cannot load.
+Restart Windows if prompted, open Ubuntu from the Start menu, and create your Linux username/password.
 
-Check http://127.0.0.1:8001/health. The `translation.indicTrans2Ready` field becomes `true` after the checkpoint has loaded successfully. This first load may take time.
+2. In the Ubuntu terminal, install Python tools:
 
-For an IndicTrans2-only test, call:
+```bash
+sudo apt update
+sudo apt install -y python3 python3-venv python3-pip git
+cd /mnt/c/Projects/Tourism/python-service
+python3 -m venv .venv
+source .venv/bin/activate
+python -m pip install --upgrade pip setuptools wheel
+```
+
+3. Install CPU-only PyTorch and IndicTrans2 dependencies:
+
+```bash
+python -m pip install torch --index-url https://download.pytorch.org/whl/cpu
+python -m pip install -r requirements.txt
+```
+
+4. Start the Python API inside Ubuntu, listening on all WSL interfaces:
+
+```bash
+export TRANSLATION_FALLBACK=none
+python -m uvicorn app:app --host 0.0.0.0 --port 8001
+```
+
+Windows can usually reach this WSL service at `http://127.0.0.1:8001` through WSL localhost forwarding. Keep the Ubuntu terminal open. In `backend/.env` on Windows, keep `PYTHON_AI_URL=http://127.0.0.1:8001`.
+
+5. Open the health endpoint in your Windows browser: http://127.0.0.1:8001/health. The first translation request downloads and caches the model. Confirm the response reports `translation.indicTrans2Ready: true` after the model loads.
+
+6. Test a Kannada translation from a Windows PowerShell terminal:
 
 ```powershell
 $body = @{
@@ -149,8 +166,9 @@ $body = @{
 Invoke-RestMethod -Method Post -Uri "http://127.0.0.1:8001/translate-batch" -ContentType "application/json" -Body $body
 ```
 
-Change `target` to another supported model code to test a different Indian language.
+Use `hin_Deva` for Hindi, `tam_Taml` for Tamil, and other supported target codes for the remaining languages. If Windows cannot reach the WSL API, check that Uvicorn is still running and that WSL2 localhost forwarding is enabled.
 
+IndicTrans2 runs locally after its initial model download. It does not require a paid translation API or an NVIDIA GPU. CPU translation can be slow, and the model needs available RAM and disk space.
 ## Database and live data
 
 MongoDB Compass is a GUI client, not the database server. The backend uses `mongodb://127.0.0.1:27017`, database `travelmate`. Sample places and events are available locally. Live places/events integrations require optional external API keys.
