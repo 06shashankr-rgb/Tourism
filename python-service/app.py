@@ -7,7 +7,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field
 
 from chatbot import answer_question
-from language_translator import LANGUAGES, translate_text, translate_texts
+from language_translator import LANGUAGES, translate_text, translate_texts, translation_status
 
 app = FastAPI(title="TravelMate Local Python Service", version="1.3.0")
 app.add_middleware(
@@ -46,7 +46,7 @@ def health():
         "chatbot": "local Ollama AI with rule-based fallback",
         "aiProvider": os.getenv("AI_PROVIDER", "ollama"),
         "ollamaModel": os.getenv("OLLAMA_MODEL", "qwen2.5:3b"),
-        "translation": "optional IndicTrans2 English-to-Indic; lazy-loaded",
+        "translation": translation_status(),
         "supportedTargets": sorted(LANGUAGES.keys()),
     }
 
