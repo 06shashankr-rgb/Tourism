@@ -19,7 +19,7 @@ async function geocodeLocation(query){
   return rows.map(x=>({label:x.display_name,lat:Number(x.lat),lng:Number(x.lon),type:x.type}));
 }
 
-app.get("/api/health",(_q,r)=>r.json({ok:true,service:"TravelMate API",database:isMongo()?"mongodb":"memory",translation:{provider:process.env.PYTHON_AI_URL?"Local IndicTrans2 + prepared dictionaries":"Prepared dictionaries only",configured:Boolean(process.env.PYTHON_AI_URL),paidCloud:false,localLanguages:16,preparedLanguages:5},liveData:{places:livePlacesConfigured(),events:liveEventsConfigured()}}));
+app.get("/api/health",(_q,r)=>r.json({ok:true,service:"TravelMate API",database:isMongo()?"mongodb":"memory",translation:{provider:process.env.PYTHON_AI_URL?"Local IndicTrans2 + prepared dictionaries":"Prepared dictionaries only",configured:Boolean(process.env.PYTHON_AI_URL),paidCloud:false,localLanguages:22,preparedLanguages:5},liveData:{places:livePlacesConfigured(),events:liveEventsConfigured()}}));
 app.post("/api/auth/signup",async(q,r)=>{try{const name=String(q.body.name||"").trim(),email=String(q.body.email||"").trim().toLowerCase(),password=String(q.body.password||"");if(!name||!email||password.length<6)return r.status(400).json({message:"Name, email and a password of at least 6 characters are required."});if(await findOne("users",{email}))return r.status(409).json({message:"Email already registered."});const u={id:makeId("USER"),name,email,passwordHash:await bcrypt.hash(password,12),createdAt:new Date().toISOString()};await insertOne("users",u);r.status(201).json({token:token(u),user:safeUser(u)})}catch(e){console.error(e);r.status(500).json({message:"Could not create account."})}});
 app.post("/api/auth/login",async(q,r)=>{try{const email=String(q.body.email||"").trim().toLowerCase(),password=String(q.body.password||""),u=await findOne("users",{email});if(!u||!(await bcrypt.compare(password,u.passwordHash)))return r.status(401).json({message:"Invalid email or password."});r.json({token:token(u),user:safeUser(u)})}catch(e){console.error(e);r.status(500).json({message:"Could not sign in."})}});
 app.get("/api/auth/me",requireAuth,async(q,r)=>{const u=await findOne("users",{id:q.user.id});if(!u)return r.status(404).json({message:"User not found."});r.json({user:safeUser(u)})});
@@ -41,9 +41,10 @@ app.post("/api/translate", async (q, r) => {
   const target = String(q.body?.target || "").trim();
   const supportedTargets = new Set([
     "asm_Beng", "ben_Beng", "brx_Deva", "doi_Deva", "guj_Gujr",
-    "hin_Deva", "kan_Knda", "mai_Deva", "mal_Mlym", "mni_Mtei",
-    "mar_Deva", "npi_Deva", "ory_Orya", "pan_Guru", "san_Deva",
-    "tam_Taml", "tel_Telu", "urd_Arab"
+    "hin_Deva", "kan_Knda", "kas_Arab", "gom_Deva", "mai_Deva",
+    "mal_Mlym", "mni_Mtei", "mar_Deva", "npi_Deva", "ory_Orya",
+    "pan_Guru", "san_Deva", "sat_Olck", "snd_Arab", "tam_Taml",
+    "tel_Telu", "urd_Arab"
   ]);
 
   if (!texts.length || texts.length > 50 ||
