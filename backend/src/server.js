@@ -51,7 +51,7 @@ app.post("/api/translate",async(q,r)=>{
   if(!pythonUrl)
     return r.status(503).json({error:"Local translation service is not configured. Start the TravelMate Python service on port 8001."});
   try{
-    const pythonResponse=await fetch(pythonUrl.replace(/\\/+$/,"")+"/translate-batch",{
+    const pythonResponse=await fetch(pythonUrl.replace(/\/+$/, "")+"/translate-batch",{
       method:"POST",headers:{"Content-Type":"application/json"},
       body:JSON.stringify({texts,source:"eng_Latn",target:indicCodes[targetLanguage]}),
       signal:AbortSignal.timeout(120000)
