@@ -87,11 +87,14 @@ function apply() {
       const original = rememberNode(node);
       const source = normalize(original);
       if (!source) continue;
-      if (currentLanguage === "English") node.nodeValue = original;
-      else {
+      let nextValue = original;
+      if (currentLanguage !== "English") {
         const translated = map.get(source);
-        node.nodeValue = translated ? original.replace(source, translated) : original;
+        if (translated) nextValue = original.replace(source, translated);
       }
+      // Avoid writing an unchanged value: characterData observation would otherwise
+      // schedule the translator again and create an endless mutation loop.
+      if (node.nodeValue !== nextValue) node.nodeValue = nextValue;
     }
 
     root.querySelectorAll("[placeholder],[title],[aria-label],[alt]").forEach((element) => {
