@@ -146,6 +146,27 @@ In the Python docs, test `POST /translate-batch` with:
 
 Then open TravelMate, choose Kannada (or another locally supported language), and check the navigation, page headings, buttons, form placeholders, image alt text, and text that loads after navigation. Change back to English and confirm the original text returns.
 
+
+## IndicTrans2 website translation
+
+The language dropdown displays the language names in English. The website uses local dictionary translations first and then requests English-to-Indic batch translations for remaining visible UI text through the Node backend and Python IndicTrans2 service.
+
+Supported language names in the selector: Assamese, Bengali, Bodo, Dogri, Gujarati, Hindi, Kannada, Kashmiri, Konkani, Maithili, Malayalam, Manipuri, Marathi, Nepali, Odia, Punjabi, Sanskrit, Santali, Sindhi, Tamil, Telugu and Urdu, plus English.
+
+The configured distilled checkpoint is English-to-Indic only. Indic-to-Indic and Indic-to-English require their corresponding IndicTrans2 checkpoints and separate model configuration; the current selector does not mean every direction is supported.
+
+To enable the website translation engine, first start all three services as described above. Then open a fourth VS Code terminal, activate the Python virtual environment and install the optional translation packages. Install the compatible CPU version of PyTorch first from https://pytorch.org/get-started/locally/ .
+
+```powershell
+cd C:\Projects\Tourism\Tourism-New\python-service
+.\.venv\Scripts\Activate.ps1
+pip install -r requirements-translation.txt
+```
+
+Restart the Python service after installation. The first translation request downloads the model, so it needs internet and can require several GB of disk space and RAM. On an 8 GB laptop, test cautiously; translation may be slow or run out of memory. The local dictionary translations continue to work for the strings already included even when the IndicTrans2 model is not installed.
+
+For details and the batch endpoint test, see [python-service/README.md](python-service/README.md).
+
 ## Database and live data
 
 MongoDB Compass is a GUI client, not the database server. The backend uses `mongodb://127.0.0.1:27017`, database `travelmate`. Sample places and events are available locally. Live places/events integrations require optional external API keys.
