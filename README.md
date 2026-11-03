@@ -102,11 +102,49 @@ Python API docs: http://127.0.0.1:8001/docs
 
 The Node backend forwards the user's question, selected language, recent conversation turns, and a limited context of nearby place/event records to Python. Python uses Ollama for open-ended replies. If Ollama is unavailable, it returns an explicitly labelled rule-based fallback. The model does not actually create bookings or modify the planner; those actions remain in the website.
 
-## Languages and translation
+## Languages and translation — free local setup
 
-The language selector displays English and Indian language names in English: Assamese, Bengali, Bhojpuri, Gujarati, Hindi, Kannada, Malayalam, Marathi, Maithili, Manipuri, Mizo, Nepali, Odia, Punjabi, Sanskrit, Tamil, Telugu and Urdu. Prepared interface dictionaries currently cover English, Kannada, Hindi, Tamil and Telugu; other listed languages still need full translation dictionaries, and untranslated text can remain in English. AI replies are prompted to use the selected language, but language quality depends on the local model and is not guaranteed to be perfect.
+TravelMate uses a **two-layer translation approach**:
 
-The separate Python `/translate` endpoint uses optional AI4Bharat IndicTrans2. It is not required for the chatbot and is not automatically applied to every page. See [python-service/README.md](python-service/README.md) and `python-service/requirements-translation.txt` for setup. Model downloads can be large and memory-intensive, especially on laptops with 8 GB RAM.
+1. **Prepared translations first:** the built-in dictionaries translate important interface labels and common TravelMate content in English, Kannada, Hindi, Tamil and Telugu. These work immediately and do not need a translation server.
+2. **Local AI translation for remaining text:** the React translator sends untranslated visible text to the Node backend. The backend forwards it to the Python service, which runs the free AI4Bharat IndicTrans2 model on this computer. Translations are cached in the browser for the current session.
+
+**No paid cloud translation API is used by this website flow.** The backend translation endpoint uses only the local Python service. Leave any old `GCP_PROJECT_ID` setting blank; the translation route does not call Google Cloud Translation.
+
+### Install the optional local translation model
+
+1. Start with the Python environment steps above and install the lightweight service requirements.
+2. Install CPU PyTorch using the official selector: https://pytorch.org/get-started/locally/
+3. In the activated `python-service` environment, run:
+
+   ```powershell
+   pip install -r requirements-translation.txt
+   ```
+
+4. Start the Python service at `http://127.0.0.1:8001`. The IndicTrans2 model downloads the first time a translation is requested; after that it runs locally. The initial model download requires internet and storage. CPU translation can be slow and uses significant RAM.
+5. Keep `PYTHON_AI_URL=http://127.0.0.1:8001` in `backend/.env`, then restart the backend and frontend.
+
+The local IndicTrans2 path supports Assamese, Bengali, Gujarati, Hindi, Kannada, Malayalam, Marathi, Maithili, Manipuri, Nepali, Odia, Punjabi, Sanskrit, Tamil, Telugu and Urdu. Bhojpuri and Mizo are shown in the language selector but are not supported by this local model; those pages use prepared translations where available and otherwise retain English text. English, Kannada, Hindi, Tamil and Telugu have prepared interface dictionaries.
+
+### Test translation
+
+With all three services running, open:
+
+- Backend health: http://localhost:5000/api/health
+- Python health: http://127.0.0.1:8001/health
+- Python API docs: http://127.0.0.1:8001/docs
+
+In the Python docs, test `POST /translate-batch` with:
+
+```json
+{
+  "texts": ["Welcome to TravelMate", "Explore nearby places"],
+  "source": "eng_Latn",
+  "target": "kan_Knda"
+}
+```
+
+Then open TravelMate, choose Kannada (or another locally supported language), and check the navigation, page headings, buttons, form placeholders, image alt text, and text that loads after navigation. Change back to English and confirm the original text returns.
 
 ## Database and live data
 
