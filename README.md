@@ -102,70 +102,18 @@ Python API docs: http://127.0.0.1:8001/docs
 
 The Node backend forwards the user's question, selected language, recent conversation turns, and a limited context of nearby place/event records to Python. Python uses Ollama for open-ended replies. If Ollama is unavailable, it returns an explicitly labelled rule-based fallback. The model does not actually create bookings or modify the planner; those actions remain in the website.
 
-## Languages and translation — free local setup
+## Languages and translation
 
-TravelMate uses a **two-layer translation approach**:
+The language selector shows language names in English, including **Kannada, Tamil, Telugu, Hindi, Malayalam, Bengali, Gujarati** and other supported Indian languages.
 
-1. **Prepared translations first:** the built-in dictionaries translate important interface labels and common TravelMate content in English, Kannada, Hindi, Tamil and Telugu. These work immediately and do not need a translation server.
-2. **Local AI translation for remaining text:** the React translator sends untranslated visible text to the Node backend. The backend forwards it to the Python service, which runs the free AI4Bharat IndicTrans2 model on this computer. Translations are cached in the browser for the current session.
+TravelMate uses two local translation layers:
 
-**No paid cloud translation API is used by this website flow.** The backend translation endpoint uses only the local Python service. Leave any old `GCP_PROJECT_ID` setting blank; the translation route does not call Google Cloud Translation.
+1. **Prepared dictionaries:** important labels and common place/event content are translated immediately for English, Kannada, Hindi, Tamil and Telugu.
+2. **Local AI translation:** untranslated visible page text is sent from React to the Node backend and then to the Python service. Python first tries the optional AI4Bharat IndicTrans2 model. If its dependencies or model are unavailable, it falls back to the already-running local Ollama model (default `qwen2.5:3b`). Temporary translation failures are retried by the frontend.
 
-### Install the optional local translation model
+No paid cloud translation API is used. The local models translate from English into supported Indic languages; they do not guarantee every language direction or perfect translation quality. The model may take time to translate a page, especially on a CPU-only laptop. Review translations before using them for official information.
 
-1. Start with the Python environment steps above and install the lightweight service requirements.
-2. Install CPU PyTorch using the official selector: https://pytorch.org/get-started/locally/
-3. In the activated `python-service` environment, run:
-
-   ```powershell
-   pip install -r requirements-translation.txt
-   ```
-
-4. Start the Python service at `http://127.0.0.1:8001`. The IndicTrans2 model downloads the first time a translation is requested; after that it runs locally. The initial model download requires internet and storage. CPU translation can be slow and uses significant RAM.
-5. Keep `PYTHON_AI_URL=http://127.0.0.1:8001` in `backend/.env`, then restart the backend and frontend.
-
-The local IndicTrans2 path supports Assamese, Bengali, Gujarati, Hindi, Kannada, Malayalam, Marathi, Maithili, Manipuri, Nepali, Odia, Punjabi, Sanskrit, Tamil, Telugu and Urdu. Bhojpuri and Mizo are shown in the language selector but are not supported by this local model; those pages use prepared translations where available and otherwise retain English text. English, Kannada, Hindi, Tamil and Telugu have prepared interface dictionaries.
-
-### Test translation
-
-With all three services running, open:
-
-- Backend health: http://localhost:5000/api/health
-- Python health: http://127.0.0.1:8001/health
-- Python API docs: http://127.0.0.1:8001/docs
-
-In the Python docs, test `POST /translate-batch` with:
-
-```json
-{
-  "texts": ["Welcome to TravelMate", "Explore nearby places"],
-  "source": "eng_Latn",
-  "target": "kan_Knda"
-}
-```
-
-Then open TravelMate, choose Kannada (or another locally supported language), and check the navigation, page headings, buttons, form placeholders, image alt text, and text that loads after navigation. Change back to English and confirm the original text returns.
-
-
-## IndicTrans2 website translation
-
-The language dropdown displays the language names in English. The website uses local dictionary translations first and then requests English-to-Indic batch translations for remaining visible UI text through the Node backend and Python IndicTrans2 service.
-
-Supported language names in the selector: Assamese, Bengali, Bodo, Dogri, Gujarati, Hindi, Kannada, Kashmiri, Konkani, Maithili, Malayalam, Manipuri, Marathi, Nepali, Odia, Punjabi, Sanskrit, Santali, Sindhi, Tamil, Telugu and Urdu, plus English.
-
-The configured distilled checkpoint is English-to-Indic only. Indic-to-Indic and Indic-to-English require their corresponding IndicTrans2 checkpoints and separate model configuration; the current selector does not mean every direction is supported.
-
-To enable the website translation engine, first start all three services as described above. Then open a fourth VS Code terminal, activate the Python virtual environment and install the optional translation packages. Install the compatible CPU version of PyTorch first from https://pytorch.org/get-started/locally/ .
-
-```powershell
-cd C:\Projects\Tourism\Tourism-New\python-service
-.\.venv\Scripts\Activate.ps1
-pip install -r requirements-translation.txt
-```
-
-Restart the Python service after installation. The first translation request downloads the model, so it needs internet and can require several GB of disk space and RAM. On an 8 GB laptop, test cautiously; translation may be slow or run out of memory. The local dictionary translations continue to work for the strings already included even when the IndicTrans2 model is not installed.
-
-For details and the batch endpoint test, see [python-service/README.md](python-service/README.md).
+For the simplest setup, install Ollama and download `qwen2.5:3b` as described above. You do **not** need to install the large IndicTrans2 model dependencies for the Ollama fallback.
 
 ## Database and live data
 
