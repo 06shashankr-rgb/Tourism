@@ -118,6 +118,11 @@ Node forwards this batch to Python, specifying English as the source language. K
 
 - `app.py`: FastAPI endpoints
 - `chatbot.py`: local Ollama chatbot and safe fallback
-- `language_translator.py`: IndicTrans2 translation engine
+- `language_translator.py`: IndicTrans2 translation with local Ollama fallback
 
 Keep this service bound to `127.0.0.1` during local development. Do not expose it directly to the public internet.
+
+
+### Translation fallback
+
+The translation service first attempts the optional AI4Bharat IndicTrans2 model. If its packages are not installed or the model cannot load, it uses the same local Ollama model configured for chat (`OLLAMA_MODEL`, default `qwen2.5:3b`). Therefore, basic translation does not require installing the optional IndicTrans2 dependencies, but Ollama must be running. Translation is English-to-Indic and should be reviewed for accuracy.
