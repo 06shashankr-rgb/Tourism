@@ -113,6 +113,15 @@ def _translate_with_ollama(texts: list[str], target: str) -> list[str]:
         ) from exc
 
 
+def translation_status() -> dict:
+    """Report whether IndicTrans2 can be loaded without failing the health endpoint."""
+    try:
+        load_translator()
+        return {"indicTrans2Ready": True, "model": MODEL_NAME, "device": "cpu"}
+    except RuntimeError as exc:
+        return {"indicTrans2Ready": False, "model": MODEL_NAME, "device": "cpu", "reason": str(exc)}
+
+
 def translate_texts(texts: list[str], source: str = "eng_Latn",
                     target: str = "kan_Knda") -> dict:
     """Translate 1–50 English UI strings to a supported Indic language."""
@@ -130,13 +139,18 @@ def translate_texts(texts: list[str], source: str = "eng_Latn",
     try:
         translated = _translate_with_indictrans(cleaned, target)
     except RuntimeError as indic_error:
+        if os.getenv("TRANSLATION_FALLBACK", "ollama").lower() != "ollama":
+            raise RuntimeError(
+                "IndicTrans2 is required but is not ready. Install its dependencies and "
+                "download the model once. Details: " + str(indic_error)
+            ) from indic_error
         try:
             translated = _translate_with_ollama(cleaned, target)
             provider = "Ollama-local"
         except RuntimeError as ollama_error:
             raise RuntimeError(
-                "Neither local translation engine is ready. Install the optional IndicTrans2 "
-                "dependencies or start Ollama with the configured model. "
+                "Neither local translation engine is ready. Install the IndicTrans2 "
+                "dependencies and download its model, or start Ollama with the configured model. "
                 f"IndicTrans2: {indic_error}; Ollama: {ollama_error}"
             ) from ollama_error
 
