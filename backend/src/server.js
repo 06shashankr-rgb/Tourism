@@ -1,5 +1,4 @@
 import "dotenv/config";
-import { TranslationServiceClient } from "@google-cloud/translate";
 import express from "express";import cors from "cors";import bcrypt from "bcryptjs";import jwt from "jsonwebtoken";
 import {connectDatabase,closeDatabase,collection,isMongo,memoryStore} from "./db.js";import {distanceKm,makeId,safeUser} from "./utils.js";import {requireAuth} from "./middleware/auth.js";import {livePlacesConfigured,liveEventsConfigured,searchLivePlaces,searchLiveEvents} from "./liveData.js";
 const app=express(),PORT=Number(process.env.PORT||5000),FRONTEND_URL=process.env.FRONTEND_URL||"http://localhost:5173",JWT_SECRET=process.env.JWT_SECRET||"travelmate-local-development-secret";
@@ -20,7 +19,7 @@ async function geocodeLocation(query){
   return rows.map(x=>({label:x.display_name,lat:Number(x.lat),lng:Number(x.lon),type:x.type}));
 }
 
-app.get("/api/health",(_q,r)=>r.json({ok:true,service:"TravelMate API",database:isMongo()?"mongodb":"memory",translation:{provider:process.env.GCP_PROJECT_ID?"Google Cloud Translation":process.env.PYTHON_AI_URL?"Optional local IndicTrans2":"Prepared dictionaries only",configured:Boolean(process.env.GCP_PROJECT_ID||process.env.PYTHON_AI_URL),languages:process.env.GCP_PROJECT_ID?19:process.env.PYTHON_AI_URL?16:5},liveData:{places:livePlacesConfigured(),events:liveEventsConfigured()}}));
+app.get("/api/health",(_q,r)=>r.json({ok:true,service:"TravelMate API",database:isMongo()?"mongodb":"memory",translation:{provider:process.env.PYTHON_AI_URL?"Local IndicTrans2 + prepared dictionaries":"Prepared dictionaries only",configured:Boolean(process.env.PYTHON_AI_URL),paidCloud:false,localLanguages:16,preparedLanguages:5},liveData:{places:livePlacesConfigured(),events:liveEventsConfigured()}}));
 app.post("/api/auth/signup",async(q,r)=>{try{const name=String(q.body.name||"").trim(),email=String(q.body.email||"").trim().toLowerCase(),password=String(q.body.password||"");if(!name||!email||password.length<6)return r.status(400).json({message:"Name, email and a password of at least 6 characters are required."});if(await findOne("users",{email}))return r.status(409).json({message:"Email already registered."});const u={id:makeId("USER"),name,email,passwordHash:await bcrypt.hash(password,12),createdAt:new Date().toISOString()};await insertOne("users",u);r.status(201).json({token:token(u),user:safeUser(u)})}catch(e){console.error(e);r.status(500).json({message:"Could not create account."})}});
 app.post("/api/auth/login",async(q,r)=>{try{const email=String(q.body.email||"").trim().toLowerCase(),password=String(q.body.password||""),u=await findOne("users",{email});if(!u||!(await bcrypt.compare(password,u.passwordHash)))return r.status(401).json({message:"Invalid email or password."});r.json({token:token(u),user:safeUser(u)})}catch(e){console.error(e);r.status(500).json({message:"Could not sign in."})}});
 app.get("/api/auth/me",requireAuth,async(q,r)=>{const u=await findOne("users",{id:q.user.id});if(!u)return r.status(404).json({message:"User not found."});r.json({user:safeUser(u)})});
@@ -35,50 +34,37 @@ app.post("/api/bookings",requireAuth,async(q,r)=>{const b=q.body;if(!b.eventId||
 
 // Google Cloud Translation API. Credentials are loaded through Application Default
 // Credentials (GOOGLE_APPLICATION_CREDENTIALS locally, or the runtime identity in production).
-const translationClient = new TranslationServiceClient();
 // Google Cloud Translation supports single and batched website text translation.
 app.post("/api/translate",async(q,r)=>{
+  const requested=Array.isArray(q.body?.texts)?q.body.texts:[q.body?.text];
+  const texts=requested.map(value=>typeof value==="string"?value.trim():"");
+  const targetLanguage=typeof q.body?.targetLanguage==="string"?q.body.targetLanguage.trim():"";
+  if(!texts.length||texts.length>50||texts.some(text=>!text)||!targetLanguage)
+    return r.status(400).json({error:"Provide 1–50 non-empty texts and a targetLanguage."});
+  if(texts.some(text=>text.length>1500)||texts.reduce((sum,text)=>sum+text.length,0)>30000)
+    return r.status(413).json({error:"Translation batch is too large."});
+  const indicCodes={"as":"asm_Beng","bn":"ben_Beng","gu":"guj_Gujr","hi":"hin_Deva","kn":"kan_Knda","ml":"mal_Mlym","mr":"mar_Deva","mai":"mai_Deva","mni-Mtei":"mni_Mtei","ne":"npi_Deva","or":"ory_Orya","pa":"pan_Guru","sa":"san_Deva","ta":"tam_Taml","te":"tel_Telu","ur":"urd_Arab"};
+  if(targetLanguage==="en")return r.json({success:true,targetLanguage,translations:texts,provider:"identity"});
+  if(!indicCodes[targetLanguage])
+    return r.status(422).json({error:"This language is not supported by the free local IndicTrans2 model. Prepared translations still work where available."});
+  const pythonUrl=process.env.PYTHON_AI_URL?.trim();
+  if(!pythonUrl)
+    return r.status(503).json({error:"Local translation service is not configured. Start the TravelMate Python service on port 8001."});
   try{
-    const requested=Array.isArray(q.body?.texts)?q.body.texts:[q.body?.text];
-    const texts=requested.map(value=>typeof value==="string"?value.trim():"");
-    const targetLanguage=typeof q.body?.targetLanguage==="string"?q.body.targetLanguage.trim():"";
-    if(!texts.length||texts.length>80||texts.some(text=>!text)||!targetLanguage)
-      return r.status(400).json({error:"Provide 1–80 non-empty texts and a targetLanguage."});
-    if(texts.some(text=>text.length>5000)||texts.reduce((sum,text)=>sum+text.length,0)>30000)
-      return r.status(413).json({error:"Translation batch is too large. Use up to 30,000 characters per request."});
-    if(!/^[a-zA-Z]{2,3}(-[a-zA-Z0-9]{2,8})?$/.test(targetLanguage))
-      return r.status(400).json({error:"Invalid target language code."});
-    const projectId=process.env.GCP_PROJECT_ID?.trim();
-    if(!projectId){
-      const indicCodes={"as":"asm_Beng","bn":"ben_Beng","gu":"guj_Gujr","hi":"hin_Deva","kn":"kan_Knda","ml":"mal_Mlym","mr":"mar_Deva","mai":"mai_Deva","mni-Mtei":"mni_Mtei","ne":"npi_Deva","or":"ory_Orya","pa":"pan_Guru","sa":"san_Deva","ta":"tam_Taml","te":"tel_Telu","ur":"urd_Arab"};
-      const pythonUrl=process.env.PYTHON_AI_URL?.trim();
-      if(pythonUrl&&indicCodes[targetLanguage]){
-        const pythonResponse=await fetch(pythonUrl.replace(/\/+$/,"")+"/translate-batch",{
-          method:"POST",headers:{"Content-Type":"application/json"},
-          body:JSON.stringify({texts,source:"eng_Latn",target:indicCodes[targetLanguage]}),
-          signal:AbortSignal.timeout(120000)
-        });
-        const pythonData=await pythonResponse.json().catch(()=>({}));
-        if(pythonResponse.ok&&Array.isArray(pythonData.translations)&&pythonData.translations.length===texts.length)
-          return r.json({success:true,targetLanguage,translations:pythonData.translations,provider:"IndicTrans2"});
-        return r.status(pythonResponse.status||503).json({error:pythonData.detail||"Local IndicTrans2 translation is unavailable. Install its optional translation dependencies and start the Python service."});
-      }
-      if(targetLanguage==="en")return r.json({success:true,targetLanguage,translations:texts});
-      return r.status(503).json({error:"Translation is not configured for this language. Configure Google Cloud Translation or the local IndicTrans2 service."});
-    }
-    const [response]=await translationClient.translateText({
-      parent:`projects/${projectId}/locations/global`,
-      contents:texts,
-      mimeType:"text/plain",
-      targetLanguageCode:targetLanguage
+    const pythonResponse=await fetch(pythonUrl.replace(/\\/+$/,"")+"/translate-batch",{
+      method:"POST",headers:{"Content-Type":"application/json"},
+      body:JSON.stringify({texts,source:"eng_Latn",target:indicCodes[targetLanguage]}),
+      signal:AbortSignal.timeout(120000)
     });
-    const translations=response.translations?.map(item=>item.translatedText||"")||[];
-    if(translations.length!==texts.length||translations.some(value=>!value))
-      return r.status(502).json({error:"Translation provider returned an incomplete batch."});
-    return r.json({success:true,targetLanguage,translations});
+    const pythonData=await pythonResponse.json().catch(()=>({}));
+    if(!pythonResponse.ok)
+      return r.status(pythonResponse.status||503).json({error:pythonData.detail||"Local IndicTrans2 translation failed."});
+    if(!Array.isArray(pythonData.translations)||pythonData.translations.length!==texts.length||pythonData.translations.some(value=>typeof value!=="string"||!value.trim()))
+      return r.status(502).json({error:"Local translation returned an incomplete batch."});
+    return r.json({success:true,targetLanguage,translations:pythonData.translations,provider:"IndicTrans2-local"});
   }catch(error){
-    console.error("Google Cloud Translation error:",error.message);
-    return r.status(502).json({error:"Translation failed. Check the selected language, Google Cloud Translation API, billing, permissions, and credentials."});
+    console.error("Local IndicTrans2 translation error:",error.message);
+    return r.status(503).json({error:"Local translation service is unavailable. Check that Python is running and the IndicTrans2 model dependencies are installed."});
   }
 });
 
