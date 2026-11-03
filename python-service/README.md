@@ -1,44 +1,28 @@
 # TravelMate Python AI Service
 
-This service exposes the separate Python chatbot and language translator for TravelMate. The chatbot uses a **hybrid design**: a local Ollama language model for open-ended conversations, with TravelMate place/event context supplied by the Node backend. If Ollama is unavailable, the service returns a transparent rule-based fallback instead of pretending a model answered.
+This service contains the local Ollama chatbot and an optional IndicTrans2 translator. The translator can be called directly or used by the website through the Node API.
 
 ## 1. Requirements
 
 - Windows 10/11
 - Python 3.10 or 3.11 recommended
 - Node backend running at `http://localhost:5000`
-- Ollama installed for generative local AI (free; no per-message cloud API key)
-- Internet for initial package/model downloads
+- Ollama for local generative AI conversations (optional for translation)
+- Internet for initial package and model downloads
 
-## 2. Install and start Ollama
+## 2. Local AI chatbot (optional)
 
-1. Install Ollama for Windows from https://ollama.com/download/windows
-2. Open a new VS Code terminal and download the recommended small model:
-
-   ```powershell
-   ollama pull qwen2.5:3b
-   ```
-
-3. Check that Ollama responds:
-
-   ```powershell
-   ollama run qwen2.5:3b
-   ```
-
-   Type a short question to test it, then type `/bye` to leave the model chat. The Ollama Windows app normally keeps its local service running. If it is not running, start Ollama from the Start menu or run `ollama serve` in a separate terminal.
-
-The default model is `qwen2.5:3b`. You can select another model available in your Ollama installation by setting the `OLLAMA_MODEL` environment variable before starting Python, for example:
+Install Ollama from https://ollama.com/download/windows and run:
 
 ```powershell
-$env:OLLAMA_MODEL = "qwen2.5:3b"
-$env:OLLAMA_BASE_URL = "http://127.0.0.1:11434"
+ollama pull qwen2.5:3b
 ```
 
-A 3B model is a reasonable starting point for many laptops, but speed and quality depend on available RAM/CPU. Model answers can be wrong; check official sources for changing travel facts.
+The default model is `qwen2.5:3b`. The Python chatbot receives the user's question, selected language, recent conversation and a small set of current TravelMate place/event records from the backend.
 
-## 3. Start TravelMate Python service
+## 3. Run the Python API
 
-From the repository root in VS Code:
+From the repository root:
 
 ```powershell
 cd python-service
@@ -49,54 +33,91 @@ pip install -r requirements.txt
 python -m uvicorn app:app --host 127.0.0.1 --port 8001
 ```
 
-If PowerShell blocks activation, run the venv executables directly:
+API documentation: http://127.0.0.1:8001/docs
+
+The Node backend uses `PYTHON_AI_URL=http://127.0.0.1:8001` from `backend/.env`.
+
+## 4. Enable IndicTrans2 website translation
+
+The frontend uses prepared translations first, then asks the Node API to translate remaining visible English UI text in small batches. Node forwards those requests to Python's `/translate-batch` endpoint. The model is loaded once on the first translation request and reused.
+
+### Model and supported language options
+
+TravelMate uses the AI4Bharat distilled English-to-Indic model:
+
+`ai4bharat/indictrans2-en-indic-dist-200M`
+
+The dropdown uses English language names for the IndicTrans2 language options: Assamese, Bengali, Bodo, Dogri, Gujarati, Hindi, Kannada, Kashmiri, Konkani, Maithili, Malayalam, Manipuri, Marathi, Nepali, Odia, Punjabi, Sanskrit, Santali, Sindhi, Tamil, Telugu and Urdu.
+
+The configured distilled checkpoint is English-to-Indic. It does **not** translate arbitrary Indic-to-Indic or Indic-to-English requests. For those directions, the Indic-Indic or Indic-En checkpoints must be separately configured and selected. Do not infer language-direction support from a language appearing in the dropdown.
+
+### Install the optional dependencies
+
+IndicTrans2 inference requires PyTorch, Transformers, SentencePiece, Sacremoses and IndicTransToolkit. On Windows, install the compatible CPU build of PyTorch first using the official selector:
+
+https://pytorch.org/get-started/locally/
+
+Then, with the TravelMate Python virtual environment activated:
 
 ```powershell
-.\\.venv\\Scripts\\python.exe -m pip install -r requirements.txt
-.\\.venv\\Scripts\\python.exe -m uvicorn app:app --host 127.0.0.1 --port 8001
+pip install -r requirements-translation.txt
 ```
 
-Open http://127.0.0.1:8001/docs and test `POST /chat`. The Node backend calls this Python service when `PYTHON_AI_URL=http://127.0.0.1:8001` is set in `backend/.env`. It sends the user's question, selected language, recent conversation turns, and a small context containing places/events from the TravelMate database.
+If you want to override the model, set the same environment variable before starting Uvicorn:
 
-## 4. AI behaviour
+```powershell
+$env:INDICTRANS_EN_INDIC_MODEL = "ai4bharat/indictrans2-en-indic-dist-200M"
+```
 
-- `POST /chat`: local Ollama model, language instruction, conversation history and grounded TravelMate context.
-- The system prompt asks the model not to invent prices, opening hours, event availability, or completed bookings.
-- If Ollama is not running or the model is missing, a rule-based fallback is returned with a warning in the reply. The response's `provider` field identifies the path used.
-- The model may reply in English, Kannada, Hindi, Tamil or Telugu when asked; this is model-generated language, not a guarantee of perfect translation.
-- The React website uses prepared dictionaries for English, Kannada, Hindi, Tamil and Telugu, plus the backend batch-translation pipeline for other selected languages. AI replies are separately prompted to use the visitor's selected language.
+Check the official model card and access requirements:
+https://huggingface.co/ai4bharat/indictrans2-en-indic-dist-200M
 
-## 5. Optional sentence translation with IndicTrans2
+The first translation request downloads the model. Model files and PyTorch can require several gigabytes of storage and memory. An 8 GB laptop may run slowly or run out of memory; install and test the lightweight Python API and Ollama separately before adding IndicTrans2 dependencies.
 
-The `POST /translate` and `POST /translate-batch` endpoints use AI4Bharat IndicTrans2. The batch endpoint is used by the React website to translate visible UI strings when Google Cloud Translation is not configured. It is not required for the AI chatbot.
+### Test the Python batch endpoint
 
-1. Install CPU PyTorch using https://pytorch.org/get-started/locally/
-2. Activate the Python environment and install:
-   ```powershell
-   pip install -r requirements-translation.txt
-   ```
-3. Review model access/licensing: https://huggingface.co/ai4bharat/indictrans2-en-indic-dist-200M
-4. Start the Python service as above. The model loads only on the first translation request.
-5. Test `POST /translate` with:
-   ```json
-   {"text":"Welcome to Mysuru","source":"eng_Latn","target":"kan_Knda"}
-   ```
+With the Python service running, open http://127.0.0.1:8001/docs and test `POST /translate-batch`:
 
-The first translation downloads model files and requires internet. Model downloads can be large and memory-intensive, especially on 8 GB RAM laptops. The default model is English-to-Indic. The current local model mapping covers Assamese, Bengali, Gujarati, Hindi, Kannada, Malayalam, Marathi, Maithili, Manipuri, Nepali, Odia, Punjabi, Sanskrit, Tamil, Telugu and Urdu. Bhojpuri and Mizo are not in the local IndicTrans2 mapping; configure Google Cloud Translation and check provider language availability for those selections. This model does not support every language direction.
+```json
+{
+  "texts": ["Welcome to Mysuru", "Explore nearby places"],
+  "source": "eng_Latn",
+  "target": "kan_Knda"
+}
+```
 
-## API endpoints
+Expected response contains a `translations` array with the same number of entries as the input.
+
+### Enable website translation
+
+In `backend/.env`, verify:
+
+```env
+PYTHON_AI_URL=http://127.0.0.1:8001
+```
+
+The frontend calls `POST http://localhost:5000/api/translate` with:
+
+```json
+{
+  "texts": ["Welcome to Mysuru", "Explore nearby places"],
+  "target": "kan_Knda"
+}
+```
+
+Node forwards this batch to Python, specifying English as the source language. Keep the backend, frontend and Python terminals running. After changing Python code or installing dependencies, restart Uvicorn. After changing the backend, restart Node.
+
+## 5. API endpoints
 
 - `GET /` and `GET /health`
-- `POST /chat` — `{"message":"Plan a two-day Mysuru trip","location":"Mysuru","language":"English","context":{},"history":[]}`
-- `POST /translate` — `{"text":"Welcome to Mysuru","source":"eng_Latn","target":"kan_Knda"}`
-- `POST /translate-batch` — `{"texts":["Welcome to Mysuru","Explore nearby places"],"source":"eng_Latn","target":"kan_Knda"}`
+- `POST /chat` — hybrid Ollama chatbot with TravelMate context
+- `POST /translate` — single English-to-Indic translation
+- `POST /translate-batch` — batch English-to-Indic translations
 
 ## Python files
 
-- `app.py`: FastAPI routes.
-- `chatbot.py`: Ollama-based conversational AI and fallback logic.
-- `language_translator.py`: optional IndicTrans2 single and batch translation.
-- `requirements.txt`: lightweight web service dependencies.
-- `requirements-translation.txt`: optional model dependencies.
+- `app.py`: FastAPI endpoints
+- `chatbot.py`: local Ollama chatbot and safe fallback
+- `language_translator.py`: IndicTrans2 translation engine
 
-Keep the service bound to `127.0.0.1) during local development. Do not expose it directly to the public internet.
+Keep this service bound to `127.0.0.1` during local development. Do not expose it directly to the public internet.
