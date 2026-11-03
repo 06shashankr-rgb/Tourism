@@ -65,9 +65,9 @@ return <div className={"app theme-"+theme}>{!isAuthPage&&<Header t={t} language=
 }
 
 function Header({t,language,setLanguage,theme,setTheme,user,logout}){const nav=[["/",t.home],["/places",t.navExplore],["/events",t.navEvents],["/ai",t.navAssistant],["/planner",t.navPlanner]];return <header className="header"><Link className="brand" to="/"><span className="brand-mark">T</span><span>Travel<span>Mate</span></span></Link><nav className="main-nav">{nav.map(([path,label])=><NavLink key={path} to={path} end={path==="/"}>{label}</NavLink>)}</nav><div className="header-actions"><select className="language-select" aria-label="Language" value={language} onChange={e=>setLanguage(e.target.value)} data-no-translate>
+<option value="English">English</option>
 <option value="Assamese">Assamese</option>
 <option value="Bengali">Bengali</option>
-<option value="Bhojpuri">Bhojpuri</option>
 <option value="Gujarati">Gujarati</option>
 <option value="Hindi">Hindi</option>
 <option value="Kannada">Kannada</option>
@@ -75,7 +75,6 @@ function Header({t,language,setLanguage,theme,setTheme,user,logout}){const nav=[
 <option value="Marathi">Marathi</option>
 <option value="Maithili">Maithili</option>
 <option value="Manipuri">Manipuri</option>
-<option value="Mizo">Mizo</option>
 <option value="Nepali">Nepali</option>
 <option value="Odia">Odia</option>
 <option value="Punjabi">Punjabi</option>
@@ -83,7 +82,6 @@ function Header({t,language,setLanguage,theme,setTheme,user,logout}){const nav=[
 <option value="Tamil">Tamil</option>
 <option value="Telugu">Telugu</option>
 <option value="Urdu">Urdu</option>
-<option value="English">English</option>
 </select><button className="theme-button" aria-label="Toggle dark mode" onClick={()=>setTheme(theme==="light"?"dark":"light")}>🌙</button>{user?<div className="account-menu"><span className="avatar">{user.name?.charAt(0)?.toUpperCase()||"U"}</span><span className="account-name">{user.name}</span><button className="outline-button" onClick={logout}>{t.logout}</button></div>:<div className="auth-links"><Link className="outline-button" to="/login">{t.signIn}</Link><Link className="solid-button" to="/signup">{t.signUp}</Link></div>}</div></header>}
 
 function Home({t,location,live,startGps,places}){const nav=useNavigate(),featured=places.slice(0,3);return <main><section className="hero-v2"><div className="hero-v2-copy"><div className="overline"><span></span>{t.heroOverline}</div><h1>{t.heroTitle}<br/><i>{t.heroTitleAccent}</i></h1><p>{t.heroText}</p><div className="hero-cta"><button className="solid-button large" onClick={()=>nav("/places")}>{t.startExploring} <Icon name="arrow"/></button><button className="outline-button large" onClick={startGps}><Icon name="pin"/> {t.useLocation}</button></div><div className="hero-location"><span className={live?"pulse":""}></span><b>{live?t.live:"Mysuru"}</b><small>{location.lat.toFixed(4)}, {location.lng.toFixed(4)}</small></div></div><div className="hero-collage"><div className="hero-main-image" style={{backgroundImage:"url("+placeImage("Mysore Palace")+")"}}><span>01 / {t.heritageCategory}</span><b>Mysore Palace</b></div><div className="hero-side-image" style={{backgroundImage:"url("+placeImage("Chamundi Hill")+")"}}><span>02 / {t.natureCategory}</span><b>Chamundi Hill</b></div><div className="hero-note"><strong>TravelMate</strong><span>{t.heroNote}</span></div></div></section><section className="stat-band"><div><strong>01</strong><span>{t.stat1}</span><small>{t.stat1a}</small></div><div><strong>02</strong><span>{t.stat2}</span><small>{t.stat2a}</small></div><div><strong>03</strong><span>{t.stat3}</span><small>{t.stat3a}</small></div><div><strong>04</strong><span>{t.stat4}</span><small>{t.stat4a}</small></div></section><section className="home-section"><div className="section-title"><div><span>{t.discoverFirst}</span><h2>{t.placesWorth}</h2></div><Link to="/places">{t.viewAll} <Icon name="arrow" size={15}/></Link></div><div className="feature-grid">{featured.length?featured.map((p,i)=><Link to="/places" className={"feature-card "+(i===0?"featured":"")} key={p.id} style={{backgroundImage:"url("+placeImage(p.name,p.imageUrl,p.category)+")"}}><div className="feature-shade"></div><div className="feature-card-content"><small>{String(p.category).toUpperCase()}</small><h3>{p.name}</h3><span>{p.distance!==undefined?p.distance.toFixed(1)+" km away":t.nearby} <Icon name="arrow" size={14}/></span></div></Link>):<div className="loading-block">Loading destinations...</div>}</div></section><section className="manifesto"><div className="manifesto-number">TM</div><div><span>{t.idea}</span><h2>{t.lessSearch}<br/><em>{t.moreExperience}</em></h2></div><p>{t.manifesto}</p></section></main>}
