@@ -115,5 +115,32 @@ app.post("/api/assistant",async(q,r)=>{
   }
   return r.json({answer:`I can help with destinations, events, and itineraries for ${location}. For richer conversational AI, start the Python service and local Ollama model. I can currently reference ${places.length} places and ${events.length} events from TravelMate.`,provider:"travelmate-data",items:places.slice(0,4)});
 });
+
+// Batch text translation proxy. Keep the IndicTrans2 model and its heavy
+// Python dependencies out of the Node process.
+app.post("/api/translate", async (q, r) => {
+  const texts = Array.isArray(q.body.texts) ? q.body.texts : [];
+  const target = String(q.body.target || "").trim();
+  const pythonUrl = process.env.PYTHON_AI_URL?.trim();
+  if (!texts.length || texts.length > 50 || texts.some(x => typeof x !== "string" || !x.trim() || x.length > 1500)) {
+    return r.status(400).json({ message: "Provide 1–50 non-empty text strings (maximum 1,500 characters each)." });
+  }
+  if (!target) return r.status(400).json({ message: "Target language code is required." });
+  if (!pythonUrl) return r.status(503).json({ message: "PYTHON_AI_URL is not configured." });
+  try {
+    const response = await fetch(pythonUrl.replace(/\/$/, "") + "/translate-batch", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ texts, source: "eng_Latn", target }),
+      signal: AbortSignal.timeout(180000)
+    });
+    const data = await response.json().catch(() => ({}));
+    if (!response.ok) return r.status(response.status).json({ message: data.detail || "Translation service failed." });
+    return r.json(data);
+  } catch (error) {
+    console.error("IndicTrans2 batch translation unavailable:", error.message);
+    return r.status(503).json({ message: "Start the Python service and install the optional IndicTrans2 dependencies. " + error.message });
+  }
+});
 app.use((_q,r)=>r.status(404).json({message:"API route not found."}));
 await connectDatabase();const server=app.listen(PORT,()=>console.log(`TravelMate API running at http://localhost:${PORT}`));process.on("SIGINT",async()=>{await closeDatabase();server.close(()=>process.exit(0))});
