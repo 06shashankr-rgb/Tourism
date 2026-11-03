@@ -32,10 +32,7 @@ app.delete("/api/planner/:type/:itemId",requireAuth,async(q,r)=>{const x=await d
 app.get("/api/bookings",requireAuth,async(q,r)=>{const x=await findMany("bookings",{userId:q.user.id});r.json(x.sort((a,b)=>String(b.createdAt).localeCompare(String(a.createdAt))))});
 app.post("/api/bookings",requireAuth,async(q,r)=>{const b=q.body;if(!b.eventId||!b.eventName||!b.tickets||!b.email)return r.status(400).json({message:"Event, ticket count and contact email are required."});const x={id:makeId("BOOK"),userId:q.user.id,eventId:String(b.eventId),eventName:b.eventName,date:b.date,time:b.time,venue:b.venue,tickets:Number(b.tickets),total:Number(b.total||0),name:b.name,email:b.email,sourceUrl:b.sourceUrl,status:"confirmed",createdAt:new Date().toISOString()};await insertOne("bookings",x);r.status(201).json(x)});
 
-// Google Cloud Translation API. Credentials are loaded through Application Default
-// Credentials (GOOGLE_APPLICATION_CREDENTIALS locally, or the runtime identity in production).
-// Google Cloud Translation supports single and batched website text translation.
-// Free local IndicTrans2 translation proxy. No paid cloud API is used.
+// Free local IndicTrans2 translation proxy. No paid cloud translation API is used.
 app.post("/api/translate", async (q, r) => {
   const texts = Array.isArray(q.body?.texts) ? q.body.texts : [];
   const target = String(q.body?.target || "").trim();
