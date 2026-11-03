@@ -1,4 +1,4 @@
-"""FastAPI entry point for TravelMate's local chatbot and translation services."""
+"""FastAPI entry point for TravelMate's local chatbot and IndicTrans2 service."""
 import os
 from typing import Any, Optional
 
@@ -9,7 +9,7 @@ from pydantic import BaseModel, Field
 from chatbot import answer_question
 from language_translator import LANGUAGES, translate_text, translate_texts
 
-app = FastAPI(title="TravelMate Local Python Service", version="1.2.0")
+app = FastAPI(title="TravelMate Local Python Service", version="1.3.0")
 app.add_middleware(
     CORSMiddleware,
     allow_origins=os.getenv("ALLOWED_ORIGINS", "http://localhost:5173,http://127.0.0.1:5173").split(","),
@@ -46,8 +46,8 @@ def health():
         "chatbot": "local Ollama AI with rule-based fallback",
         "aiProvider": os.getenv("AI_PROVIDER", "ollama"),
         "ollamaModel": os.getenv("OLLAMA_MODEL", "qwen2.5:3b"),
-        "translation": "optional IndicTrans2; model loads on first request",
-        "languageCodes": sorted(LANGUAGES.keys()),
+        "translation": "optional IndicTrans2 English-to-Indic; lazy-loaded",
+        "supportedTargets": sorted(LANGUAGES.keys()),
     }
 
 @app.post("/chat")
