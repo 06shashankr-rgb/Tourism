@@ -15,16 +15,23 @@ let translating = false;
 let warned = false;
 
 const languageCodes = {
-  English: "en", Assamese: "as", Bengali: "bn", Bhojpuri: "bho",
-  Gujarati: "gu", Hindi: "hi", Kannada: "kn", Malayalam: "ml",
-  Marathi: "mr", Maithili: "mai", Manipuri: "mni-Mtei", Mizo: "lus",
-  Nepali: "ne", Odia: "or", Punjabi: "pa", Sanskrit: "sa",
-  Tamil: "ta", Telugu: "te", Urdu: "ur"
+  English: "en", Assamese: "as", Bengali: "bn", Gujarati: "gu",
+  Hindi: "hi", Kannada: "kn", Malayalam: "ml", Marathi: "mr",
+  Maithili: "mai", Manipuri: "mni-Mtei", Nepali: "ne", Odia: "or",
+  Punjabi: "pa", Sanskrit: "sa", Tamil: "ta", Telugu: "te", Urdu: "ur"
 };
 
-const localModelLanguages = new Set(["as","bn","gu","hi","kn","ml","mr","mai","mni-Mtei","ne","or","pa","sa","ta","te","ur"]);
+const indicTargets = {
+  Assamese: "asm_Beng", Bengali: "ben_Beng", Gujarati: "guj_Gujr",
+  Hindi: "hin_Deva", Kannada: "kan_Knda", Malayalam: "mal_Mlym",
+  Marathi: "mar_Deva", Maithili: "mai_Deva", Manipuri: "mni_Mtei",
+  Nepali: "npi_Deva", Odia: "ory_Orya", Punjabi: "pan_Guru",
+  Sanskrit: "san_Deva", Tamil: "tam_Taml", Telugu: "tel_Telu",
+  Urdu: "urd_Arab"
+};
+
 function normalize(value) {
-  return String(value ?? "").replace(/\s+/g, " ").trim();
+  return String(value ?? "").replace(/\\s+/g, " ").trim();
 }
 
 function isIgnored(node) {
@@ -49,13 +56,18 @@ function localMap(language) {
   return map;
 }
 
-function languageMap(language) {
-  const map = localMap(language);
+function activeMap() {
+  const map = localMap(currentLanguage);
+  const prefix = currentLanguage + "::";
   remoteCache.forEach((value, key) => {
-    const prefix = language + "::";
     if (key.startsWith(prefix)) map.set(key.slice(prefix.length), value);
   });
   return map;
+}
+
+function rememberNode(node) {
+  if (!originalText.has(node)) originalText.set(node, node.nodeValue || "");
+  return originalText.get(node);
 }
 
 function apply() {
@@ -63,13 +75,12 @@ function apply() {
   if (!root) return;
   applying = true;
   try {
-    const map = languageMap(currentLanguage);
+    const map = activeMap();
     const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT);
     let node;
     while ((node = walker.nextNode())) {
       if (isIgnored(node)) continue;
-      if (!originalText.has(node)) originalText.set(node, node.nodeValue || "");
-      const original = originalText.get(node);
+      const original = rememberNode(node);
       const source = normalize(original);
       if (!source) continue;
       if (currentLanguage === "English") node.nodeValue = original;
@@ -84,8 +95,8 @@ function apply() {
       if (!originalAttrs.has(element)) originalAttrs.set(element, {});
       const record = originalAttrs.get(element);
       attributeNames.forEach((name) => {
-        const current = element.getAttribute(name);
-        if (current !== null && record[name] === undefined) record[name] = current;
+        const value = element.getAttribute(name);
+        if (value !== null && record[name] === undefined) record[name] = value;
         if (record[name] === undefined) return;
         const original = record[name];
         const translated = currentLanguage === "English" ? undefined : map.get(normalize(original));
@@ -119,12 +130,13 @@ function collectUntranslated() {
   let node;
   while ((node = walker.nextNode())) {
     if (isIgnored(node)) continue;
-    if (!originalText.has(node)) originalText.set(node, node.nodeValue || "");
-    const text = normalize(originalText.get(node));
+    const original = rememberNode(node);
+    const text = normalize(original);
     if (text.length < 2 || local.has(text)) continue;
     const key = currentLanguage + "::" + text;
     if (!remoteCache.has(key) && !pendingKeys.has(key)) found.add(text);
   }
+
   root.querySelectorAll("[placeholder],[title],[aria-label],[alt]").forEach((element) => {
     if (isIgnored(element)) return;
     if (!originalAttrs.has(element)) originalAttrs.set(element, {});
@@ -133,10 +145,9 @@ function collectUntranslated() {
       const value = element.getAttribute(name);
       if (value !== null && record[name] === undefined) record[name] = value;
       const text = normalize(record[name]);
-      if (text.length >= 2 && !local.has(text)) {
-        const key = currentLanguage + "::" + text;
-        if (!remoteCache.has(key) && !pendingKeys.has(key)) found.add(text);
-      }
+      if (text.length < 2 || local.has(text)) return;
+      const key = currentLanguage + "::" + text;
+      if (!remoteCache.has(key) && !pendingKeys.has(key)) found.add(text);
     });
   });
   return [...found];
@@ -145,10 +156,11 @@ function collectUntranslated() {
 async function translateRemaining() {
   if (translating || currentLanguage === "English" || failedLanguages.has(currentLanguage)) return;
   const language = currentLanguage;
-  const targetLanguage = languageCodes[language];
-  if (!targetLanguage || !localModelLanguages.has(targetLanguage)) return;
+  const targetLanguage = indicTargets[language];
+  if (!targetLanguage) return;
   translating = true;
   try {
+    // Process batches in small groups to avoid sending the full page repeatedly.
     while (language === currentLanguage) {
       const texts = collectUntranslated().slice(0, 5);
       if (!texts.length) break;
@@ -158,11 +170,14 @@ async function translateRemaining() {
       try {
         const response = await api.translateBatch(batch, targetLanguage);
         const translated = Array.isArray(response.translations) ? response.translations : [];
+        if (translated.length !== batch.length) {
+          throw new Error("Translation service returned a different number of results than requested.");
+        }
         let offset = 0;
         jobs.forEach(job => {
           const pieces = translated.slice(offset, offset + job.parts.length);
           offset += job.parts.length;
-          if (pieces.length === job.parts.length && pieces.every(value => typeof value === "string" && value.trim())) {
+          if (pieces.every(value => typeof value === "string" && value.trim())) {
             remoteCache.set(language + "::" + job.text, pieces.join(" "));
           }
           pendingKeys.delete(language + "::" + job.text);
@@ -172,7 +187,7 @@ async function translateRemaining() {
         texts.forEach(text => pendingKeys.delete(language + "::" + text));
         failedLanguages.add(language);
         if (!warned) {
-          console.warn("TravelMate website translation service is not available:", error.message);
+          console.warn("TravelMate IndicTrans2 translation failed:", error.message);
           warned = true;
         }
         break;
@@ -189,11 +204,11 @@ function schedule() {
   timer = setTimeout(() => {
     apply();
     translateRemaining();
-  }, 120);
+  }, 180);
 }
 
 export function setWebsiteLanguage(language) {
-  currentLanguage = (translations[language] || languageCodes[language]) ? language : "English";
+  currentLanguage = languageCodes[language] ? language : "English";
   failedLanguages.delete(currentLanguage);
   document.documentElement.lang = languageCodes[currentLanguage] || "en";
   if (observer) observer.disconnect();
@@ -202,7 +217,7 @@ export function setWebsiteLanguage(language) {
   observer = new MutationObserver(() => {
     if (!applying) schedule();
   });
-  observer.observe(root, { subtree: true, childList: true });
+  observer.observe(root, { subtree: true, childList: true, characterData: true });
   translateRemaining();
 }
 
