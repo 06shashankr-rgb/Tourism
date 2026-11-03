@@ -42,7 +42,10 @@ def load_translator():
     try:
         import torch
         from transformers import AutoTokenizer, AutoModelForSeq2SeqLM
-        from IndicTransToolkit.processor import IndicProcessor
+        try:
+            from IndicTransToolkit import IndicProcessor
+        except ImportError:
+            from IndicTransToolkit.IndicTransToolkit import IndicProcessor
     except ImportError as exc:
         raise RuntimeError(
             "Optional IndicTrans2 dependencies are not installed."
