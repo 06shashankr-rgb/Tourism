@@ -1,8 +1,8 @@
-"""Local IndicTrans2 batch translation engine for TravelMate.
+"""Local IndicTrans2 English-to-Indic translation engine for TravelMate.
 
-The model is lazy-loaded and cached. This module currently supports reliable
-English-to-Indic website string translation with the 200M distilled checkpoint.
-Do not assume the En-Indic checkpoint supports arbitrary Indic-to-Indic pairs.
+This module uses AI4Bharat's distilled En-Indic checkpoint and lazy-loads it
+on the first request. That checkpoint translates from English to Indic;
+do not pass Indic source text to it.
 """
 import os
 from functools import lru_cache
@@ -10,22 +10,23 @@ from functools import lru_cache
 LANGUAGES = {
     "as": "asm_Beng", "bn": "ben_Beng", "brx": "brx_Deva",
     "doi": "doi_Deva", "en": "eng_Latn", "gu": "guj_Gujr",
-    "hi": "hin_Deva", "kn": "kan_Knda", "mai": "mai_Deva",
-    "ml": "mal_Mlym", "mni": "mni_Mtei", "mr": "mar_Deva",
-    "ne": "npi_Deva", "or": "ory_Orya", "pa": "pan_Guru",
-    "sa": "san_Deva", "ta": "tam_Taml", "te": "tel_Telu",
-    "ur": "urd_Arab",
+    "hi": "hin_Deva", "kn": "kan_Knda", "ks": "kas_Arab",
+    "kok": "gom_Deva", "mai": "mai_Deva", "ml": "mal_Mlym",
+    "mni": "mni_Mtei", "mr": "mar_Deva", "ne": "npi_Deva",
+    "or": "ory_Orya", "pa": "pan_Guru", "sa": "san_Deva",
+    "sat": "sat_Olck", "sd": "snd_Arab", "ta": "tam_Taml",
+    "te": "tel_Telu", "ur": "urd_Arab",
 }
 
-# The currently configured small checkpoint is English -> Indic.
-EN_INDIC_MODEL = os.getenv(
+# English-to-Indic distilled model, approximately 200M parameters.
+MODEL_NAME = os.getenv(
     "INDICTRANS_EN_INDIC_MODEL",
     "ai4bharat/indictrans2-en-indic-dist-200M",
 )
 
 @lru_cache(maxsize=1)
 def load_translator():
-    """Load IndicTrans2 only when translation is first requested."""
+    """Load the model once, only when translation is first requested."""
     try:
         import torch
         from transformers import AutoTokenizer, AutoModelForSeq2SeqLM
@@ -36,28 +37,28 @@ def load_translator():
         ) from exc
 
     try:
-        tokenizer = AutoTokenizer.from_pretrained(EN_INDIC_MODEL, trust_remote_code=True)
-        model = AutoModelForSeq2SeqLM.from_pretrained(EN_INDIC_MODEL, trust_remote_code=True)
+        tokenizer = AutoTokenizer.from_pretrained(MODEL_NAME, trust_remote_code=True)
+        model = AutoModelForSeq2SeqLM.from_pretrained(MODEL_NAME, trust_remote_code=True)
         model.to("cpu")
         model.eval()
         processor = IndicProcessor(inference=True)
         return torch, tokenizer, model, processor
     except Exception as exc:
         raise RuntimeError(
-            f"Could not load {EN_INDIC_MODEL}. Check model access, internet and RAM. Details: {exc}"
+            f"Could not load {MODEL_NAME}. Check model access, internet and available RAM. Details: {exc}"
         ) from exc
 
 
 def translate_texts(texts: list[str], source: str = "eng_Latn",
                     target: str = "kan_Knda") -> dict:
-    """Translate a batch of strings from English into one supported Indic language."""
+    """Translate 1–50 English UI strings to a supported Indic language."""
     if source != "eng_Latn":
         raise ValueError(
-            "This configured checkpoint is English-to-Indic only. "
-            "Use an Indic-Indic checkpoint for Indic-to-Indic translation."
+            "The configured distilled checkpoint is English-to-Indic only. "
+            "Use the separate Indic-Indic checkpoint for Indic-to-Indic text."
         )
     if target not in set(LANGUAGES.values()) - {"eng_Latn"}:
-        raise ValueError("Unsupported target language code for this English-to-Indic model.")
+        raise ValueError("Unsupported target language code.")
 
     cleaned = [str(item).strip() for item in texts]
     if not cleaned or len(cleaned) > 50 or any(not item for item in cleaned):
@@ -71,12 +72,12 @@ def translate_texts(texts: list[str], source: str = "eng_Latn",
     with torch.no_grad():
         generated = model.generate(**inputs, max_length=256, num_beams=2)
     decoded = tokenizer.batch_decode(generated, skip_special_tokens=True)
-    result = processor.postprocess_batch(decoded, lang=target)
+    translated = processor.postprocess_batch(decoded, lang=target)
     return {
-        "translations": result,
+        "translations": translated,
         "source": source,
         "target": target,
-        "model": EN_INDIC_MODEL,
+        "model": MODEL_NAME,
     }
 
 
