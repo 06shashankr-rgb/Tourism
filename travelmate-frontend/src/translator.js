@@ -85,7 +85,10 @@ function apply() {
       const normalized = normalize(original);
       if (!normalized) continue;
       const translated = currentLanguage === "English" ? null : map.get(normalized);
-      node.nodeValue = translated ? original.replace(normalized, translated) : original;
+      const nextValue = translated ? original.replace(normalized, translated) : original;
+      // Only write when the value changes. This prevents characterData observation
+      // from repeatedly scheduling the translator for already translated nodes.
+      if (node.nodeValue !== nextValue) node.nodeValue = nextValue;
     }
     root.querySelectorAll("[placeholder],[title],[aria-label],[alt]").forEach(element => {
       if (ignored(element)) return;
