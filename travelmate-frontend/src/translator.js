@@ -40,15 +40,26 @@ function ignored(node) {
   ));
 }
 function rememberText(node) {
-  if (!originalText.has(node)) originalText.set(node, node.nodeValue || "");
-  return originalText.get(node);
+  const current = node.nodeValue || "";
+  const record = originalText.get(node);
+  // React may reuse a text node for new content. If it no longer matches the
+  // value we last rendered, treat it as fresh source text rather than stale text.
+  if (!record || current !== record.rendered) {
+    originalText.set(node, { source: current, rendered: current });
+    return current;
+  }
+  return record.source;
 }
 function rememberAttrs(element) {
   if (!originalAttrs.has(element)) originalAttrs.set(element, {});
   const record = originalAttrs.get(element);
   attributeNames.forEach(name => {
-    const value = element.getAttribute(name);
-    if (value !== null && record[name] === undefined) record[name] = value;
+    const current = element.getAttribute(name);
+    if (current === null) return;
+    const previous = record[name];
+    if (!previous || current !== previous.rendered) {
+      record[name] = { source: current, rendered: current };
+    }
   });
   return record;
 }
@@ -89,15 +100,19 @@ function apply() {
       // Only write when the value changes. This prevents characterData observation
       // from repeatedly scheduling the translator for already translated nodes.
       if (node.nodeValue !== nextValue) node.nodeValue = nextValue;
+      const textRecord = originalText.get(node);
+      if (textRecord) textRecord.rendered = nextValue;
     }
     root.querySelectorAll("[placeholder],[title],[aria-label],[alt]").forEach(element => {
       if (ignored(element)) return;
       const record = rememberAttrs(element);
       attributeNames.forEach(name => {
         if (record[name] === undefined) return;
-        const original = record[name];
+        const original = record[name].source;
         const translated = currentLanguage === "English" ? null : map.get(normalize(original));
-        element.setAttribute(name, translated || original);
+        const nextValue = translated || original;
+        if (element.getAttribute(name) !== nextValue) element.setAttribute(name, nextValue);
+        record[name].rendered = nextValue;
       });
     });
   } finally {
@@ -119,7 +134,7 @@ function collectMissing() {
   root.querySelectorAll("[placeholder],[title],[aria-label],[alt]").forEach(element => {
     if (ignored(element)) return;
     const record = rememberAttrs(element);
-    attributeNames.forEach(name => add(record[name]));
+    attributeNames.forEach(name => { if (record[name]) add(record[name].source); });
   });
   return [...missing];
 }
