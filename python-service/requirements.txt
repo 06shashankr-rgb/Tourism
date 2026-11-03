@@ -1,3 +1,6 @@
 fastapi>=0.110,<1
 uvicorn[standard]>=0.27,<1
 pydantic>=2.6,<3
+
+# Include IndicTrans2 so the standard Python setup supports local translation.
+-r requirements-translation.txt
