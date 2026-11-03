@@ -1,7 +1,6 @@
-# Optional: install only if you want the offline IndicTrans2 /translate endpoint.
-# Install CPU PyTorch first using the official selector:
-# https://pytorch.org/get-started/locally/
-torch
+# Optional IndicTrans2 runtime for local English -> Indic batch translation.
+# Recommended on Windows: install CPU PyTorch separately first using
+# https://pytorch.org/get-started/locally/ then install this file.
 transformers>=4.38,<5
 sentencepiece
 sacremoses
