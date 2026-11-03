@@ -2,7 +2,7 @@
 
 **AI-Powered Smart Tourism Management System with Location-Aware Recommendations and Multilingual Travel Assistance**
 
-TravelMate contains a React + Vite frontend, Node.js + Express backend, MongoDB persistence, and a Python hybrid AI assistant. The assistant uses a local Ollama model for natural conversation and receives place/event context from the TravelMate backend. A separate IndicTrans2 endpoint can optionally translate sentences.
+TravelMate contains a React + Vite frontend, Node.js + Express backend, MongoDB persistence, and a Python hybrid AI assistant. The assistant uses a local Ollama model for natural conversation and receives place/event context from the TravelMate backend. A local IndicTrans2 model is the primary translation engine for English-to-Indic website text, with optional local Ollama fallback.
 
 ## Requirements
 
@@ -113,7 +113,43 @@ TravelMate uses two local translation layers:
 
 No paid cloud translation API is used. The local models translate from English into supported Indic languages; they do not guarantee every language direction or perfect translation quality. The model may take time to translate a page, especially on a CPU-only laptop. Review translations before using them for official information.
 
-For the simplest setup, install Ollama and download `qwen2.5:3b` as described above. You do **not** need to install the large IndicTrans2 model dependencies for the Ollama fallback.
+### Install IndicTrans2 on Windows (recommended)
+
+From PowerShell, run:
+
+```powershell
+cd C:\Projects\Tourism\Tourism-New\python-service
+Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass
+.\install-indictrans2.ps1
+```
+
+This creates the `.venv` environment if needed, installs CPU-only PyTorch and the standard Python + IndicTrans2 dependencies. It does not require an NVIDIA GPU or paid API. You need internet for the initial package/model download; after the checkpoint is cached, inference runs locally. The distilled 200M checkpoint is smaller than the 1B base model, but still needs disk space and RAM.
+
+Start the service after installation:
+
+```powershell
+.\.venv\Scripts\Activate.ps1
+$env:TRANSLATION_FALLBACK="none"
+python -m uvicorn app:app --host 127.0.0.1 --port 8001
+```
+
+Setting `TRANSLATION_FALLBACK=none` is useful for confirming IndicTrans2 itself is working. Remove that setting or set it to `ollama` to allow the local Ollama fallback when IndicTrans2 cannot load.
+
+Check http://127.0.0.1:8001/health. The `translation.indicTrans2Ready` field becomes `true` after the checkpoint has loaded successfully. This first load may take time.
+
+For an IndicTrans2-only test, call:
+
+```powershell
+$body = @{
+    texts = @("Welcome to Mysuru", "Find tourist places near me")
+    source = "eng_Latn"
+    target = "kan_Knda"
+} | ConvertTo-Json
+
+Invoke-RestMethod -Method Post -Uri "http://127.0.0.1:8001/translate-batch" -ContentType "application/json" -Body $body
+```
+
+Change `target` to another supported model code to test a different Indian language.
 
 ## Database and live data
 
