@@ -22,6 +22,7 @@ const languageCodes = {
   Tamil: "ta", Telugu: "te", Urdu: "ur"
 };
 
+const localModelLanguages = new Set(["as","bn","gu","hi","kn","ml","mr","mai","mni-Mtei","ne","or","pa","sa","ta","te","ur"]);
 function normalize(value) {
   return String(value ?? "").replace(/\s+/g, " ").trim();
 }
@@ -145,7 +146,7 @@ async function translateRemaining() {
   if (translating || currentLanguage === "English" || failedLanguages.has(currentLanguage)) return;
   const language = currentLanguage;
   const targetLanguage = languageCodes[language];
-  if (!targetLanguage) return;
+  if (!targetLanguage || !localModelLanguages.has(targetLanguage)) return;
   translating = true;
   try {
     while (language === currentLanguage) {
