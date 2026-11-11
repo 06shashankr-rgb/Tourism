@@ -10,6 +10,7 @@ const defaultLocation={lat:12.2958,lng:76.6394,label:"Mysuru"};
 const radii=[0.5,1,2,5,10,15,25,50,100,200];
 const eventRadii=[0.5,1,2,5,10];
 function readStoredJson(key,fallback){try{const value=localStorage.getItem(key);return value?JSON.parse(value):fallback}catch{return fallback}}
+function readStoredLocation(){const value=readStoredJson("location",defaultLocation);if(!value||!Number.isFinite(Number(value.lat))||!Number.isFinite(Number(value.lng)))return defaultLocation;return{lat:Number(value.lat),lng:Number(value.lng),label:String(value.label||"Mysuru")}}
 const images={
 "Mysore Palace":"https://upload.wikimedia.org/wikipedia/commons/thumb/a/a4/Mysore_Palace_Morning.jpg/1280px-Mysore_Palace_Morning.jpg",
 "Chamundi Hill":"https://www.tripplannersindia.com/assets/blog/images/placestovisitinmysore/Chamundi_Hills.webp",
@@ -51,7 +52,7 @@ function placeImageStyle(name,imageUrl,category=""){
 
 export default function App(){
 const {pathname}=useLocation();const isAuthPage=pathname==="/login"||pathname==="/signup";
-const[language,setLanguage]=useState(localStorage.getItem("language")||"English"),[theme,setTheme]=useState(localStorage.getItem("theme")==="dark"?"dark":"light"),[location,setLocation]=useState(()=>readStoredJson("location",defaultLocation)||defaultLocation),[live,setLive]=useState(false),[user,setUser]=useState(()=>readStoredJson("tmUser",null)),[places,setPlaces]=useState([]),[events,setEvents]=useState([]),[planner,setPlanner]=useState([]),[bookings,setBookings]=useState([]),[bookingEvent,setBookingEvent]=useState(null),[loading,setLoading]=useState(true),[locationQuery,setLocationQuery]=useState(""),[locationSuggestions,setLocationSuggestions]=useState([]),[searchingLocation,setSearchingLocation]=useState(false);
+const[language,setLanguage]=useState(localStorage.getItem("language")||"English"),[theme,setTheme]=useState(localStorage.getItem("theme")==="dark"?"dark":"light"),[location,setLocation]=useState(readStoredLocation),[live,setLive]=useState(false),[user,setUser]=useState(()=>readStoredJson("tmUser",null)),[places,setPlaces]=useState([]),[events,setEvents]=useState([]),[planner,setPlanner]=useState([]),[bookings,setBookings]=useState([]),[bookingEvent,setBookingEvent]=useState(null),[loading,setLoading]=useState(true),[locationQuery,setLocationQuery]=useState(""),[locationSuggestions,setLocationSuggestions]=useState([]),[searchingLocation,setSearchingLocation]=useState(false);
 const t=translations[language]||translations.English;
 useEffect(()=>{startWebsiteTranslator(language)},[language]);
 const languageCodes={English:"en",Assamese:"as",Bengali:"bn",Bodo:"brx",Dogri:"doi",Gujarati:"gu",Hindi:"hi",Kannada:"kn",Kashmiri:"ks",Konkani:"kok",Maithili:"mai",Malayalam:"ml",Manipuri:"mni",Marathi:"mr",Nepali:"ne",Odia:"or",Punjabi:"pa",Sanskrit:"sa",Santali:"sat",Sindhi:"sd",Tamil:"ta",Telugu:"te",Urdu:"ur"};
