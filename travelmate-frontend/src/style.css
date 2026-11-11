@@ -129,3 +129,10 @@ footer{border-top:1px solid var(--line);padding:25px 4.5%;display:flex;justify-c
 .event-copy p{overflow-wrap:anywhere}
 @media(max-width:1000px){.event-card-v2{grid-template-columns:36px 58px 105px minmax(0,1fr);gap:12px}.event-actions{grid-column:4;display:flex;flex-wrap:wrap}.event-image{grid-column:3;grid-row:1 / span 2;height:100%;min-height:110px}.event-copy{grid-column:4;grid-row:1 / span 2}}
 @media(max-width:650px){.event-card-v2{grid-template-columns:30px 52px minmax(0,1fr);gap:10px;padding:13px}.event-image{grid-column:3;grid-row:auto;height:145px}.event-copy{grid-column:3;grid-row:auto}.event-actions{grid-column:3;grid-row:auto;display:flex;flex-wrap:wrap;align-items:center}.event-copy>div{flex-wrap:wrap;gap:7px 12px}}
+
+/* Clear separation between TravelMate booking and official organiser links */
+.event-actions{align-content:center;min-width:0}
+.event-actions .solid-button,.event-actions .outline-button{width:100%;min-height:38px;text-align:center}
+.event-actions>a:not(.solid-button){padding:7px 5px;text-align:center;line-height:1.4}
+.booking-note{margin:0!important;padding:10px 12px;border-left:3px solid var(--gold);background:var(--surface2);color:var(--muted);font-size:11px!important;line-height:1.55}
+@media(max-width:650px){.event-actions .solid-button,.event-actions .outline-button{width:100%}}
