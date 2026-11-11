@@ -137,3 +137,14 @@ footer{border-top:1px solid var(--line);padding:25px 4.5%;display:flex;justify-c
 .event-actions>a:not(.solid-button){padding:7px 5px;text-align:center;line-height:1.4}
 .booking-note{margin:0!important;padding:10px 12px;border-left:3px solid var(--gold);background:var(--surface2);color:var(--muted);font-size:11px!important;line-height:1.55}
 @media(max-width:650px){.event-actions .solid-button,.event-actions .outline-button{width:100%}}
+
+/* Event page: clear internal booking and separate official listing actions */
+.events-page .event-actions{display:grid;grid-template-columns:1fr;gap:8px;min-width:145px}
+.events-page .event-actions .solid-button,
+.events-page .event-actions .outline-button{width:100%;min-height:42px;padding:10px 12px;border-radius:8px;text-align:center;font-size:11px;font-weight:800}
+.events-page .event-actions .solid-button{background:var(--accent);border:1px solid var(--accent);color:#fff}
+.events-page .event-actions .outline-button{display:flex;align-items:center;justify-content:center;gap:6px;background:transparent;border:1px solid var(--line);color:var(--accent)}
+.events-page .event-copy{min-width:0}
+.events-page .event-copy>div{flex-wrap:wrap;line-height:1.5}
+@media(max-width:900px){.events-page .event-card-v2{grid-template-columns:38px 58px minmax(0,1fr) 130px;gap:10px;padding:13px}.events-page .event-image{display:none}}
+@media(max-width:620px){.events-page .event-card-v2{grid-template-columns:42px minmax(0,1fr);gap:10px}.events-page .event-date{grid-column:1;grid-row:1}.events-page .event-copy{grid-column:2;grid-row:1}.events-page .event-actions{grid-column:1/-1;grid-template-columns:1fr 1fr}.events-page .events-toolbar{flex-wrap:wrap}}
