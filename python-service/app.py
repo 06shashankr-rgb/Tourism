@@ -1,22 +1,29 @@
-"""FastAPI entry point for TravelMate's local chatbot and IndicTrans2 service."""
+"""FastAPI entry point for TravelMate's local Ollama chatbot and translation service."""
 import os
 from typing import Any, Optional
 
+from dotenv import load_dotenv
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field
 
+load_dotenv()
+
 from chatbot import answer_question
 from language_translator import LANGUAGES, translate_text, translate_texts, translation_status
 
-app = FastAPI(title="TravelMate Local Python Service", version="1.3.0")
+app = FastAPI(title="TravelMate Local Python Service", version="1.4.0")
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=os.getenv("ALLOWED_ORIGINS", "http://localhost:5173,http://127.0.0.1:5173").split(","),
+    allow_origins=os.getenv(
+        "ALLOWED_ORIGINS",
+        "http://localhost:5173,http://127.0.0.1:5173",
+    ).split(","),
     allow_credentials=False,
     allow_methods=["GET", "POST"],
     allow_headers=["Content-Type", "Authorization"],
 )
+
 
 class ChatRequest(BaseModel):
     message: str = Field(min_length=1, max_length=2000)
@@ -25,19 +32,23 @@ class ChatRequest(BaseModel):
     context: dict[str, Any] = Field(default_factory=dict)
     history: list[dict[str, str]] = Field(default_factory=list)
 
+
 class TranslateRequest(BaseModel):
     text: str = Field(min_length=1, max_length=1500)
     source: str = "eng_Latn"
     target: str = Field(default="kan_Knda", min_length=3, max_length=20)
+
 
 class TranslateBatchRequest(BaseModel):
     texts: list[str] = Field(min_length=1, max_length=50)
     source: str = "eng_Latn"
     target: str = Field(default="kan_Knda", min_length=3, max_length=20)
 
+
 @app.get("/")
 def root():
     return {"service": "TravelMate Local Python Service", "status": "ok"}
+
 
 @app.get("/health")
 def health():
@@ -50,6 +61,7 @@ def health():
         "supportedTargets": sorted(LANGUAGES.keys()),
     }
 
+
 @app.post("/chat")
 def chat(body: ChatRequest):
     return answer_question(
@@ -59,6 +71,7 @@ def chat(body: ChatRequest):
         body.context,
         body.history,
     )
+
 
 @app.post("/translate-batch")
 def translate_batch(body: TranslateBatchRequest):
@@ -70,6 +83,7 @@ def translate_batch(body: TranslateBatchRequest):
         raise HTTPException(status_code=503, detail=str(exc)) from exc
     except Exception as exc:
         raise HTTPException(status_code=500, detail=f"Translation failed: {exc}") from exc
+
 
 @app.post("/translate")
 def translate(body: TranslateRequest):
