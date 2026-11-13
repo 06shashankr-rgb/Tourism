@@ -54,7 +54,7 @@ const base = {
   locationEvents: "Location events",
   aiLabel: "AI assistant",
   tripPlanner: "Trip planner",
-  fiveLanguages: "5 languages",
+  fiveLanguages: "22 languages",
   booking: "Booking",
   event: "EVENT",
   footer: "TravelMate • Smart Tourism Management System"
@@ -120,7 +120,7 @@ export const translations = {
     locationEvents: "ಸ್ಥಳದ ಕಾರ್ಯಕ್ರಮಗಳು",
     aiLabel: "AI ಸಹಾಯಕ",
     tripPlanner: "ಪ್ರಯಾಣ ಯೋಜಕ",
-    fiveLanguages: "5 ಭಾಷೆಗಳು",
+    fiveLanguages: "22 ಭಾಷೆಗಳು",
     booking: "ಬುಕ್ಕಿಂಗ್",
     event: "ಕಾರ್ಯಕ್ರಮ",
     footer: "TravelMate • ಸ್ಮಾರ್ಟ್ ಪ್ರವಾಸೋದ್ಯಮ ನಿರ್ವಹಣಾ ವ್ಯವಸ್ಥೆ"
@@ -246,7 +246,7 @@ export const translations = {
     locationEvents: "இட நிகழ்வுகள்",
     aiLabel: "AI உதவியாளர்",
     tripPlanner: "பயணத் திட்டம்",
-    fiveLanguages: "5 மொழிகள்",
+    fiveLanguages: "22 மொழிகள்",
     booking: "பதிவு",
     event: "நிகழ்வு",
     footer: "TravelMate • ஸ்மார்ட் சுற்றுலா மேலாண்மை அமைப்பு"
@@ -309,7 +309,7 @@ export const translations = {
     locationEvents: "స్థాన ఈవెంట్లు",
     aiLabel: "AI సహాయకుడు",
     tripPlanner: "ట్రిప్ ప్లానర్",
-    fiveLanguages: "5 భాషలు",
+    fiveLanguages: "22 భాషలు",
     booking: "బుకింగ్",
     event: "ఈవెంట్",
     footer: "TravelMate • స్మార్ట్ టూరిజం మేనేజ్‌మెంట్ సిస్టమ్"
