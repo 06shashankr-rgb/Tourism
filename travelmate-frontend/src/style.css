@@ -165,3 +165,11 @@ footer{border-top:1px solid var(--line);padding:25px 4.5%;display:flex;justify-c
 .destination-footer .route-button+button{margin-left:0}
 .leaflet-popup-content button{margin-top:6px;padding:6px 9px;border:0;border-radius:5px;background:#a4123f;color:#fff;font-size:11px;font-weight:700}
 @media(max-width:650px){.route-summary{align-items:flex-start;flex-wrap:wrap;gap:10px}.route-summary>div:first-child{flex-basis:100%}.route-metrics{text-align:left}.route-status{margin-left:0}.destination-footer .route-button{margin-left:0}.destination-footer .route-button+button{margin-left:0}}
+
+/* Clickable distance-radius filters on the Places page */
+.radius-filter{display:flex;flex:1 1 100%;align-items:center;flex-wrap:wrap;gap:7px;padding-top:4px}
+.radius-filter button{min-width:58px;padding:9px 13px;border:1px solid var(--line);border-radius:20px;background:var(--surface);color:var(--text);font-size:11px;font-weight:750;transition:background .15s,border-color .15s,color .15s}
+.radius-filter button:hover{border-color:var(--accent);color:var(--accent)}
+.radius-filter button.selected{border-color:var(--accent);background:var(--accent);color:#fff}
+.gps-filter-button{white-space:nowrap}
+@media(max-width:650px){.radius-filter{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));width:100%}.radius-filter button{width:100%;min-width:0;padding:10px 6px}.gps-filter-button{width:100%}}
