@@ -65,7 +65,7 @@ export const seedPlaces = [
     "rating": 4.5,
     "price": 30,
     "websiteUrl": "https://mysore.nic.in/en/tourist-place/karanjilake/",
-    "imageUrl": "https://images.safarcabby.com/places/kukkarahalli-lake-mysore-karnataka-2429-2341.jpg",
+    "imageUrl": "https://cdn.wrytin.com/images/wrytup/r/1024/lake-karanji-k0zi9qr7.jpeg",
     "imageCredit": "SafarCabby",
     "description": "Urban lake and nature park known for birdwatching, walking paths and its butterfly park."
   },
