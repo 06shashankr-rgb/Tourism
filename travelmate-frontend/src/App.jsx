@@ -31,20 +31,20 @@ function distanceKm(a,b,c,d){const R=6371,x=(c-a)*Math.PI/180,y=(d-b)*Math.PI/18
 function Recenter({center,radius}){const map=useMap();const zoom=radius<=1?14:radius<=5?13:radius<=10?12:radius<=25?11:radius<=50?10:9;useEffect(()=>map.setView(center,zoom),[map,center,zoom]);return null}
 function placeImage(name,imageUrl,category=""){
   const raw=String(name||"").trim();
-  // Prefer curated attraction photos, then a record's own photo, then a relevant category fallback.
+  // Prefer a record's own image (including live event thumbnails), then a curated fallback.
+  if(typeof imageUrl==="string"&&/^https?:\/\//i.test(imageUrl))return imageUrl;
   if(images[raw])return images[raw];
   for(const dict of Object.values(translations)){
     for(const [english,translated] of Object.entries(dict||{})){
       if(typeof translated==="string"&&translated===raw&&images[english])return images[english];
     }
   }
-  if(typeof imageUrl==="string"&&/^https?:\/\//i.test(imageUrl))return imageUrl;
   const subject=(raw+" "+category).toLowerCase();
   if(/hill|mountain|nature|forest|lake|waterfall|garden|park|bird/.test(subject))return "https://images.unsplash.com/photo-1470770841072-f978cf4d019e?auto=format&fit=crop&w=1200&q=85";
   if(/temple|palace|heritage|church|cathedral|museum|fort|monument|historic/.test(subject))return "https://images.unsplash.com/photo-1564507592333-c60657eea523?auto=format&fit=crop&w=1200&q=85";
   if(/food|restaurant|cuisine|market|shopping|cafe/.test(subject))return "https://images.unsplash.com/photo-1504674900247-0877df9cc836?auto=format&fit=crop&w=1200&q=85";
   if(/beach|sea|coast|island/.test(subject))return "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=1200&q=85";
-  if(/event|festival|music|concert|parade|culture|dance|sport/.test(subject))return "https://images.unsplash.com/photo-1492684223066-81342ee5ff30?auto=format&fit=crop&w=1200&q=85";
+  if(/event|festival|music|concert|parade|procession|culture|dance|sport|flower|exhibition/.test(subject))return "https://images.unsplash.com/photo-1492684223066-81342ee5ff30?auto=format&fit=crop&w=1200&q=85";
   return "https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=1200&q=85";
 }
 
