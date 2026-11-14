@@ -148,3 +148,20 @@ footer{border-top:1px solid var(--line);padding:25px 4.5%;display:flex;justify-c
 .events-page .event-copy>div{flex-wrap:wrap;line-height:1.5}
 @media(max-width:900px){.events-page .event-card-v2{grid-template-columns:38px 58px minmax(0,1fr) 130px;gap:10px;padding:13px}.events-page .event-image{display:none}}
 @media(max-width:620px){.events-page .event-card-v2{grid-template-columns:42px minmax(0,1fr);gap:10px}.events-page .event-date{grid-column:1;grid-row:1}.events-page .event-copy{grid-column:2;grid-row:1}.events-page .event-actions{grid-column:1/-1;grid-template-columns:1fr 1fr}.events-page .events-toolbar{flex-wrap:wrap}}
+
+
+/* Radius-based nearby places, GPS marker and selected driving route */
+.route-summary{display:flex;align-items:center;gap:22px;justify-content:space-between;margin:-5px 0 17px;padding:14px 17px;background:var(--surface);border:1px solid var(--line);border-left:4px solid var(--accent)}
+.route-summary>div:first-child{display:grid;gap:4px;min-width:0}
+.route-summary small{font-size:8px;letter-spacing:1.2px;color:var(--accent);font-weight:850}
+.route-summary b{font:600 17px "Space Grotesk"}
+.route-summary span{font-size:10px;color:var(--muted)}
+.route-metrics{display:grid;gap:4px;text-align:right;flex:none}
+.route-metrics b{font:600 20px "Space Grotesk";color:var(--accent)}
+.route-status{margin-left:auto}
+.route-clear{border:1px solid var(--line);background:transparent;color:var(--muted);padding:8px 10px;border-radius:7px;font-size:9px;font-weight:800}
+.destination-card.destination-selected{border-color:var(--accent);box-shadow:0 0 0 1px var(--accent)}
+.destination-footer .route-button{margin-left:auto;background:transparent;border:1px solid var(--accent);color:var(--accent)}
+.destination-footer .route-button+button{margin-left:0}
+.leaflet-popup-content button{margin-top:6px;padding:6px 9px;border:0;border-radius:5px;background:#a4123f;color:#fff;font-size:11px;font-weight:700}
+@media(max-width:650px){.route-summary{align-items:flex-start;flex-wrap:wrap;gap:10px}.route-summary>div:first-child{flex-basis:100%}.route-metrics{text-align:left}.route-status{margin-left:0}.destination-footer .route-button{margin-left:0}.destination-footer .route-button+button{margin-left:0}}
