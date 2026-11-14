@@ -12,6 +12,7 @@ export const api={
  removePlanner:(type,id)=>request("/planner/"+encodeURIComponent(type)+"/"+encodeURIComponent(id),{method:"DELETE"}),
  bookings:()=>request("/bookings"),
  createBooking:p=>request("/bookings",{method:"POST",body:JSON.stringify(p)}),
+ cancelBooking:id=>request("/bookings/"+encodeURIComponent(id),{method:"DELETE"}),
  assistant:(question,location,language="English",history=[])=>request("/assistant",{method:"POST",body:JSON.stringify({question,lat:location?.lat,lng:location?.lng,location:location?.label||"Mysuru",language,history})}),
  translateBatch:(texts,targetLanguage)=>request("/translate",{method:"POST",body:JSON.stringify({texts,target:targetLanguage})}),
 };
