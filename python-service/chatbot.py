@@ -64,6 +64,32 @@ def _ollama_chat(message: str, location: str, language: str,
         ) from exc
 
 
+def ollama_status() -> dict[str, Any]:
+    """Return a safe local diagnostic for the configured Ollama model."""
+    base_url = os.getenv("OLLAMA_BASE_URL", "http://127.0.0.1:11434").rstrip("/")
+    model = os.getenv("OLLAMA_MODEL", "qwen2.5:3b")
+    request = urllib.request.Request(base_url + "/api/tags", headers={"Accept": "application/json"})
+    try:
+        with urllib.request.urlopen(request, timeout=4) as response:
+            data = json.loads(response.read().decode("utf-8"))
+        names = [str(item.get("name", "")) for item in data.get("models", [])]
+        available = any(name == model or name.startswith(model + ":") for name in names)
+        return {
+            "connected": True,
+            "model": model,
+            "modelAvailable": available,
+            "message": "Ollama is running and the configured model is installed." if available
+                       else f"Ollama is running, but model '{model}' is not installed. Run: ollama pull {model}",
+        }
+    except Exception as exc:
+        return {
+            "connected": False,
+            "model": model,
+            "modelAvailable": False,
+            "message": f"Cannot reach Ollama at {base_url}. Start Ollama and check its local service. Details: {exc}",
+        }
+
+
 def answer_question(message: str, location: str = "Mysuru",
                     language: str = "English",
                     context: dict[str, Any] | None = None,
