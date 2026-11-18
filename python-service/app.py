@@ -9,7 +9,7 @@ from pydantic import BaseModel, Field
 
 load_dotenv()
 
-from chatbot import answer_question
+from chatbot import answer_question, ollama_status
 from language_translator import LANGUAGES, translate_text, translate_texts, translation_status
 
 app = FastAPI(title="TravelMate Local Python Service", version="1.4.0")
@@ -55,6 +55,7 @@ def health():
     return {
         "ok": True,
         "chatbot": "local Ollama AI with rule-based fallback",
+        "ollama": ollama_status(),
         "aiProvider": os.getenv("AI_PROVIDER", "ollama"),
         "ollamaModel": os.getenv("OLLAMA_MODEL", "qwen2.5:3b"),
         "translation": translation_status(),
