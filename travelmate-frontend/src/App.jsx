@@ -138,24 +138,25 @@ function Events({t,location,user,openBooking,events,loading}){const near=events.
 function BookingModal({t,event,user,close,save}){const[tickets,setTickets]=useState(1),[name,setName]=useState(user?.name||""),[email,setEmail]=useState(user?.email||"");const total=tickets*(Number(event.price)||0);function submit(e){e.preventDefault();save({eventId:event.id,eventName:event.name,date:event.date,time:event.time,venue:event.venue,tickets,total,name,email})}return <div className="overlay"><div className="modal-v2"><button className="modal-close" onClick={close}>×</button><div className="modal-kicker">TRAVELMATE / INTERNAL BOOKING</div><h2>{event.name}</h2><p>{event.venue} · {event.date} · {event.time}</p><form onSubmit={submit}><label>{t.name}<input required value={name} onChange={e=>setName(e.target.value)}/></label><label>{t.email}<input required type="email" value={email} onChange={e=>setEmail(e.target.value)}/></label><label>{t.tickets}<input type="number" min="1" max={Number(event.seats)>0?event.seats:undefined} value={tickets} onChange={e=>setTickets(Math.max(1,Number(e.target.value)||1))}/></label><div className="modal-total"><span>Total payable</span><b>₹{total}</b></div><p className="booking-note">Submit your booking on TravelMate. Your booking request will be stored in your account and shown in your trip planner. Online payment and official ticket issuance are not yet integrated.</p><button className="solid-button large" type="submit">{t.confirm} on TravelMate</button></form></div></div>}
 
 function Assistant({t,location,language}){
-const[q,setQ]=useState(""),[messages,setMessages]=useState([{role:"ai",text:t.aiWelcome}]),[results,setResults]=useState([]),[busy,setBusy]=useState(false),[provider,setProvider]=useState("");
+const[q,setQ]=useState(""),[messages,setMessages]=useState([{role:"ai",text:t.aiWelcome}]),[results,setResults]=useState([]),[busy,setBusy]=useState(false),[provider,setProvider]=useState(""),[warning,setWarning]=useState("");
 async function ask(value=q){
   const prompt=String(value||"").trim();
   if(!prompt||busy)return;
   const previous=messages.filter(m=>m.role==="user"||m.role==="ai").slice(-8).map(m=>({role:m.role==="ai"?"assistant":"user",content:m.text}));
   setMessages(x=>[...x,{role:"user",text:prompt}]);
-  setQ("");setBusy(true);setProvider("");setResults([]);
+  setQ("");setBusy(true);setProvider("");setWarning("");setResults([]);
   try{
     const response=await api.assistant(prompt,location,language,previous);
     setMessages(x=>[...x,{role:"ai",text:response.answer||"I couldn't prepare an answer. Please try again."}]);
     setResults(Array.isArray(response.items)?response.items:[]);
     setProvider(response.provider||"TravelMate AI");
+    setWarning(response.warning||"");
   }catch(error){
     setMessages(x=>[...x,{role:"ai",text:"I couldn't connect to the TravelMate assistant. Check that the backend is running, then try again. Details: "+error.message}]);
     setProvider("connection issue");
   }finally{setBusy(false)}
 }
-function resetChat(){setMessages([{role:"ai",text:t.aiWelcome}]);setResults([]);setProvider("");setQ("")}
+function resetChat(){setMessages([{role:"ai",text:t.aiWelcome}]);setResults([]);setProvider("");setWarning("");setQ("")}
 const suggestions=[t.nearQuestion,t.eventQuestion,t.planQuestion,t.bookingQuestion,"Find nature and food experiences"];
 return <main className="page-v2 ai-page">
   <div className="ai-header">
@@ -171,7 +172,7 @@ return <main className="page-v2 ai-page">
     <div className="messages-v2" aria-live="polite">{messages.map((m,i)=><div className={"chat-message "+m.role} key={i}><span>{m.role==="ai"?"TRAVELMATE":"YOU"}</span><p>{m.text}</p></div>)}{busy&&<div className="chat-message ai"><span>TRAVELMATE</span><p>Thinking…</p></div>}</div>
     <div className="chat-compose"><input value={q} onChange={e=>setQ(e.target.value)} onKeyDown={e=>e.key==="Enter"&&!busy&&ask()} placeholder={t.aiPlaceholder} disabled={busy} aria-label={t.aiPlaceholder}/><button className="solid-button" onClick={()=>ask()} disabled={busy||!q.trim()}>{busy?"Thinking…":t.askTravelMate}<Icon name="arrow" size={14}/></button></div>
     <div className="ai-compose-hint">Ask about nearby attractions, events, food, transport, budgets or day-by-day itineraries.</div>
-    {provider&&<div className="ai-provider-status">Response source: {provider}</div>}
+    {provider&&<div className="ai-provider-status">Response source: {provider}</div>}{warning&&<div className="ai-provider-status ai-warning" role="status">AI service notice: {warning}</div>}
   </div>
   {results.length>0&&<section className="ai-results"><div className="subhead"><h3>{t.aiResults}</h3><span>{results.length}</span></div><div className="feature-grid">{results.map((p,i)=><article className="feature-card" key={p.id||p.name||i} style={placeImageStyle(p.name||p.eventName,p.imageUrl,p.category||p.type)}><div className="feature-shade"/><div className="feature-card-content"><small>{String(p.category||p.type||"TRAVELMATE").toUpperCase()}</small><h3>{p.name||p.eventName}</h3><span>{p.distance!==undefined&&Number.isFinite(Number(p.distance))?Number(p.distance).toFixed(1)+" km":p.venue||""}</span></div></article>)}</div></section>}
 </main>
