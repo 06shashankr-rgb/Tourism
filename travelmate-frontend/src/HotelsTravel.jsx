@@ -4,7 +4,15 @@ const hotels=[
  {id:"hoysala",name:"Hotel Mayura Hoysala",city:"Mysuru",area:"Mysuru city centre",lat:12.3152,lng:76.6438,tier:"KSTDC premium",description:"Government-run KSTDC stay in Mysuru, convenient for the palace, railway station and city attractions.",url:"https://kstdc.co/hotels/hotel-mayura-hoysala-mysuru/"},
  {id:"riverview",name:"Hotel Mayura Riverview",city:"Srirangapatna",area:"River Cauvery, Srirangapatna",lat:12.4224,lng:76.6936,tier:"KSTDC premium",description:"KSTDC property beside the Cauvery, useful for Srirangapatna and the Mysuru–KRS circuit.",url:"https://kstdc.co/mayura-hotels/"},
  {id:"kauvery",name:"Hotel Mayura Kauvery",city:"KRS / Brindavan Gardens",area:"Krishna Raja Sagara",lat:12.4244,lng:76.5722,tier:"KSTDC budget",description:"KSTDC stay near Brindavan Gardens and the KRS dam.",url:"https://kstdc.co/mayura-hotels/"},
- {id:"valleyview",name:"Hotel Mayura Valleyview",city:"Madikeri, Kodagu",area:"Madikeri",lat:12.4200,lng:75.7390,tier:"KSTDC premium",description:"KSTDC property in Madikeri for travellers exploring Kodagu / Coorg.",url:"https://kstdc.co/mayura-hotels/"}
+ {id:"valleyview",name:"Hotel Mayura Valleyview",city:"Madikeri, Kodagu",area:"Near Raja’s Seat",lat:12.4200,lng:75.7390,tier:"KSTDC premium",description:"Official KSTDC hill-view property for travellers exploring Kodagu / Coorg.",url:"https://kstdc.co/hotels/hotel-mayura-valley-view-madikeri/"},
+ {id:"talakavery",name:"Hotel Mayura Talakavery",city:"Bhagamandala, Kodagu",area:"Talacauvery road",lat:12.4018,lng:75.5252,tier:"KSTDC budget",description:"KSTDC stay in the Bhagamandala and Talacauvery pilgrimage area.",url:"https://kstdc.co/mayura-hotels/"},
+ {id:"yatrinivas",name:"Hotel Mayura Yatrinivas",city:"Mysuru",area:"Mysuru city",lat:12.3050,lng:76.6550,tier:"KSTDC stay",description:"KSTDC-listed Mysuru accommodation; confirm current operating details directly.",url:"https://kstdc.co/mayura-hotels/"},
+ {id:"kauvery-bhagamandala",name:"Hotel Mayura Kauvery",city:"Bhagamandala, Kodagu",area:"Bhagamandala",lat:12.4018,lng:75.5252,tier:"KSTDC budget",description:"KSTDC-listed property serving the Bhagamandala and Talacauvery area.",url:"https://kstdc.co/mayura-hotels/"},
+ {id:"gaganachukki",name:"Hotel Mayura Gaganachukki",city:"Shivanasamudra, Mandya",area:"Gaganachukki Falls",lat:12.3000,lng:77.1700,tier:"KSTDC stay",description:"KSTDC-listed stay near the Shivanasamudra waterfall area; confirm current operation.",url:"https://kstdc.co/mayura-hotels/"},
+ {id:"bharachukki",name:"Hotel Mayura Bharachukki",city:"Shivanasamudra",area:"Bharachukki Falls",lat:12.3000,lng:77.1700,tier:"KSTDC budget",description:"KSTDC-listed accommodation near Bharachukki Falls.",url:"https://kstdc.co/mayura-hotels/"},
+ {id:"biligiri",name:"Hotel Mayura Biligiri",city:"B.R. Hills, Chamarajanagar",area:"Biligiri Rangan Hills",lat:11.9660,lng:77.1370,tier:"KSTDC budget",description:"KSTDC-listed stay for exploring B.R. Hills and its surrounding nature.",url:"https://kstdc.co/mayura-hotels/"},
+ {id:"shantala",name:"Hotel Mayura Shantala",city:"Halebeedu, Hassan",area:"Near Hoysaleshwara Temple",lat:13.2120,lng:75.9940,tier:"KSTDC budget",description:"KSTDC-listed stay near the Hoysaleshwara Temple heritage site.",url:"https://kstdc.co/mayura-hotels/"},
+ {id:"gerusoppa",name:"Hotel Mayura Gerusoppa",city:"Jog Falls, Shivamogga",area:"Jog Falls",lat:14.2290,lng:74.8120,tier:"KSTDC budget",description:"KSTDC-listed accommodation for visitors to Jog Falls.",url:"https://kstdc.co/mayura-hotels/"}
 ];
 const origins=[
  {name:"Mysuru",lat:12.2958,lng:76.6394},
@@ -18,10 +26,10 @@ const origins=[
 const km=(a,b,c,d)=>{const r=Math.PI/180,x=(c-a)*r,y=(d-b)*r,z=Math.sin(x/2)**2+Math.cos(a*r)*Math.cos(c*r)*Math.sin(y/2)**2;return 6371*2*Math.atan2(Math.sqrt(z),Math.sqrt(1-z))};
 const money=n=>"₹"+Math.round(n).toLocaleString("en-IN");
 export default function HotelsTravel({location}){
- const [origin,setOrigin]=useState("Bengaluru"),[mode,setMode]=useState("car"),[custom,setCustom]=useState(""),[destination,setDestination]=useState("Mysuru");
+ const [origin,setOrigin]=useState("Mysuru"),[mode,setMode]=useState("car"),[destination,setDestination]=useState("Madikeri (Kodagu)");
  const selected=origins.find(x=>x.name===origin)||origins[0];
- const from=origin==="Other / enter coordinates"?null:selected;
- const destinationCoords=destination==="Mysuru"?{lat:12.2958,lng:76.6394}:destination==="Madikeri (Kodagu)"?{lat:12.4200,lng:75.7390}:{lat:12.4224,lng:76.6936};
+ const from=origin==="My current GPS location"?{lat:Number(location?.lat),lng:Number(location?.lng)}:selected;
+ const destinationCoords=({"Mysuru":{lat:12.2958,lng:76.6394},"Madikeri (Kodagu)":{lat:12.4200,lng:75.7390},"Srirangapatna":{lat:12.4224,lng:76.6936},"Bengaluru":{lat:12.9716,lng:77.5946},"Ooty":{lat:11.4102,lng:76.6950},"Mangaluru":{lat:12.9141,lng:74.8560},"Hassan":{lat:13.0068,lng:76.0996}})[destination];
  const distance=from?km(from.lat,from.lng,destinationCoords.lat,destinationCoords.lng):null;
  const routeDistance=distance===null?null:Math.round(distance*1.12);
  const estimates=routeDistance===null?null:({
@@ -38,12 +46,12 @@ export default function HotelsTravel({location}){
    <div className="ht-hotel-grid">{hotelRows.map(h=><article className="ht-hotel" key={h.id}><div className="ht-hotel-top"><span>{h.tier}</span><b>{h.distance.toFixed(1)} km away</b></div><div className="ht-hotel-body"><h3>{h.name}</h3><small>{h.city} · {h.area}</small><p>{h.description}</p><a href={h.url} target="_blank" rel="noreferrer">View official details / booking ↗</a></div></article>)}</div>
   </section>
   <section className="ht-section ht-travel"><div className="ht-heading"><div><small>YOUR JOURNEY PLANNER</small><h2>How will you travel?</h2><p>Plan a trip to Mysuru with transport options and indicative distance, time and cost estimates. This is TravelMate's own planner—not a connection to Rapido, Uber or other ride-hailing apps.</p></div></div>
-   <div className="ht-form-grid"><label>Starting from<select value={origin} onChange={e=>setOrigin(e.target.value)}>{origins.map(o=><option key={o.name}>{o.name}</option>)}</select></label><label>Destination<select value={destination} onChange={e=>setDestination(e.target.value)}><option>Mysuru</option><option>Madikeri (Kodagu)</option><option>Srirangapatna</option></select></label></div>
-   {origin==="Other / enter coordinates"&&<p className="ht-note">For a custom starting point, use the Places page to set your location with GPS first. This planner currently uses the listed city starting points.</p>}
+   <div className="ht-form-grid"><label>Starting from<select value={origin} onChange={e=>setOrigin(e.target.value)}><option>My current GPS location</option>{origins.filter(o=>o.lat!==null).map(o=><option key={o.name}>{o.name}</option>)}</select></label><label>Destination<select value={destination} onChange={e=>setDestination(e.target.value)}>{["Mysuru","Madikeri (Kodagu)","Srirangapatna","Bengaluru","Ooty","Mangaluru","Hassan"].map(name=><option key={name}>{name}</option>)}</select></label></div>
+   {origin==="My current GPS location"&&<p className="ht-note">Using the location currently saved in TravelMate ({location?.label||"selected location"}). Update it from the Places page with GPS if needed.</p>}
    <div className="ht-modes">{[["car","Car / taxi","🚗"],["bus","Bus","🚌"],["train","Train","🚆"],["bike","Bike","🏍️"]].map(([id,label,emoji])=><button key={id} className={mode===id?"active":""} onClick={()=>setMode(id)}><span>{emoji}</span>{label}</button>)}</div>
    {estimates?<div className="ht-estimate"><div><small>APPROX. ROAD DISTANCE</small><strong>{routeDistance} km</strong></div><div><small>ESTIMATED TIME</small><strong>{Math.floor(estimates.time/60)}h {estimates.time%60}m</strong></div><div><small>INDICATIVE COST</small><strong>{money(estimates.cost)}{mode==="car"?"*":""}</strong></div><p>{estimates.detail}. These are planning estimates, not live quotes, ticket prices or a confirmed vehicle booking. Actual routes, traffic, fares and schedules may differ.</p></div>:<div className="ht-note">Choose one of the listed starting cities to calculate an estimate.</div>}
    <div className="ht-route-notes"><h3>Route guidance</h3>{routeNotes.map((n,i)=><p key={i}>• {n}</p>)}</div>
-   <div className="ht-actions"><a className="solid-button" href={"https://www.google.com/maps/dir/?api=1&origin="+encodeURIComponent(origin==="Other / enter coordinates"?"Mysuru":origin)+"&destination="+encodeURIComponent(destination==="Mysuru"?"Mysuru, Karnataka":destination==="Madikeri (Kodagu)"?"Madikeri, Kodagu, Karnataka":"Srirangapatna, Karnataka")} target="_blank" rel="noreferrer">Open route map ↗</a><span>*Car estimate assumes a generic per-kilometre planning rate, not a provider quote.</span></div>
+   <div className="ht-actions"><a className="solid-button" href={"https://www.google.com/maps/dir/?api=1&origin="+encodeURIComponent(origin==="My current GPS location"?`${location?.lat},${location?.lng}`:origin)+"&destination="+encodeURIComponent(destination+", Karnataka")} target="_blank" rel="noreferrer">Open route map ↗</a><span>*Car estimate assumes a generic per-kilometre planning rate, not a provider quote.</span></div>
   </section>
  </main>
 }
