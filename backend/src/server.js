@@ -80,10 +80,18 @@ app.post("/api/assistant", async (q, r) => {
     console.warn("TravelMate assistant context could not be loaded:", error.message);
   }
 
+  const hotels = [
+    { name: "Hotel Mayura Hoysala", location: "Mysuru", type: "KSTDC premium", officialUrl: "https://kstdc.co/hotels/hotel-mayura-hoysala-mysuru/" },
+    { name: "Hotel Mayura Valleyview", location: "Madikeri, Kodagu", type: "KSTDC premium", officialUrl: "https://kstdc.co/hotels/hotel-mayura-valley-view-madikeri/" },
+    { name: "Hotel Mayura Riverview", location: "Srirangapatna, Mandya", type: "KSTDC premium", officialUrl: "https://kstdc.co/mayura-hotels/" },
+    { name: "Hotel Mayura Kauvery", location: "KRS / Brindavan Gardens", type: "KSTDC budget", officialUrl: "https://kstdc.co/mayura-hotels/" },
+    { name: "Hotel Mayura Talakavery", location: "Bhagamandala, Kodagu", type: "KSTDC budget", officialUrl: "https://kstdc.co/mayura-hotels/" }
+  ];
   const context = {
     places,
     events,
-    notes: "Use only these records for claims about TravelMate data. Do not invent opening hours, ticket availability or booking confirmations."
+    hotels,
+    notes: "Use only these records for claims about TravelMate data. Do not invent hotel availability, room rates, opening hours, ticket availability or booking confirmations. Refer users to the official hotel URL for current rates and availability."
   };
   const pythonUrl = process.env.PYTHON_AI_URL?.trim();
   if (pythonUrl) {
