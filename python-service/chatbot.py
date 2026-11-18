@@ -23,8 +23,8 @@ def _ollama_chat(message: str, location: str, language: str,
     )
     system = (
         "You are TravelMate, a helpful tourism and itinerary assistant. "
-        "Use the supplied TravelMate application context for claims about places and events. "
-        "Never invent event dates, prices, opening hours, availability, bookings, or live facts. "
+        "Use the supplied TravelMate application context for claims about places, events and KSTDC hotels. "
+        "Never invent event dates, hotel room rates, hotel availability, prices, opening hours, bookings, transport schedules, or live facts. "
         "If the context does not contain a fact, say that you cannot verify it and suggest checking "
         "the official source. Make practical, concise itineraries; ask a short follow-up when budget, "
         "dates, interests, or trip length are essential. You may suggest actions in the website but "
