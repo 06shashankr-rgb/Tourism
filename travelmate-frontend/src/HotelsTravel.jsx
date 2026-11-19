@@ -37,7 +37,7 @@ export default function HotelsTravel({location}){
  bus:{time:Math.round(routeDistance/42*60),cost:routeDistance*1.65,detail:"Indicative public-bus fare range; confirm with the operator"},
  train:{time:Math.round(routeDistance/50*60),cost:routeDistance*1.15,detail:"Indicative rail fare; service and class availability vary"},
  bike:{time:Math.round(routeDistance/40*60),cost:routeDistance*3.2,detail:"Two-wheeler fuel estimate"}
- })[mode]);
+ })[mode];
  const hotelRows=useMemo(()=>hotels.map(h=>({...h,distance:km(location?.lat??12.2958,location?.lng??76.6394,h.lat,h.lng)})).sort((a,b)=>a.distance-b.distance),[location?.lat,location?.lng]);
  const routeNotes=origin==="Bengaluru"&&destination==="Mysuru"?["Road: Bengaluru → Ramanagara → Mandya → Mysuru via NH 275 (about 140 km; around 3.5 hours, official district guide).","Bus: frequent intercity services are available; check current departure and fare with the bus operator.","Train: check current Bengaluru–Mysuru services and timings before departure."]:origin==="Madikeri (Kodagu)"&&destination==="Mysuru"?["Road: Madikeri → Kushalnagara → Hunsur → Mysuru (about 120 km; around 2 hours 45 minutes, official district guide).","Bus: check current Madikeri–Mysuru service timings and seat availability with the operator."]:["Use the road distance and time estimate as a planning guide only. Check live traffic, public transport schedules and fares before travelling."];
  return <main className="page-v2 ht-page">
