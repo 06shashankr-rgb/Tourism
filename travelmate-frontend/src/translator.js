@@ -1,4 +1,4 @@
-import { translations, CATEGORY_TRANSLATIONS } from "./i18n";
+import { translations, CATEGORY_TRANSLATIONS, REFERENCE_UI_TRANSLATIONS } from "./i18n";
 import { api } from "./api";
 
 const attributeNames = ["placeholder", "title", "aria-label", "alt"];
@@ -87,6 +87,42 @@ function localMap(language) {
   Object.keys(sourceCategories).forEach(key => {
     const from = sourceCategories[key];
     const to = targetCategories[key];
+    if (typeof from === "string" && typeof to === "string" &&
+        from.trim() && to.trim() && from !== to && !map.has(normalize(from))) {
+      map.set(normalize(from), to);
+    }
+  });
+
+  // Map equivalent keys from the supplied reference dictionary onto
+  // TravelMate's own English labels. Existing local translations win.
+  const referenceTarget = REFERENCE_UI_TRANSLATIONS[language] || {};
+  const referenceAliases = {
+    home: "navHome",
+    places: "navPlaces",
+    events: "navEvents",
+    ai: "navAI",
+    planner: "navPlanner",
+    signIn: "navLogin",
+    signUp: "navSignup",
+    logout: "navLogout",
+    gps: "btnUseGPS",
+    explore: "btnExplorePlaces",
+    add: "addToPlanner",
+    book: "bookNow",
+    password: "password",
+    confirmPassword: "confirmPassword",
+    light: "themeLight",
+    dark: "themeDark",
+    navExplore: "navPlaces",
+    navEvents: "navEvents",
+    navAssistant: "navAI",
+    navPlanner: "navPlanner",
+    signInShort: "navLogin",
+    signUpShort: "navSignup"
+  };
+  Object.entries(referenceAliases).forEach(([projectKey, referenceKey]) => {
+    const from = source[projectKey];
+    const to = referenceTarget[referenceKey];
     if (typeof from === "string" && typeof to === "string" &&
         from.trim() && to.trim() && from !== to && !map.has(normalize(from))) {
       map.set(normalize(from), to);
