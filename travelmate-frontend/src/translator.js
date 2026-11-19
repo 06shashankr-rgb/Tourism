@@ -1,4 +1,4 @@
-import { translations } from "./translations";
+import { translations, CATEGORY_TRANSLATIONS } from "./i18n";
 import { api } from "./api";
 
 const attributeNames = ["placeholder", "title", "aria-label", "alt"];
@@ -33,9 +33,7 @@ const indicTargets = {
   Telugu: "tel_Telu", Urdu: "urd_Arab"
 };
 
-// Normalize real whitespace. The previous escaped pattern matched the literal
-// characters "\\s" instead of spaces, tabs and line breaks.
-const normalize = value => String(value ?? "").replace(/\s+/g, " ").trim();
+const normalize = value => String(value ?? "").replace(/\\s+/g, " ").trim();
 
 function ignored(node) {
   const element = node.nodeType === Node.ELEMENT_NODE ? node : node.parentElement;
@@ -72,6 +70,7 @@ function localMap(language) {
   const source = translations.English || {};
   const target = translations[language] || source;
   const map = new Map();
+
   Object.keys(source).forEach(key => {
     const from = source[key];
     const to = target[key];
@@ -80,6 +79,20 @@ function localMap(language) {
       map.set(normalize(from), to);
     }
   });
+
+  // Add the category dictionary supplied with i18n.js without replacing
+  // TravelMate's existing translations when both contain the same phrase.
+  const sourceCategories = CATEGORY_TRANSLATIONS.English || {};
+  const targetCategories = CATEGORY_TRANSLATIONS[language] || {};
+  Object.keys(sourceCategories).forEach(key => {
+    const from = sourceCategories[key];
+    const to = targetCategories[key];
+    if (typeof from === "string" && typeof to === "string" &&
+        from.trim() && to.trim() && from !== to && !map.has(normalize(from))) {
+      map.set(normalize(from), to);
+    }
+  });
+
   return map;
 }
 
@@ -178,8 +191,6 @@ async function translateRemaining() {
 
   try {
     while (language === currentLanguage) {
-      // Small batches reduce the chance of a local model timing out or
-      // returning an incomplete response for a large page.
       const texts = collectMissing().slice(0, 4);
       if (!texts.length) break;
 
@@ -195,7 +206,6 @@ async function translateRemaining() {
           throw new Error("Translation service returned an incomplete batch.");
         }
 
-        // Ignore a late response if the user changed language while it was running.
         if (language !== currentLanguage) break;
 
         texts.forEach((text, index) => {
