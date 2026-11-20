@@ -1,0 +1,3 @@
+export function distanceKm(a,b,c,d){const R=6371,x=(c-a)*Math.PI/180,y=(d-b)*Math.PI/180,z=Math.sin(x/2)**2+Math.cos(a*Math.PI/180)*Math.cos(c*Math.PI/180)*Math.sin(y/2)**2;return 2*R*Math.atan2(Math.sqrt(z),Math.sqrt(1-z))}
+export function makeId(prefix="TM"){return `${prefix}-${Date.now()}-${Math.random().toString(36).slice(2,8)}`}
+export function safeUser(u){return u?{id:u.id,name:u.name,email:u.email}:null}
