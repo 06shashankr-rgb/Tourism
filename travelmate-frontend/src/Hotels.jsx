@@ -1,0 +1,27 @@
+import React,{useMemo,useState}from"react";
+const hotels=[
+{id:"hoysala",name:"Hotel Mayura Hoysala",city:"Mysuru",area:"Mysuru city centre",lat:12.3152,lng:76.6438,tier:"KSTDC premium",description:"Government-run KSTDC stay in Mysuru, convenient for the palace, railway station and city attractions.",url:"https://kstdc.co/hotels/hotel-mayura-hoysala-mysuru/"},
+{id:"riverview",name:"Hotel Mayura Riverview",city:"Srirangapatna",area:"River Cauvery, Srirangapatna",lat:12.4224,lng:76.6936,tier:"KSTDC premium",description:"KSTDC property beside the Cauvery, useful for Srirangapatna and the Mysuru–KRS circuit.",url:"https://kstdc.co/mayura-hotels/"},
+{id:"kauvery",name:"Hotel Mayura Kauvery",city:"KRS / Brindavan Gardens",area:"Krishna Raja Sagara",lat:12.4244,lng:76.5722,tier:"KSTDC budget",description:"KSTDC stay near Brindavan Gardens and the KRS dam.",url:"https://kstdc.co/mayura-hotels/"},
+{id:"valleyview",name:"Hotel Mayura Valleyview",city:"Madikeri, Kodagu",area:"Near Raja’s Seat",lat:12.4200,lng:75.7390,tier:"KSTDC premium",description:"Official KSTDC hill-view property for travellers exploring Kodagu / Coorg.",url:"https://kstdc.co/hotels/hotel-mayura-valley-view-madikeri/"},
+{id:"talakavery",name:"Hotel Mayura Talakavery",city:"Bhagamandala, Kodagu",area:"Talacauvery road",lat:12.4018,lng:75.5252,tier:"KSTDC budget",description:"KSTDC stay in the Bhagamandala and Talacauvery pilgrimage area.",url:"https://kstdc.co/mayura-hotels/"},
+{id:"yatrinivas",name:"Hotel Mayura Yatrinivas",city:"Mysuru",area:"Mysuru city",lat:12.3050,lng:76.6550,tier:"KSTDC stay",description:"KSTDC-listed Mysuru accommodation; confirm current operating details directly.",url:"https://kstdc.co/mayura-hotels/"},
+{id:"kauvery-bhagamandala",name:"Hotel Mayura Kauvery",city:"Bhagamandala, Kodagu",area:"Bhagamandala",lat:12.4018,lng:75.5252,tier:"KSTDC budget",description:"KSTDC-listed property serving the Bhagamandala and Talacauvery area.",url:"https://kstdc.co/mayura-hotels/"},
+{id:"gaganachukki",name:"Hotel Mayura Gaganachukki",city:"Shivanasamudra, Mandya",area:"Gaganachukki Falls",lat:12.3000,lng:77.1700,tier:"KSTDC stay",description:"KSTDC-listed stay near the Shivanasamudra waterfall area; confirm current operation.",url:"https://kstdc.co/mayura-hotels/"},
+{id:"bharachukki",name:"Hotel Mayura Bharachukki",city:"Shivanasamudra",area:"Bharachukki Falls",lat:12.3000,lng:77.1700,tier:"KSTDC budget",description:"KSTDC-listed accommodation near Bharachukki Falls.",url:"https://kstdc.co/mayura-hotels/"},
+{id:"biligiri",name:"Hotel Mayura Biligiri",city:"B.R. Hills, Chamarajanagar",area:"Biligiri Rangan Hills",lat:11.9660,lng:77.1370,tier:"KSTDC budget",description:"KSTDC-listed stay for exploring B.R. Hills and its surrounding nature.",url:"https://kstdc.co/mayura-hotels/"},
+{id:"shantala",name:"Hotel Mayura Shantala",city:"Halebeedu, Hassan",area:"Near Hoysaleshwara Temple",lat:13.2120,lng:75.9940,tier:"KSTDC budget",description:"KSTDC-listed stay near the Hoysaleshwara Temple heritage site.",url:"https://kstdc.co/mayura-hotels/"},
+{id:"gerusoppa",name:"Hotel Mayura Gerusoppa",city:"Jog Falls, Shivamogga",area:"Jog Falls",lat:14.2290,lng:74.8120,tier:"KSTDC budget",description:"KSTDC-listed accommodation for visitors to Jog Falls.",url:"https://kstdc.co/mayura-hotels/"}
+];
+const km=(a,b,c,d)=>{const r=Math.PI/180,x=(c-a)*r,y=(d-b)*r,z=Math.sin(x/2)**2+Math.cos(a*r)*Math.cos(c*r)*Math.sin(y/2)**2;return 6371*2*Math.atan2(Math.sqrt(z),Math.sqrt(1-z))};
+export default function Hotels({location}){
+const[search,setSearch]=useState("");
+const rows=useMemo(()=>hotels.map(h=>({...h,distance:km(Number(location?.lat)||12.2958,Number(location?.lng)||76.6394,h.lat,h.lng)})).filter(h=>(h.name+" "+h.city+" "+h.area).toLowerCase().includes(search.toLowerCase())).sort((a,b)=>a.distance-b.distance),[location?.lat,location?.lng,search]);
+return <main className="page-v2 ht-page">
+<div className="page-intro"><div><span className="ht-kicker">ACCOMMODATION IN KARNATAKA</span><h2>Find a place<br/><em>to stay.</em></h2><p>Explore government-managed KSTDC Mayura stays, starting with Mysuru and nearby destinations. Listings are ordered by distance from your saved TravelMate location.</p></div><div className="intro-side"><b>{rows.length}</b><span>listed stays<br/>to explore</span></div></div>
+<div className="ht-hotel-toolbar"><input value={search} onChange={e=>setSearch(e.target.value)} placeholder="Search by hotel, city or area" aria-label="Search hotels"/><a className="solid-button" href="https://kstdc.co/mayura-hotels/" target="_blank" rel="noreferrer">Official KSTDC hotel list ↗</a></div>
+<div className="ht-heading"><div><small>GOVERNMENT-MANAGED STAYS</small><h2>KSTDC Mayura hotels</h2><p>Check current room availability, rates, facilities and operating details directly with KSTDC before making plans.</p></div></div>
+<div className="ht-hotel-grid">{rows.map(h=><article className="ht-hotel" key={h.id}><div className="ht-hotel-top"><span>{h.tier}</span><b>{h.distance.toFixed(1)} km from your location</b></div><div className="ht-hotel-body"><h3>{h.name}</h3><small>{h.city} · {h.area}</small><p>{h.description}</p><a href={h.url} target="_blank" rel="noreferrer">Official details / booking ↗</a></div></article>)}</div>
+{!rows.length&&<div className="empty-v2">No hotels match that search. Try another hotel name or city.</div>}
+<p className="ht-disclaimer">TravelMate displays public KSTDC listing information. It does not confirm availability, collect payment or complete a hotel reservation.</p>
+</main>}
