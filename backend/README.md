@@ -5,64 +5,49 @@ Express + MongoDB backend for the **AI-Powered Smart Tourism Management System w
 ## Features
 
 - JWT authentication and bcrypt password hashing
-- MongoDB persistence (with an in-memory fallback for demos)
-- Nearby place search, events, booking records and user trip planner
-- Hybrid assistant route: forwards current place/event data and chat history to the local Python/Ollama model, with a clearly labelled fallback
-- Prepared website translations; optional Python IndicTrans2 translation service
+- MongoDB persistence with an in-memory fallback for demos
+- Nearby place search, events, booking requests and user trip planner
+- Python/Ollama assistant integration with current TravelMate place/event context
+- Prepared website translations and local Python/Ollama translation fallback
 
 ## Run locally on Windows
 
 1. Install Node.js 18 or newer and MongoDB Community Server.
-2. In MongoDB Compass, confirm the local connection works at `mongodb://127.0.0.1:27017`.
-3. In this folder, copy `.env.example` to `.env`. Keep the local MongoDB URI and set a long random `JWT_SECRET`.
-4. Open a terminal here and run:
+2. Start MongoDB Community Server.
+3. Copy `.env.example` to `.env` only if you do not already have a local `.env` file.
+4. Set a private random `JWT_SECRET` and verify the local settings:
 
-   ```powershell
-   npm install
-   npm run dev
-   ```
-
-The API runs at http://localhost:5000. Check http://localhost:5000/api/health.
-
-## Website-wide Google Cloud Translation
-
-The React frontend now sends untranslated visible page text, button labels, headings, placeholders, image alternative text, and accessibility labels to the backend in batches when a visitor changes the language. Existing prepared Kannada, Hindi, Tamil, and Telugu translations are used immediately. When Google Cloud Translation is not configured, the backend can use the optional local IndicTrans2 batch endpoint for supported Indic languages. Newly rendered UI text is translated as the visitor navigates and interacts with the site.
-
-The backend exposes `POST /api/translate` and accepts batches:
-
-```json
-{
-  "texts": ["Welcome to Mysuru", "Explore nearby places"],
-  "targetLanguage": "kn"
-}
+```env
+PORT=5000
+FRONTEND_URL=http://localhost:5173
+MONGODB_URI=mongodb://127.0.0.1:27017
+MONGODB_DB=travelmate
+PYTHON_AI_URL=http://127.0.0.1:8001
 ```
 
-The response contains a `translations` array in the same order. Batches are limited to 80 text strings and 30,000 total characters. The frontend sends smaller batches to keep requests manageable. Supported language availability depends on Google Cloud Translation for the requested language code; a dropdown option does not guarantee that Google's provider supports it.
+Then run:
 
-### Enable a translation provider
+```powershell
+npm install
+npm run dev
+```
 
-**Google Cloud (recommended for broad language coverage):**
-1. Enable the Cloud Translation API in your Google Cloud project and configure billing and API permissions.
-2. Copy `.env.example` to `.env` and set `GCP_PROJECT_ID`.
-3. Configure Google Application Default Credentials. For local development, set `GOOGLE_APPLICATION_CREDENTIALS` to a service-account JSON key stored outside this repository. In production, use the hosting platform's workload identity where possible.
+The API runs at http://localhost:5000. Health check: http://localhost:5000/api/health.
 
-**Local IndicTrans2 (no cloud translation key):**
-1. Follow the optional IndicTrans2 installation steps in [../python-service/README.md](../python-service/README.md).
-2. Start the Python service at `http://127.0.0.1:8001` and keep `PYTHON_AI_URL=http://127.0.0.1:8001` in the backend `.env`.
-3. The local model mapping covers Assamese, Bengali, Gujarati, Hindi, Kannada, Malayalam, Marathi, Maithili, Manipuri, Nepali, Odia, Punjabi, Sanskrit, Tamil, Telugu and Urdu. Bhojpuri and Mizo require a Google Cloud provider that supports those codes.
+## Website translation
 
-Then run `npm install`, restart the backend, start the frontend and select a language. If neither translation provider is configured and running, prepared dictionary translations still work, but unmatched text remains in its original language.
+The frontend applies prepared dictionaries first. Remaining English interface text is sent in batches to `POST /api/translate`; the backend forwards the request to the local Python service at `PYTHON_AI_URL`. Python uses the locally installed Ollama TranslateGemma model. No Google Cloud Translation account or paid translation API is required.
 
-Google Cloud Translation can incur charges based on the amount of text translated. Avoid committing service-account JSON keys, `.env` files, API secrets, or user data. The website caches translated strings in the current browser session to avoid repeatedly translating identical text.
+Keep Ollama and the Python service running for AI translation. If the Python service is unavailable, prepared dictionary translations continue to work, but unmatched text may remain in English.
 
 ## Optional Python assistant
 
-Install Ollama and pull `qwen2.5:3b`, then run the Python service in another terminal using [../python-service/README.md](../python-service/README.md). Set `PYTHON_AI_URL=http://127.0.0.1:8001` in `.env`. The backend sends the user's selected language, recent chat turns, and a limited set of place/event records to Python. If Python is unavailable, Node returns a limited data-backed fallback. If Ollama is unavailable, Python clearly labels its rule-based fallback.
+Install Ollama and pull `qwen2.5:3b`, then run the Python service using [the Python service guide](../python-service/README.md). The backend sends the user's selected language, recent chat turns and a limited set of nearby place/event records to Python.
 
 ## Frontend
 
-Run the frontend from `../travelmate-frontend` in a separate terminal. See the root README for the full startup order.
+Run the frontend from `../travelmate-frontend` in a separate terminal. See the root README for the full startup steps.
 
 ## Data and safety
 
-The backend seeds example Mysuru places and events when those collections are empty. External live-place/event APIs are optional. Never commit `.env`, passwords, JWT secrets, API keys, or user data to GitHub.
+The backend seeds example Mysuru places and events when those collections are empty. External live-place/event APIs are optional. Never commit `.env`, passwords, JWT secrets, API keys, or user data.
