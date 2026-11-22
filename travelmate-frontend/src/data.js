@@ -6,7 +6,19 @@ export const places=[{"id":1,"name":"Mysore Palace","category":"Palace","lat":12
 {"id":17,"name":"Shivanasamudra Falls","category":"Waterfall and Nature","lat":12.301,"lng":77.17,"address":"Shivanasamudra, Malavalli taluk, Mandya district, Karnataka, India","rating":null,"price":null,"websiteUrl":"https://mysore.nic.in/en/tourism/","description":"Scenic Kaveri river waterfalls near Mysuru district; check seasonal water conditions and local access advisories."},
 {"id":18,"name":"Jayalakshmi Vilas Palace Museum","category":"Palace and Museum","lat":12.3088,"lng":76.6257,"address":"Manasagangotri, University of Mysore, Mysuru, Karnataka, India","rating":null,"price":null,"websiteUrl":"https://mysore.nic.in/en/heritage-buildings/","description":"Historic palace built in 1905 and now associated with the University of Mysore folk museum collections; check visitor access before travelling."},
 {"id":19,"name":"Melody World Wax Museum","category":"Museum","lat":12.2968,"lng":76.6814,"address":"Melody World Wax Museum, Siddhartha Layout, Mysuru, Karnataka, India","rating":null,"price":null,"websiteUrl":"https://mysore.nic.in/en/tourism/","description":"Mysuru wax museum featuring themed wax figures and musical displays; confirm current timings before visiting."},
-{"id":20,"name":"Sukavana","category":"Bird Park and Nature","lat":12.2785,"lng":76.6185,"address":"Sukavana, Avadhoota Datta Peetham, Mysuru, Karnataka, India","rating":null,"price":null,"websiteUrl":"https://mysore.nic.in/en/tourism/","description":"Bird sanctuary and rehabilitation centre in Mysuru associated with Avadhoota Datta Peetham; check visiting rules and hours."}
+{"id":20,"name":"Sukavana","category":"Bird Park and Nature","lat":12.2785,"lng":76.6185,"address":"Sukavana, Avadhoota Datta Peetham, Mysuru, Karnataka, India","rating":null,"price":null,"websiteUrl":"https://mysore.nic.in/en/tourism/","description":"Bird sanctuary and rehabilitation centre in Mysuru associated with Avadhoota Datta Peetham; check visiting rules and hours."},
+{
+  "id": 21,
+  "name": "Kabini River and Reservoir",
+  "category": "River, Reservoir and Nature",
+  "lat": 11.9735,
+  "lng": 76.3528,
+  "address": "Kabini Dam, Beechanahalli, H.D. Kote Taluk, Mysuru district, Karnataka, India",
+  "rating": null,
+  "price": null,
+  "websiteUrl": "https://mysore.nic.in/en/tourist-place/kabini-or-kapila-river/",
+  "description": "Kabini (Kapila) River and reservoir backwaters near Beechanahalli and Sargur, known for river scenery and wildlife-rich surroundings. Access and visitor activities can vary; check local advisories before travelling."
+}
 ];
 
 export const events=[

@@ -265,6 +265,18 @@ export const seedPlaces = [
   "price": null,
   "websiteUrl": "https://mysore.nic.in/en/tourism/",
   "description": "Bird sanctuary and rehabilitation centre in Mysuru associated with Avadhoota Datta Peetham; check visiting rules and hours."
+},
+{
+  "id": 21,
+  "name": "Kabini River and Reservoir",
+  "category": "River, Reservoir and Nature",
+  "lat": 11.9735,
+  "lng": 76.3528,
+  "address": "Kabini Dam, Beechanahalli, H.D. Kote Taluk, Mysuru district, Karnataka, India",
+  "rating": null,
+  "price": null,
+  "websiteUrl": "https://mysore.nic.in/en/tourist-place/kabini-or-kapila-river/",
+  "description": "Kabini (Kapila) River and reservoir backwaters near Beechanahalli and Sargur, known for river scenery and wildlife-rich surroundings. Access and visitor activities can vary; check local advisories before travelling."
 }
 ];
 
