@@ -1,4 +1,5 @@
 import { translations, CATEGORY_TRANSLATIONS, REFERENCE_UI_TRANSLATIONS } from "./i18n";
+import { REFERENCE_PLACE_NAME_TRANSLATIONS } from "./referenceContentTranslations";
 import { api } from "./api";
 
 const attributeNames = ["placeholder", "title", "aria-label", "alt"];
@@ -90,6 +91,48 @@ function localMap(language) {
     if (typeof from === "string" && typeof to === "string" &&
         from.trim() && to.trim() && from !== to && !map.has(normalize(from))) {
       map.set(normalize(from), to);
+    }
+  });
+
+  // Translate project-specific place categories using the supplied category dictionary.
+  // This maps TravelMate's category labels to the closest matching reference category.
+  const categoryAliases = {
+    "Palace": "Heritage",
+    "Hill and Temple": "Spiritual",
+    "Garden": "Nature & Parks",
+    "Cathedral": "Architecture",
+    "Lake and Nature Park": "Nature & Parks",
+    "Lake and Nature": "Nature & Parks",
+    "Railway Museum": "Museum",
+    "Zoo": "Wildlife",
+    "Palace and Art Gallery": "Architecture",
+    "Market": "Culture & Market",
+    "Bird Sanctuary and Nature": "Wildlife",
+    "Historic Town and Fort": "Heritage",
+    "Temple and Heritage": "Spiritual",
+    "Historic Site and Riverfront": "Heritage",
+    "Waterfall and Nature": "Nature & Parks",
+    "Palace and Museum": "Museum",
+    "Bird Park and Nature": "Wildlife",
+    "River, Reservoir and Nature": "Nature & Parks",
+    "Palace and Heritage Hotel": "Heritage"
+  };
+  Object.entries(categoryAliases).forEach(([projectCategory, referenceCategory]) => {
+    const translated = targetCategories[referenceCategory];
+    if (typeof translated === "string" && translated !== projectCategory &&
+        !map.has(normalize(projectCategory))) {
+      map.set(normalize(projectCategory), translated);
+    }
+  });
+
+  // Add prepared place names from the supplied dictionary where names match
+  // the current TravelMate Mysuru records. Unmatched places remain eligible
+  // for the local Ollama translation fallback.
+  Object.entries(REFERENCE_PLACE_NAME_TRANSLATIONS).forEach(([englishName, localized]) => {
+    const translated = localized[language];
+    if (typeof translated === "string" && translated.trim() &&
+        !map.has(normalize(englishName))) {
+      map.set(normalize(englishName), translated);
     }
   });
 
