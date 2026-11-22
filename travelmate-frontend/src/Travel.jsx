@@ -12,7 +12,8 @@ const destinations=[
 {name:"Brindavan Gardens (KRS)",lat:12.4244,lng:76.5722,address:"Brindavan Gardens, KRS, Karnataka"},
 {name:"Nanjangud Temple",lat:12.1176,lng:76.6835,address:"Srikanteshwara Temple, Nanjangud, Karnataka"},
 {name:"Talakadu",lat:12.1915,lng:77.0270,address:"Talakadu, Karnataka"},
-{name:"Shivanasamudra Falls",lat:12.3010,lng:77.1700,address:"Shivanasamudra Falls, Karnataka"}
+{name:"Shivanasamudra Falls",lat:12.3010,lng:77.1700,address:"Shivanasamudra Falls, Karnataka"},
+{name:"Kabini River and Reservoir",lat:11.9735,lng:76.3528,address:"Kabini Dam, Beechanahalli, H.D. Kote, Mysuru district, Karnataka"}
 ];
 const modes=[{id:"car",label:"Car",icon:"🚗",profile:"driving"},{id:"bike",label:"Bike",icon:"🏍️",profile:"bike"},{id:"walk",label:"Walk",icon:"🚶",profile:"foot"},{id:"bus",label:"Bus",icon:"🚌",profile:"transit"}];
 const km=(a,b,c,d)=>{const r=Math.PI/180,x=(c-a)*r,y=(d-b)*r,z=Math.sin(x/2)**2+Math.cos(a*r)*Math.cos(c*r)*Math.sin(y/2)**2;return 6371*2*Math.atan2(Math.sqrt(z),Math.sqrt(1-z))};
