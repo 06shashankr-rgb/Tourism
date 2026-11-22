@@ -198,3 +198,13 @@ footer{border-top:1px solid var(--line);padding:25px 4.5%;display:flex;justify-c
 .travel-suggestions button{padding:11px 13px;text-align:left;border:0;border-bottom:1px solid var(--line,#eee);background:transparent;color:inherit;cursor:pointer;font:inherit}
 .travel-suggestions button:hover{background:rgba(164,18,63,.08)}
 .travel-suggestions button:last-child{border-bottom:0}
+
+
+/* Nearby destinations displayed after GPS or pickup selection */
+.travel-nearby-list{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:10px}
+.travel-nearby-list>button{display:flex;align-items:center;justify-content:space-between;gap:14px;padding:14px 16px;text-align:left;border:1px solid var(--line,#e8e1d8);border-radius:10px;background:var(--surface,#fff);color:inherit;cursor:pointer}
+.travel-nearby-list>button:hover{border-color:#a4123f;background:rgba(164,18,63,.04)}
+.travel-nearby-list>button span{display:flex;flex-direction:column;gap:5px;min-width:0}
+.travel-nearby-list>button b{font-weight:650}
+.travel-nearby-list>button small{opacity:.72;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:34ch}
+.travel-nearby-list>button strong{white-space:nowrap;color:#a4123f;font-variant-numeric:tabular-nums}
