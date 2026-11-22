@@ -26,7 +26,7 @@ const images={
   "Lalitha Mahal Palace": "https://cdn.s3waas.gov.in/s30d3180d672e08b4c5312dcdafdf6ef36/uploads/2018/09/2018090185-300x169.jpg",
   "Mysore Sand Sculpture Museum": "https://www.team-bhp.com/forum/attachments/travelogues/2681584d1731250894-day-trip-mysuru-visiting-couple-atypical-locations-_mg_6216.jpg",
   "Ranganathittu Bird Sanctuary": "https://commons.wikimedia.org/wiki/Special:FilePath/Ranganathittu_Bird_Sanctuary_01.jpg",
-  "Srirangapatna Heritage Town": "https://staybook.in/_next/image?q=100&url=https%3A%2F%2Fimages.staybook.in%2Fthings-to-do%2Fdaria-daulat-bagh-admission%2F1.jpg&w=1920",
+  "Srirangapatna Heritage Town": "https://commons.wikimedia.org/wiki/Special:FilePath/Daria_Daulat_Bagh%2C_Srirangapatana%2C_Mysuru.jpg?width=1200", // Daria Daulat Bagh, Srirangapatna; Wikimedia Commons (CC BY-SA 4.0), photo by Vinayaraj.
   "Srikanteshwara Temple, Nanjangud": "https://cdn.s3waas.gov.in/s30d3180d672e08b4c5312dcdafdf6ef36/uploads/2018/09/2018091717.jpg",
   "Talakadu": "https://cdn.s3waas.gov.in/s30d3180d672e08b4c5312dcdafdf6ef36/uploads/2017/06/2018080653.jpg",
   "Shivanasamudra Falls": "https://commons.wikimedia.org/wiki/Special:FilePath/Shivanasamudra_Falls.jpg",
