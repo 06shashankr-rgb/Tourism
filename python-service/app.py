@@ -24,6 +24,15 @@ app.add_middleware(
     allow_headers=["Content-Type", "Authorization"],
 )
 
+@app.middleware("http")
+async def set_json_utf8_charset(request, call_next):
+    """Make UTF-8 explicit for Windows PowerShell and browser JSON clients."""
+    response = await call_next(request)
+    content_type = response.headers.get("content-type", "")
+    if content_type.startswith("application/json"):
+        response.headers["content-type"] = "application/json; charset=utf-8"
+    return response
+
 
 class ChatRequest(BaseModel):
     message: str = Field(min_length=1, max_length=2000)
