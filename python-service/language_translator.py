@@ -3,6 +3,7 @@ import json
 import os
 import urllib.error
 import urllib.request
+from concurrent.futures import ThreadPoolExecutor
 
 LANGUAGES = {
     "as": "asm_Beng", "bn": "ben_Beng", "brx": "brx_Deva",
@@ -149,7 +150,8 @@ def translate_texts(
             "Run: ollama pull " + TRANSLATION_MODEL
         )
 
-    translated = [_translate_one(text, target) for text in cleaned]
+    with ThreadPoolExecutor(max_workers=min(3, len(cleaned))) as pool:
+        translated = list(pool.map(lambda item: _translate_one(item, target), cleaned))
     if len(translated) != len(cleaned) or any(not value.strip() for value in translated):
         raise RuntimeError("Translation engine returned an incomplete result.")
 
