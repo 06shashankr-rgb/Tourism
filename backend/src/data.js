@@ -169,6 +169,103 @@ export const seedPlaces = [
     "imageCredit": "Team-BHP travelogue",
     "description": "Museum displaying detailed sand sculptures based on local history, culture, wildlife and mythology."
   }
+,
+{
+  "id": 13,
+  "name": "Ranganathittu Bird Sanctuary",
+  "category": "Bird Sanctuary and Nature",
+  "lat": 12.4245,
+  "lng": 76.657,
+  "address": "Ranganathittu Bird Sanctuary, Srirangapatna, Mandya, Karnataka, India",
+  "rating": null,
+  "price": null,
+  "websiteUrl": "https://mysore.nic.in/en/tourist-places/",
+  "description": "River-island bird sanctuary on the Kaveri, known for boat-based birdwatching and seasonal migratory birds."
+},
+{
+  "id": 14,
+  "name": "Srirangapatna Heritage Town",
+  "category": "Historic Town and Fort",
+  "lat": 12.4224,
+  "lng": 76.6936,
+  "address": "Srirangapatna, Mandya, Karnataka, India",
+  "rating": null,
+  "price": null,
+  "websiteUrl": "https://mysore.nic.in/en/tourist-places/",
+  "description": "Historic island town associated with Tipu Sultan, with important heritage sites including the fort area, Dariya Daulat Bagh and Gumbaz."
+},
+{
+  "id": 15,
+  "name": "Srikanteshwara Temple, Nanjangud",
+  "category": "Temple and Heritage",
+  "lat": 12.1176,
+  "lng": 76.6835,
+  "address": "Srikanteshwara Temple, Nanjangud, Mysuru district, Karnataka, India",
+  "rating": null,
+  "price": null,
+  "websiteUrl": "https://mysore.nic.in/en/tourist-places/",
+  "description": "Historic temple on the banks of the Kapila River, an important pilgrimage destination near Mysuru."
+},
+{
+  "id": 16,
+  "name": "Talakadu",
+  "category": "Historic Site and Riverfront",
+  "lat": 12.1915,
+  "lng": 77.027,
+  "address": "Talakadu, T. Narasipura taluk, Mysuru district, Karnataka, India",
+  "rating": null,
+  "price": null,
+  "websiteUrl": "https://mysore.nic.in/en/tourist-places/",
+  "description": "Historic riverside settlement known for buried temples, sand dunes and the Panchalinga pilgrimage tradition."
+},
+{
+  "id": 17,
+  "name": "Shivanasamudra Falls",
+  "category": "Waterfall and Nature",
+  "lat": 12.301,
+  "lng": 77.17,
+  "address": "Shivanasamudra, Malavalli taluk, Mandya district, Karnataka, India",
+  "rating": null,
+  "price": null,
+  "websiteUrl": "https://mysore.nic.in/en/tourism/",
+  "description": "Scenic Kaveri river waterfalls near Mysuru district; check seasonal water conditions and local access advisories."
+},
+{
+  "id": 18,
+  "name": "Jayalakshmi Vilas Palace Museum",
+  "category": "Palace and Museum",
+  "lat": 12.3088,
+  "lng": 76.6257,
+  "address": "Manasagangotri, University of Mysore, Mysuru, Karnataka, India",
+  "rating": null,
+  "price": null,
+  "websiteUrl": "https://mysore.nic.in/en/heritage-buildings/",
+  "description": "Historic palace built in 1905 and now associated with the University of Mysore folk museum collections; check visitor access before travelling."
+},
+{
+  "id": 19,
+  "name": "Melody World Wax Museum",
+  "category": "Museum",
+  "lat": 12.2968,
+  "lng": 76.6814,
+  "address": "Melody World Wax Museum, Siddhartha Layout, Mysuru, Karnataka, India",
+  "rating": null,
+  "price": null,
+  "websiteUrl": "https://mysore.nic.in/en/tourism/",
+  "description": "Mysuru wax museum featuring themed wax figures and musical displays; confirm current timings before visiting."
+},
+{
+  "id": 20,
+  "name": "Sukavana",
+  "category": "Bird Park and Nature",
+  "lat": 12.2785,
+  "lng": 76.6185,
+  "address": "Sukavana, Avadhoota Datta Peetham, Mysuru, Karnataka, India",
+  "rating": null,
+  "price": null,
+  "websiteUrl": "https://mysore.nic.in/en/tourism/",
+  "description": "Bird sanctuary and rehabilitation centre in Mysuru associated with Avadhoota Datta Peetham; check visiting rules and hours."
+}
 ];
 
 export const seedEvents = [
@@ -181,5 +278,23 @@ export const seedEvents = [
   { id: 207, placeId: 1, name: "Jumboo Savari", venue: "Mysuru Palace to Bannimantap", lat: 12.3052, lng: 76.6552, price: 3500, seats: 0, source: "Mysuru Dasara", sourceUrl: "https://mysoredasara.gov.in/book.html", date: "21 Oct 2026", time: "After 4:10 PM", today: false, category: "Grand Procession", bookable: true, description: "The grand Vijayadashami procession featuring the royal elephants, cultural groups, musicians and tableaux." },
   { id: 208, placeId: 1, name: "Torchlight Parade", venue: "Bannimantap Ground", lat: 12.3215, lng: 76.6359, price: 1500, seats: 0, source: "Mysuru Dasara", sourceUrl: "https://mysoredasara.gov.in/book.html", date: "20–21 Oct 2026", time: "From 7:00 PM", today: false, category: "Parade", bookable: true, description: "A spectacular evening parade featuring military and police bands, performances and the closing celebrations." },
   { id: 209, placeId: 1, name: "Dasara CM Cup 2026", venue: "Chamundi Vihar & University Stadia", lat: 12.3145, lng: 76.6530, price: 0, seats: 0, source: "Mysuru Dasara", sourceUrl: "https://mysoredasara.gov.in/events.html", date: "11–14 Oct 2026", time: "Daytime", today: false, category: "Sports", bookable: false, description: "Four days of sports competitions across multiple disciplines as part of Mysuru Dasara." },
-  { id: 210, placeId: 1, name: "Yuva Sambhrama 2026", venue: "Manasagangothri Open Air Theatre", lat: 12.3250, lng: 76.6175, price: 0, seats: 0, source: "Mysuru Dasara", sourceUrl: "https://mysoredasara.gov.in/events.html", date: "28 Sep – 5 Oct 2026", time: "5:00 PM – 10:00 PM", today: false, category: "Youth / Cultural", bookable: false, description: "Youth cultural programme featuring music and performances by young artists and students before the main Dasara celebrations." }
+  { id: 210, placeId: 1, name: "Yuva Sambhrama 2026", venue: "Manasagangothri Open Air Theatre", lat: 12.3250, lng: 76.6175, price: 0, seats: 0, source: "Mysuru Dasara", sourceUrl: "https://mysoredasara.gov.in/events.html", date: "28 Sep – 5 Oct 2026", time: "5:00 PM – 10:00 PM", today: false, category: "Youth / Cultural", bookable: false, description: "Youth cultural programme featuring music and performances by young artists and students before the main Dasara celebrations." },
+{
+  "id": 211,
+  "placeId": 0,
+  "name": "Unexplored Places of Mysuru — Photography & Short Video Competition (Past listing)",
+  "venue": "Mysuru District",
+  "lat": 12.2958,
+  "lng": 76.6394,
+  "price": 0,
+  "seats": 0,
+  "source": "District Tourism Development Committee, Mysuru",
+  "sourceUrl": "https://mysore.nic.in/en/competitions/",
+  "date": "Submission deadline: 5 July 2024 (closed)",
+  "time": "Past competition — submissions closed",
+  "today": false,
+  "category": "Past competition / archive",
+  "bookable": false,
+  "description": "The district tourism committee invited photography and one-minute short-video entries showcasing unexplored places and hidden gems of Mysuru. The published submission deadline was 5 July 2024, so this is an archived competition and is not open for entries."
+}
 ];
