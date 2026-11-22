@@ -5,7 +5,33 @@ import { api } from "./api";
 const attributeNames = ["placeholder", "title", "aria-label", "alt"];
 const originalText = new WeakMap();
 const originalAttrs = new WeakMap();
-const remoteCache = new Map();
+const CACHE_KEY = "travelmate_translation_cache_v1";
+const MAX_CACHE_ENTRIES = 2500;
+
+function readTranslationCache() {
+  try {
+    const saved = JSON.parse(localStorage.getItem(CACHE_KEY) || "[]");
+    return Array.isArray(saved)
+      ? saved.filter(item => Array.isArray(item) && item.length === 2 &&
+          typeof item[0] === "string" && typeof item[1] === "string")
+      : [];
+  } catch {
+    return [];
+  }
+}
+
+const remoteCache = new Map(readTranslationCache());
+
+function persistTranslationCache() {
+  try {
+    const entries = [...remoteCache.entries()].slice(-MAX_CACHE_ENTRIES);
+    remoteCache.clear();
+    entries.forEach(([key, value]) => remoteCache.set(key, value));
+    localStorage.setItem(CACHE_KEY, JSON.stringify(entries));
+  } catch (error) {
+    console.warn("TravelMate could not save its local translation cache:", error.message);
+  }
+}
 const pending = new Set();
 const retryCount = new Map();
 
@@ -179,7 +205,11 @@ function translationMap(language) {
   const map = localMap(language);
   const prefix = language + "::";
   remoteCache.forEach((value, key) => {
-    if (key.startsWith(prefix)) map.set(key.slice(prefix.length), value);
+    if (key.startsWith(prefix)) {
+      const sourceText = key.slice(prefix.length);
+      // Prepared dictionary translations always take priority over AI cache entries.
+      if (!map.has(sourceText)) map.set(sourceText, value);
+    }
   });
   return map;
 }
@@ -234,6 +264,10 @@ function collectMissing() {
   const add = value => {
     const text = normalize(value);
     if (text.length < 2 || local.has(text)) return;
+    // Do not spend local model time translating URLs, email addresses or numeric-only labels.
+    if (/^(https?:\/\/|www\.)/i.test(text) ||
+        /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(text) ||
+        /^[\d\s.,:/()%+\-₹$]+$/.test(text)) return;
     const key = currentLanguage + "::" + text;
     if (!remoteCache.has(key) && !pending.has(key)) missing.add(text);
   };
@@ -270,7 +304,7 @@ async function translateRemaining() {
 
   try {
     while (language === currentLanguage) {
-      const texts = collectMissing().slice(0, 12);
+      const texts = collectMissing().slice(0, 6);
       if (!texts.length) break;
 
       const keys = texts.map(text => language + "::" + text);
@@ -290,6 +324,7 @@ async function translateRemaining() {
         texts.forEach((text, index) => {
           remoteCache.set(language + "::" + text, values[index].trim());
         });
+        persistTranslationCache();
         retryCount.delete(language);
         apply();
       } catch (error) {
