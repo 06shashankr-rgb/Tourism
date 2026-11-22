@@ -208,3 +208,15 @@ footer{border-top:1px solid var(--line);padding:25px 4.5%;display:flex;justify-c
 .travel-nearby-list>button b{font-weight:650}
 .travel-nearby-list>button small{opacity:.72;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:34ch}
 .travel-nearby-list>button strong{white-space:nowrap;color:#a4123f;font-variant-numeric:tabular-nums}
+
+
+/* Travel pickup search and local route map */
+.travel-pickup{display:flex;gap:9px;align-items:center}
+.travel-pickup input{flex:1;min-width:0}
+.travel-suggestions{position:relative;z-index:20;display:grid;max-height:220px;overflow:auto;border:1px solid var(--line);background:var(--surface);box-shadow:0 12px 28px #00000012}
+.travel-suggestions button{padding:11px 13px;text-align:left;border:0;border-bottom:1px solid var(--line);background:transparent;color:var(--text);font-size:12px;cursor:pointer}
+.travel-suggestions button:hover{background:color-mix(in srgb,var(--accent) 7%,var(--surface))}
+.local-ride-modes{grid-template-columns:repeat(4,minmax(0,1fr))}
+.local-ride-map{margin-top:18px;border:1px solid var(--line);padding:8px;background:var(--surface)}
+.local-ride-map .leaflet-container{z-index:1}
+@media(max-width:650px){.travel-pickup{align-items:stretch;flex-direction:column}.local-ride-modes{grid-template-columns:repeat(2,minmax(0,1fr))}}
