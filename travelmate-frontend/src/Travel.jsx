@@ -30,7 +30,7 @@ async function findRoute(){
  const selected=modes.find(x=>x.id===mode);
  if(selected.profile==="transit"){setLoading(false);return}
  try{
-  const url="https://router.project-osrm.org/route/v1/"+selected.profile+"/"+origin.lng+","+origin.lat+";"+target.lng+","+target.lat+"?overview=full&geometries=geojson";
+  const routerBase=selected.id==="bike"?"https://routing.openstreetmap.de/routed-bike/route/v1/driving/":selected.id==="walk"?"https://routing.openstreetmap.de/routed-foot/route/v1/driving/":"https://router.project-osrm.org/route/v1/driving/";\n  const url=routerBase+origin.lng+","+origin.lat+";"+target.lng+","+target.lat+"?overview=full&geometries=geojson";
   const response=await fetch(url);if(!response.ok)throw new Error("Route service is unavailable.");
   const data=await response.json();const best=data.routes?.[0];if(!best)throw new Error("No route was found for this journey.");
   const line=best.geometry.coordinates.map(([lng,lat])=>[lat,lng]);setRoute(line);setRouteInfo({distance:(best.distance/1000).toFixed(1),minutes:Math.round(best.duration/60)});
