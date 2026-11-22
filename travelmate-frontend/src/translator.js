@@ -227,7 +227,7 @@ async function translateRemaining() {
 
   try {
     while (language === currentLanguage) {
-      const texts = collectMissing().slice(0, 4);
+      const texts = collectMissing().slice(0, 12);
       if (!texts.length) break;
 
       const keys = texts.map(text => language + "::" + text);
