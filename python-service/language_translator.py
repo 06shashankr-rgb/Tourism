@@ -150,7 +150,7 @@ def translate_texts(
             "Run: ollama pull " + TRANSLATION_MODEL
         )
 
-    with ThreadPoolExecutor(max_workers=min(3, len(cleaned))) as pool:
+    with ThreadPoolExecutor(max_workers=min(2, len(cleaned))) as pool:
         translated = list(pool.map(lambda item: _translate_one(item, target), cleaned))
     if len(translated) != len(cleaned) or any(not value.strip() for value in translated):
         raise RuntimeError("Translation engine returned an incomplete result.")
