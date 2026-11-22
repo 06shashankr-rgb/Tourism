@@ -21,18 +21,18 @@ const images={
 "Mysuru Railway Museum":"https://cdn.s3waas.gov.in/s30d3180d672e08b4c5312dcdafdf6ef36/uploads/2018/09/2018091740.jpg",
 "Mysuru Zoo":"https://cdn.s3waas.gov.in/s30d3180d672e08b4c5312dcdafdf6ef36/uploads/2018/09/2018091769.jpg",
 "Jaganmohan Palace Art Gallery":"https://cdn.s3waas.gov.in/s30d3180d672e08b4c5312dcdafdf6ef36/uploads/2018/09/2018090124.jpg",
-"Devaraja Market":"https://commons.wikimedia.org/wiki/Special:FilePath/Devaraj_Market,_Mysore.jpg",
-"Kukkarahalli Lake":"https://commons.wikimedia.org/wiki/Special:FilePath/Kukkarahalli_Lake.jpg",
+"Devaraja Market":"https://upload.wikimedia.org/wikipedia/commons/d/d8/Mysore_-_Flower_vendors.jpg",
+"Kukkarahalli Lake":"https://images.safarcabby.com/places/kukkarahalli-lake-mysore-karnataka-2429-2341.jpg",
 "Lalitha Mahal Palace":"https://s7ap1.scene7.com/is/image/incredibleindia/lalitha-mahal-palace-mysuru-karnataka-city-1-hero?qlt=82&ts=1726722952915",
-"Mysore Sand Sculpture Museum":"https://commons.wikimedia.org/wiki/Special:FilePath/IMG_MYSORE_SAND_ART_MEUSEUM_DSC001.jpg",
+"Mysore Sand Sculpture Museum":"https://www.team-bhp.com/forum/attachments/travelogues/2681584d1731250894-day-trip-mysuru-visiting-couple-atypical-locations-_mg_6216.jpg",
 "Ranganathittu Bird Sanctuary":"https://commons.wikimedia.org/wiki/Special:FilePath/Ranganathittu_Bird_Sanctuary_01.jpg",
-"Srirangapatna Heritage Town":"https://commons.wikimedia.org/wiki/Special:FilePath/Ranganathaswamy_Temple,_Srirangapatna.jpg",
+"Srirangapatna Heritage Town":"https://staybook.in/_next/image?q=100&url=https%3A%2F%2Fimages.staybook.in%2Fthings-to-do%2Fdaria-daulat-bagh-admission%2F1.jpg&w=1920",
 "Srikanteshwara Temple, Nanjangud":"https://cdn.s3waas.gov.in/s30d3180d672e08b4c5312dcdafdf6ef36/uploads/2018/09/2018091717.jpg",
-"Talakadu":"https://cdn.s3waas.gov.in/s30d3180d672e08b4c5312dcdafdf6ef36/uploads/2017/06/2018080653.jpg",
+"Talakadu":"https://images.nativeplanet.com/ml/img/2017/11/04-1509778560-11.jpg",
 "Shivanasamudra Falls":"https://commons.wikimedia.org/wiki/Special:FilePath/Shivanasamudra_Falls.jpg",
-"Jayalakshmi Vilas Palace Museum":"https://commons.wikimedia.org/wiki/Special:FilePath/Jayalakshmi_Vilas_Mansion_1.jpg",
-"Melody World Wax Museum":"https://commons.wikimedia.org/wiki/Special:FilePath/Melody_World_Wax_Museum_at_Mysore.jpg",
-"Sukavana":"",
+"Jayalakshmi Vilas Palace Museum":"https://www.incredibleindia.gov.in/content/dam/incredible-india/images/trips/karnataka/mysuru/discover-mysuru-in-a-royal-adventure/jayalakshmi-vilas-palace-mysuru-karnataka-1-tri-iter-day1.jpg",
+"Melody World Wax Museum":"https://www.melodyworld.in/gallery/Melody02.jpg",
+"Sukavana":"https://cdn-images.vtv.vn/2018/shuka-vana-5-1516099888873.jpg",
 "Kabini River and Reservoir":"https://cdn.s3waas.gov.in/s30d3180d672e08b4c5312dcdafdf6ef36/uploads/2018/09/2018091752-1.jpg"
 };
 const iconPaths={compass:"M12 2l3.1 7.9L23 13l-7.9 3.1L12 24l-3.1-7.9L1 13l7.9-3.1L12 2z",pin:"M12 22s7-6.1 7-12a7 7 0 10-14 0c0 5.9 7 12 7 12z",spark:"M12 2l1.8 7.2L21 11l-7.2 1.8L12 20l-1.8-7.2L3 11l7.2-1.8L12 2z",arrow:"M5 12h13M13 6l6 6-6 6",calendar:"M5 4h14v16H5zM8 2v4M16 2v4M5 9h14",map:"M3 6l6-3 6 3 6-3v18l-6 3-6-3-6 3V6z",user:"M20 21a8 8 0 00-16 0M12 13a4 4 0 100-8 4 4 0 000 8z"};
@@ -43,27 +43,29 @@ function normalizePlaceImageName(value){
   return String(value||"").toLowerCase().replace(/[^a-z0-9]/g,"");
 }
 function placeImage(name,imageUrl,category=""){
-  const raw=String(name||"").trim();
-  const key=normalizePlaceImageName(raw);
+  const key=normalizePlaceImageName(name);
   const curated=Object.entries(images).find(([label])=>normalizePlaceImageName(label)===key);
-  if(curated)return curated[1];
+  if(curated&&curated[1])return curated[1];
   for(const dict of Object.values(translations)){
     for(const [english,translated] of Object.entries(dict||{})){
       if(typeof translated==="string"&&normalizePlaceImageName(translated)===key){
         const match=Object.entries(images).find(([label])=>normalizePlaceImageName(label)===normalizePlaceImageName(english));
-        if(match)return match[1];
+        if(match&&match[1])return match[1];
       }
     }
   }
   if(typeof imageUrl==="string"&&/^https?:\/\//i.test(imageUrl))return imageUrl;
-  return "";
+  // A related image is safer than a blank card; keep the fallback within the place category.
+  const categoryText=String(category||"").toLowerCase();
+  if(/bird|zoo|wildlife|nature/.test(categoryText))return images["Sukavana"];
+  if(/lake|river|waterfall|garden/.test(categoryText))return images["Kukkarahalli Lake"];
+  if(/temple|palace|heritage|historic|cathedral/.test(categoryText))return images["Mysore Palace"];
+  if(/museum|gallery/.test(categoryText))return images["Mysore Sand Sculpture Museum"];
+  return images["Mysore Palace"];
 }
 function placeImageStyle(name,imageUrl,category=""){
   const primary=placeImage(name,imageUrl,category);
-  // Do not show an unrelated stock photo when a verified attraction photo is unavailable.
-  return primary
-    ? {backgroundImage:"url('"+primary+"')"}
-    : {backgroundImage:"linear-gradient(135deg, #e8e0d5, #c9b9a4)"};
+  return {backgroundImage:"url('"+primary+"')"};
 }
 
 export default function App(){
