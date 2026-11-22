@@ -31,8 +31,8 @@ const images={
 "Talakadu":"https://images.beyondyatra.com/dest/talakadu/places/archaeological-museum-karnataka-india_img_1.jpg",
 "Shivanasamudra Falls":"https://media.assettype.com/prajavani%2F2025-06-18%2Fcrheedkz%2Fe21c9848-7dde-4840-b7b2-32c573f72e0b.jfif?auto=format%2Ccompress&fit=max&q=70&w=1200",
 "Jayalakshmi Vilas Palace Museum":"https://assets.thehansindia.com/h-upload/2022/09/10/1311769-university-of-mysore.webp",
-"Melody World Wax Museum":"",
-"Sukavana":"",
+"Melody World Wax Museum":"https://www.melodyworld.in/gallery/Melody02.jpg",
+"Sukavana":"https://www.guinnessworldrecords.com/news/charity/2017/6/images/most-bird-species-in-an-aviary-476998.jpg",
 "Kabini River and Reservoir":"https://media1.thrillophilia.com/filestore/4om6ahq6axl6fp8fp5u1ff3wlz77_1564730191_Kabini_dam_full_view.jpg.jpg?dpr=&h=450&w=753"
 };
 const iconPaths={compass:"M12 2l3.1 7.9L23 13l-7.9 3.1L12 24l-3.1-7.9L1 13l7.9-3.1L12 2z",pin:"M12 22s7-6.1 7-12a7 7 0 10-14 0c0 5.9 7 12 7 12z",spark:"M12 2l1.8 7.2L21 11l-7.2 1.8L12 20l-1.8-7.2L3 11l7.2-1.8L12 2z",arrow:"M5 12h13M13 6l6 6-6 6",calendar:"M5 4h14v16H5zM8 2v4M16 2v4M5 9h14",map:"M3 6l6-3 6 3 6-3v18l-6 3-6-3-6 3V6z",user:"M20 21a8 8 0 00-16 0M12 13a4 4 0 100-8 4 4 0 000 8z"};
