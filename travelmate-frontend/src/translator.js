@@ -304,7 +304,10 @@ async function translateRemaining() {
 
   try {
     while (language === currentLanguage) {
-      const texts = collectMissing().slice(0, 6);
+      // Translate one text node per request. TranslateGemma runs sequentially on
+      // the user's local machine; small requests avoid proxy timeouts that can
+      // otherwise leave an entire batch untranslated.
+      const texts = collectMissing().slice(0, 1);
       if (!texts.length) break;
 
       const keys = texts.map(text => language + "::" + text);
@@ -368,6 +371,7 @@ export function setWebsiteLanguage(language) {
   }
 
   document.documentElement.lang = languageCodes[currentLanguage] || "en";
+  document.documentElement.dir = ["Urdu", "Kashmiri", "Sindhi"].includes(currentLanguage) ? "rtl" : "ltr";
   if (observer) observer.disconnect();
 
   apply();
