@@ -14,17 +14,26 @@ function readStoredJson(key,fallback){try{const value=localStorage.getItem(key);
 function readStoredLocation(){const value=readStoredJson("location",defaultLocation);if(!value||!Number.isFinite(Number(value.lat))||!Number.isFinite(Number(value.lng)))return defaultLocation;return{lat:Number(value.lat),lng:Number(value.lng),label:String(value.label||"Mysuru")}}
 const images={
 "Mysore Palace":"https://karnatakatourism.org/_next/image/?q=75&url=https%3A%2F%2Fweb-cms.karnatakatourism.org%2Fwp-content%2Fuploads%2F2025%2F06%2Fmysore-palace-illuminated.jpg&w=828",
-"Chamundi Hill":"https://upload.wikimedia.org/wikipedia/commons/thumb/3/38/Chamundi_temple.JPG/1280px-Chamundi_temple.JPG",
-"Brindavan Gardens":"https://commons.wikimedia.org/wiki/Special:FilePath/Musical_Fountain_Show_at_Brindavan_Gardens,_Mysore_-_1.jpg",
+"Chamundi Hill":"https://karnatakatourism.org/_next/image/?q=75&url=https%3A%2F%2Fweb-cms.karnatakatourism.org%2Fwp-content%2Fuploads%2F2026%2F03%2FChamundi-Hill-1-scaled-1.jpg&w=2048",
+"Brindavan Gardens":"https://mysore.ind.in/wp-content/uploads/2010/11/Brindavan-Gardens1.jpg",
 "St. Philomena's Cathedral":"https://www.travel4pictures.com/img/s/v-10/p3463335904-4.jpg",
 "Karanji Lake":"https://cdn.wrytin.com/images/wrytup/r/1024/lake-karanji-k0zi9qr7.jpeg",
-"Mysuru Railway Museum":"https://shop.museumsofindia.org/sites/default/files/2017-11/ES-506.jpg",
-"Mysuru Zoo":"https://india.muthu.co/images/image_mysuru-zoo_hu_cf2a1f3d27e09ae1.png",
-"Jaganmohan Palace Art Gallery":"https://static.toiimg.com/photo/msid-51221424%2Cwidth-96%2Cheight-65.cms",
-"Devaraja Market":"https://upload.wikimedia.org/wikipedia/commons/d/d8/Mysore_-_Flower_vendors.jpg",
-"Kukkarahalli Lake":"https://images.safarcabby.com/places/kukkarahalli-lake-mysore-karnataka-2429-2341.jpg",
-"Lalitha Mahal Palace":"https://s7ap1.scene7.com/is/image/incredibleindia/lalitha-mahal-palace-mysuru-karnataka-city-1-hero?qlt=82&ts=1726722952915",
-"Mysore Sand Sculpture Museum":"https://www.team-bhp.com/forum/attachments/travelogues/2681584d1731250894-day-trip-mysuru-visiting-couple-atypical-locations-_mg_6216.jpg"
+"Mysuru Railway Museum":"https://upload.wikimedia.org/wikipedia/commons/thumb/6/64/Mysuru_Rail_Museum_-_Locomotive_ES_506.jpg/1280px-Mysuru_Rail_Museum_-_Locomotive_ES_506.jpg",
+"Mysuru Zoo":"https://d2w184mfj9gts1.cloudfront.net/blog/b884201e-220a-4558-a54e-77d1e01531ad.jpg",
+"Jaganmohan Palace Art Gallery":"https://commons.wikimedia.org/wiki/Special:FilePath/Jaganmohan%20Palace%2C%20Mysore.jpg",
+"Devaraja Market":"https://images.deccanherald.com/deccanherald/2023-09/75d253db-c7e9-495d-a995-4b9a9d8a966b/file6womqhgi0lcacaprhwh.jpg",
+"Kukkarahalli Lake":"https://media.assettype.com/deccanherald%2Fimport%2Fsites%2Fdh%2Ffiles%2Farticleimages%2F2023%2F01%2F05%2Fkukkarahalli-lake-new-1178211-1672925240.jpg?auto=format%2Ccompress&fit=max&w=1200",
+"Lalitha Mahal Palace":"https://www.explorebees.com/uploads/Lalitha%20Mahal%20Palace%20%285%29.jpg",
+"Mysore Sand Sculpture Museum":"https://shop.museumsofindia.org/sites/default/files/2017-11/Facade_1.jpg",
+"Ranganathittu Bird Sanctuary":"https://files.prokerala.com/news/photos/imgs/1024/pakshi-kaashi-ranganathittu-opens-for-public-story-1231683.jpg",
+"Srirangapatna Heritage Town":"https://staybook.in/_next/image?q=75&url=https%3A%2F%2Fimages.staybook.in%2Fthings-to-do%2Fdaria-daulat-bagh-admission%2F1.jpg&w=1080",
+"Srikanteshwara Temple, Nanjangud":"https://1.bp.blogspot.com/--Ey9tnbTmVU/WJkuJ_NYlQI/AAAAAAAAxO0/eGoFeJdf1lohFQ0DeK9DcJT2fg97_r7DwCLcB/s1600/Srikanteshwara%2Bor%2BNanjundeshwara%2BTemple%2Bpictures.jpg",
+"Talakadu":"https://images.beyondyatra.com/dest/talakadu/places/archaeological-museum-karnataka-india_img_1.jpg",
+"Shivanasamudra Falls":"https://media.assettype.com/prajavani%2F2025-06-18%2Fcrheedkz%2Fe21c9848-7dde-4840-b7b2-32c573f72e0b.jfif?auto=format%2Ccompress&fit=max&q=70&w=1200",
+"Jayalakshmi Vilas Palace Museum":"https://assets.thehansindia.com/h-upload/2022/09/10/1311769-university-of-mysore.webp",
+"Melody World Wax Museum":"",
+"Sukavana":"",
+"Kabini River and Reservoir":"https://media1.thrillophilia.com/filestore/4om6ahq6axl6fp8fp5u1ff3wlz77_1564730191_Kabini_dam_full_view.jpg.jpg?dpr=&h=450&w=753"
 };
 const iconPaths={compass:"M12 2l3.1 7.9L23 13l-7.9 3.1L12 24l-3.1-7.9L1 13l7.9-3.1L12 2z",pin:"M12 22s7-6.1 7-12a7 7 0 10-14 0c0 5.9 7 12 7 12z",spark:"M12 2l1.8 7.2L21 11l-7.2 1.8L12 20l-1.8-7.2L3 11l7.2-1.8L12 2z",arrow:"M5 12h13M13 6l6 6-6 6",calendar:"M5 4h14v16H5zM8 2v4M16 2v4M5 9h14",map:"M3 6l6-3 6 3 6-3v18l-6 3-6-3-6 3V6z",user:"M20 21a8 8 0 00-16 0M12 13a4 4 0 100-8 4 4 0 000 8z"};
 function Icon({name,size=18}){return <svg aria-hidden="true" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round"><path d={iconPaths[name]||iconPaths.spark}/></svg>}
@@ -32,29 +41,23 @@ function distanceKm(a,b,c,d){const R=6371,x=(c-a)*Math.PI/180,y=(d-b)*Math.PI/18
 function Recenter({center,radius}){const map=useMap();const zoom=radius<=1?14:radius<=5?13:radius<=10?12:radius<=25?11:radius<=50?10:9;useEffect(()=>{map.setView(center,zoom)},[map,center,zoom]);return null}
 function placeImage(name,imageUrl,category=""){
   const raw=String(name||"").trim();
-  // Prefer a record's own image (including live event thumbnails), then a curated fallback.
-  if(typeof imageUrl==="string"&&/^https?:\/\//i.test(imageUrl))return imageUrl;
-  if(images[raw])return images[raw];
+  // Curated attraction-specific photos take priority over unverified API thumbnails.
+  if(Object.prototype.hasOwnProperty.call(images,raw))return images[raw];
   for(const dict of Object.values(translations)){
     for(const [english,translated] of Object.entries(dict||{})){
-      if(typeof translated==="string"&&translated===raw&&images[english])return images[english];
+      if(typeof translated==="string"&&translated===raw&&Object.prototype.hasOwnProperty.call(images,english))return images[english];
     }
   }
-  const subject=(raw+" "+category).toLowerCase();
-  if(/hill|mountain|nature|forest|lake|waterfall|garden|park|bird/.test(subject))return "https://images.unsplash.com/photo-1470770841072-f978cf4d019e?auto=format&fit=crop&w=1200&q=85";
-  if(/temple|palace|heritage|church|cathedral|museum|fort|monument|historic/.test(subject))return "https://images.unsplash.com/photo-1564507592333-c60657eea523?auto=format&fit=crop&w=1200&q=85";
-  if(/food|restaurant|cuisine|market|shopping|cafe/.test(subject))return "https://images.unsplash.com/photo-1504674900247-0877df9cc836?auto=format&fit=crop&w=1200&q=85";
-  if(/beach|sea|coast|island/.test(subject))return "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=1200&q=85";
-  if(/event|festival|music|concert|parade|procession|culture|dance|sport|flower|exhibition/.test(subject))return "https://images.unsplash.com/photo-1492684223066-81342ee5ff30?auto=format&fit=crop&w=1200&q=85";
-  return "https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=1200&q=85";
+  if(typeof imageUrl==="string"&&/^https?:\/\//i.test(imageUrl))return imageUrl;
+  return "";
 }
 
 function placeImageStyle(name,imageUrl,category=""){
   const primary=placeImage(name,imageUrl,category);
-  // CSS paints the second layer underneath the first, so it remains visible if
-  // a remote attraction photo is unavailable or blocked by the browser.
-  const fallback="https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=1200&q=80";
-  return {backgroundImage:"url('"+primary+"'), url('"+fallback+"')"};
+  // Do not show an unrelated stock photo when a verified attraction photo is unavailable.
+  return primary
+    ? {backgroundImage:"url('"+primary+"')"}
+    : {backgroundImage:"linear-gradient(135deg, #e8e0d5, #c9b9a4)"};
 }
 
 export default function App(){
