@@ -82,6 +82,8 @@ const googleMode=mode==="bus"?"transit":mode==="walk"?"walking":mode==="bike"?"b
 const mapsUrl="https://www.google.com/maps/dir/?api=1&origin="+encodeURIComponent(origin.lat+","+origin.lng)+"&destination="+encodeURIComponent(target.address||target.name)+"&travelmode="+googleMode;
 const uberUrl="https://m.uber.com/ul/?action=setPickup&pickup[latitude]="+origin.lat+"&pickup[longitude]="+origin.lng+"&dropoff[latitude]="+target.lat+"&dropoff[longitude]="+target.lng;
 const rideLabel=rideType==="auto"?"Auto-rickshaw":rideType==="taxi"?"Taxi / cab":"Bike taxi";
+const rideProviderUrl=rideType==="taxi"?uberUrl:"https://www.rapido.bike/";
+const rideProviderLabel=rideType==="taxi"?"Continue with Uber ↗":"Continue with Rapido ↗";
 return <main className="page-v2 ht-page travel-page">
  <div className="page-intro"><div><span className="ht-kicker">MYSURU JOURNEY & LOCAL TRANSPORT</span><h2>Choose your route.<br/><em>Travel with confidence.</em></h2><p>Set a pickup point with GPS, search for any destination and view available route guidance on the map.</p></div><div className="intro-side"><b>GPS</b><span>location-aware<br/>journey planner</span></div></div>
  <section className="ht-travel"><div className="ht-heading"><div><small>ROUTE PLANNER</small><h2>Plan your journey</h2><p>Choose car, bike, walking or public transport. Route estimates are supplied by OpenStreetMap-based services.</p></div></div>
@@ -99,7 +101,7 @@ return <main className="page-v2 ht-page travel-page">
  <section className="ht-section local-travel-section"><div className="ht-heading"><div><small>LOCAL AUTO, TAXI & BIKE RIDES</small><h2>Request a pickup-to-drop ride</h2><p>Choose a ride type and continue to a supported provider with your GPS pickup and selected destination details.</p></div></div>
   <div className="ht-modes">{[{id:"auto",label:"Auto-rickshaw",icon:"🛺"},{id:"taxi",label:"Taxi",icon:"🚕"},{id:"bike",label:"Bike taxi",icon:"🏍️"}].map(x=><button type="button" key={x.id} className={rideType===x.id?"active":""} onClick={()=>setRideType(x.id)}><span>{x.icon}</span>{x.label}</button>)}</div>
   <div className="local-travel-grid"><article><span>Pickup</span><h3>{origin.label}</h3><p>{origin.lat.toFixed(5)}, {origin.lng.toFixed(5)}</p></article><article><span>Drop</span><h3>{target.name}</h3><p>{target.address||target.name}</p></article><article><span>Ride type</span><h3>{rideLabel}</h3><p>Estimated straight-line distance: {straight.toFixed(1)} km</p></article></div>
-  <div className="ht-actions"><a className="solid-button" href={uberUrl} target="_blank" rel="noreferrer">Continue with Uber ↗</a><a className="outline-button" href="https://www.rapido.bike/" target="_blank" rel="noreferrer">Open Rapido ↗</a></div>
+  <div className="ht-actions"><a className="solid-button" href={rideProviderUrl} target="_blank" rel="noreferrer">{rideProviderLabel}</a></div>
   <p className="ht-disclaimer">TravelMate can share route details with provider links, but it does not dispatch drivers, calculate provider fares or confirm a ride. Actual auto, taxi and bike-taxi availability depends on the provider and local service area. Review the pickup and drop in the provider app before confirming.</p>
  </section>
 </main>
