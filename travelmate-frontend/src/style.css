@@ -220,3 +220,18 @@ footer{border-top:1px solid var(--line);padding:25px 4.5%;display:flex;justify-c
 .local-ride-map{margin-top:18px;border:1px solid var(--line);padding:8px;background:var(--surface)}
 .local-ride-map .leaflet-container{z-index:1}
 @media(max-width:650px){.travel-pickup{align-items:stretch;flex-direction:column}.local-ride-modes{grid-template-columns:repeat(2,minmax(0,1fr))}}
+
+
+/* Local ride pickup and drop search fields */
+.local-travel-grid.local-search-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;margin-top:18px}
+.local-search-grid .local-place-search{position:relative;display:grid;align-content:start;gap:9px;min-width:0;padding:18px;background:var(--surface);border:1px solid var(--line);color:var(--text);font-size:10px;font-weight:800}
+.local-search-grid .local-place-search>span{color:var(--accent);letter-spacing:1px}
+.local-search-grid .local-place-search input{width:100%;min-width:0;min-height:44px;padding:11px 12px;border:1px solid var(--line);border-radius:7px;background:var(--bg);color:var(--text);font-size:12px;outline-color:var(--accent)}
+.local-search-control{display:flex;gap:8px;min-width:0}
+.local-search-control input{flex:1}
+.local-search-control .outline-button{white-space:nowrap;padding:9px 12px}
+.local-search-grid .local-place-search>small{font-size:10px;font-weight:500;color:var(--muted);line-height:1.5}
+.local-search-grid .travel-suggestions{position:absolute;top:100%;left:18px;right:18px;margin-top:2px;z-index:30}
+.local-distance-note{margin:12px 0 18px;color:var(--muted);font-size:11px}
+.local-distance-note strong{color:var(--accent)}
+@media(max-width:650px){.local-travel-grid.local-search-grid{grid-template-columns:1fr}.local-search-control{align-items:stretch;flex-direction:column}.local-search-control .outline-button{width:100%}}
