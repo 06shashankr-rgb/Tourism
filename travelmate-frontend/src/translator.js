@@ -33,7 +33,7 @@ const indicTargets = {
   Telugu: "tel_Telu", Urdu: "urd_Arab"
 };
 
-const normalize = value => String(value ?? "").replace(/\\s+/g, " ").trim();
+const normalize = value => String(value ?? "").replace(/\s+/g, " ").trim();
 
 function ignored(node) {
   const element = node.nodeType === Node.ELEMENT_NODE ? node : node.parentElement;
