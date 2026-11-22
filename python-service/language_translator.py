@@ -66,8 +66,11 @@ def _translate_one(text: str, target: str) -> str:
         "model": TRANSLATION_MODEL,
         "prompt": prompt,
         "stream": False,
-        "options": {"temperature": 0.1, "num_ctx": 4096},
-    }).encode("utf-8")
+        # Keep one TranslateGemma inference at a time; this is more stable on
+        # the project's 8 GB Windows laptop while preserving UTF-8 text.
+        "keep_alive": "10m",
+        "options": {"temperature": 0.1, "num_ctx": 2048},
+    }, ensure_ascii=False).encode("utf-8")
 
     request = urllib.request.Request(
         OLLAMA_URL + "/api/generate",
@@ -150,7 +153,8 @@ def translate_texts(
             "Run: ollama pull " + TRANSLATION_MODEL
         )
 
-    with ThreadPoolExecutor(max_workers=min(2, len(cleaned))) as pool:
+    # Translate sequentially to avoid loading concurrent inference work on low-memory devices.
+    with ThreadPoolExecutor(max_workers=1) as pool:
         translated = list(pool.map(lambda item: _translate_one(item, target), cleaned))
     if len(translated) != len(cleaned) or any(not value.strip() for value in translated):
         raise RuntimeError("Translation engine returned an incomplete result.")
