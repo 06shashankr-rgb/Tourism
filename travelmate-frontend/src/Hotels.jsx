@@ -16,7 +16,8 @@ const hotels=[
 const km=(a,b,c,d)=>{const r=Math.PI/180,x=(c-a)*r,y=(d-b)*r,z=Math.sin(x/2)**2+Math.cos(a*r)*Math.cos(c*r)*Math.sin(y/2)**2;return 6371*2*Math.atan2(Math.sqrt(z),Math.sqrt(1-z))};
 export default function Hotels({location}){
 const[search,setSearch]=useState("");
-const nearbyCities=["Mysuru","Srirangapatna","KRS / Brindavan Gardens"];\nconst rows=useMemo(()=>hotels.filter(h=>nearbyCities.includes(h.city)).map(h=>({...h,distance:km(Number(location?.lat)||12.2958,Number(location?.lng)||76.6394,h.lat,h.lng)})).filter(h=>(h.name+" "+h.city+" "+h.area).toLowerCase().includes(search.toLowerCase())).sort((a,b)=>a.distance-b.distance),[location?.lat,location?.lng,search]);
+const nearbyCities=["Mysuru","Srirangapatna","KRS / Brindavan Gardens"];
+const rows=useMemo(()=>hotels.filter(h=>nearbyCities.includes(h.city)).map(h=>({...h,distance:km(Number(location?.lat)||12.2958,Number(location?.lng)||76.6394,h.lat,h.lng)})).filter(h=>(h.name+" "+h.city+" "+h.area).toLowerCase().includes(search.toLowerCase())).sort((a,b)=>a.distance-b.distance),[location?.lat,location?.lng,search]);
 return <main className="page-v2 ht-page">
 <div className="page-intro"><div><span className="ht-kicker">MYSURU & NEARBY STAYS</span><h2>Find a place<br/><em>to stay.</em></h2><p>Explore KSTDC Mayura stays only in Mysuru and nearby sightseeing areas: Srirangapatna and KRS / Brindavan Gardens. Listings are ordered by distance from your saved TravelMate location.</p></div><div className="intro-side"><b>{rows.length}</b><span>listed stays<br/>to explore</span></div></div>
 <div className="ht-hotel-toolbar"><input value={search} onChange={e=>setSearch(e.target.value)} placeholder="Search by hotel, city or area" aria-label="Search hotels"/><a className="solid-button" href="https://kstdc.co/mayura-hotels/" target="_blank" rel="noreferrer">Official KSTDC hotel list ↗</a></div>
