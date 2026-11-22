@@ -47,7 +47,7 @@ async function bookNow(){if(!user){setError("Please sign in to submit a local ri
 const mapsMode=mode==="bus"?"transit":mode==="walk"?"walking":mode==="bike"?"bicycling":"driving";
 const mapsUrl="https://www.google.com/maps/dir/?api=1&origin="+encodeURIComponent(origin.lat+","+origin.lng)+"&destination="+encodeURIComponent(target.address||target.name)+"&travelmode="+mapsMode;
 const rideLabel=rideType==="auto"?"Auto-rickshaw":rideType==="taxi"?"Taxi / cab":"Bike taxi";
-const mapPoints=[ [origin.lat,origin.lng], ...nearbyPlaces.filter(p=>Number.isFinite(Number(p.lat))&&Number.isFinite(Number(p.lng))).slice(0,60).map(p=>[Number(p.lat),Number(p.lng)]),[target.lat,target.lng] ];
+const mapPoints=route.length?route:[[origin.lat,origin.lng]];
 return <main className="page-v2 ht-page travel-page">
  <div className="page-intro"><div><span className="ht-kicker">MYSURU JOURNEY & LOCAL TRANSPORT</span><h2>Choose your route.<br/><em>Travel with confidence.</em></h2><p>Connect GPS to see your current area and nearby destinations, then plan your journey.</p></div><div className="intro-side"><b>{nearbyPlaces.length}</b><span>nearby places<br/>found</span></div></div>
  <section className="ht-travel"><div className="ht-heading"><div><small>ROUTE PLANNER</small><h2>Plan your journey</h2><p>Choose car, bike, walking or public transport. Route estimates are supplied by OpenStreetMap-based services.</p></div></div>
