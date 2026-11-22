@@ -21,8 +21,8 @@ const images={
 "Mysuru Railway Museum":"https://cdn.s3waas.gov.in/s30d3180d672e08b4c5312dcdafdf6ef36/uploads/2018/09/2018091740.jpg",
 "Mysuru Zoo":"https://cdn.s3waas.gov.in/s30d3180d672e08b4c5312dcdafdf6ef36/uploads/2018/09/2018091769.jpg",
 "Jaganmohan Palace Art Gallery":"https://cdn.s3waas.gov.in/s30d3180d672e08b4c5312dcdafdf6ef36/uploads/2018/09/2018090124.jpg",
-"Devaraja Market":"https://upload.wikimedia.org/wikipedia/commons/d/d8/Mysore_-_Flower_vendors.jpg",
-"Kukkarahalli Lake":"https://images.safarcabby.com/places/kukkarahalli-lake-mysore-karnataka-2429-2341.jpg",
+"Devaraja Market":"https://commons.wikimedia.org/wiki/Special:FilePath/Devaraj_Market,_Mysore.jpg",
+"Kukkarahalli Lake":"https://commons.wikimedia.org/wiki/Special:FilePath/Kukkarahalli_Lake.jpg",
 "Lalitha Mahal Palace":"https://s7ap1.scene7.com/is/image/incredibleindia/lalitha-mahal-palace-mysuru-karnataka-city-1-hero?qlt=82&ts=1726722952915",
 "Mysore Sand Sculpture Museum":"https://commons.wikimedia.org/wiki/Special:FilePath/IMG_MYSORE_SAND_ART_MEUSEUM_DSC001.jpg",
 "Ranganathittu Bird Sanctuary":"https://commons.wikimedia.org/wiki/Special:FilePath/Ranganathittu_Bird_Sanctuary_01.jpg",
@@ -31,7 +31,7 @@ const images={
 "Talakadu":"https://cdn.s3waas.gov.in/s30d3180d672e08b4c5312dcdafdf6ef36/uploads/2017/06/2018080653.jpg",
 "Shivanasamudra Falls":"https://commons.wikimedia.org/wiki/Special:FilePath/Shivanasamudra_Falls.jpg",
 "Jayalakshmi Vilas Palace Museum":"https://commons.wikimedia.org/wiki/Special:FilePath/Jayalakshmi_Vilas_Mansion_1.jpg",
-"Melody World Wax Museum":"https://www.melodyworld.in/gallery/Melody02.jpg",
+"Melody World Wax Museum":"https://commons.wikimedia.org/wiki/Special:FilePath/Melody_World_Wax_Museum_at_Mysore.jpg",
 "Sukavana":"",
 "Kabini River and Reservoir":"https://cdn.s3waas.gov.in/s30d3180d672e08b4c5312dcdafdf6ef36/uploads/2018/09/2018091752-1.jpg"
 };
@@ -39,19 +39,25 @@ const iconPaths={compass:"M12 2l3.1 7.9L23 13l-7.9 3.1L12 24l-3.1-7.9L1 13l7.9-3
 function Icon({name,size=18}){return <svg aria-hidden="true" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round"><path d={iconPaths[name]||iconPaths.spark}/></svg>}
 function distanceKm(a,b,c,d){const R=6371,x=(c-a)*Math.PI/180,y=(d-b)*Math.PI/180,z=Math.sin(x/2)**2+Math.cos(a*Math.PI/180)*Math.cos(c*Math.PI/180)*Math.sin(y/2)**2;return 2*R*Math.atan2(Math.sqrt(z),Math.sqrt(1-z))}
 function Recenter({center,radius}){const map=useMap();const zoom=radius<=1?14:radius<=5?13:radius<=10?12:radius<=25?11:radius<=50?10:9;useEffect(()=>{map.setView(center,zoom)},[map,center,zoom]);return null}
+function normalizePlaceImageName(value){
+  return String(value||"").toLowerCase().replace(/[^a-z0-9]/g,"");
+}
 function placeImage(name,imageUrl,category=""){
   const raw=String(name||"").trim();
-  // Curated attraction-specific photos take priority over unverified API thumbnails.
-  if(Object.prototype.hasOwnProperty.call(images,raw))return images[raw];
+  const key=normalizePlaceImageName(raw);
+  const curated=Object.entries(images).find(([label])=>normalizePlaceImageName(label)===key);
+  if(curated)return curated[1];
   for(const dict of Object.values(translations)){
     for(const [english,translated] of Object.entries(dict||{})){
-      if(typeof translated==="string"&&translated===raw&&Object.prototype.hasOwnProperty.call(images,english))return images[english];
+      if(typeof translated==="string"&&normalizePlaceImageName(translated)===key){
+        const match=Object.entries(images).find(([label])=>normalizePlaceImageName(label)===normalizePlaceImageName(english));
+        if(match)return match[1];
+      }
     }
   }
   if(typeof imageUrl==="string"&&/^https?:\/\//i.test(imageUrl))return imageUrl;
   return "";
 }
-
 function placeImageStyle(name,imageUrl,category=""){
   const primary=placeImage(name,imageUrl,category);
   // Do not show an unrelated stock photo when a verified attraction photo is unavailable.
