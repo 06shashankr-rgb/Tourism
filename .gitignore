@@ -37,5 +37,6 @@ Thumbs.db
 # Local backups and editor state
 local-python-backup/
 TravelMate-Local-Backups/
-.vscode/
+.vscode/*
+!.vscode/settings.json
 .idea/
