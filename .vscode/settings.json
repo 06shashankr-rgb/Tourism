@@ -1,0 +1,23 @@
+{
+  "files.exclude": {
+    "**/node_modules": true,
+    "**/dist": true,
+    "**/build": true,
+    "**/.venv": true,
+    "**/venv": true,
+    "**/__pycache__": true,
+    "**/.pytest_cache": true,
+    "**/.env": true,
+    "**/.env.*": true,
+    "**/*.log": true,
+    "**/README.md": true,
+    "**/local-python-backup": true,
+    "**/TravelMate-Local-Backups": true
+  },
+  "search.exclude": {
+    "**/node_modules": true,
+    "**/dist": true,
+    "**/.venv": true,
+    "**/__pycache__": true
+  }
+}
