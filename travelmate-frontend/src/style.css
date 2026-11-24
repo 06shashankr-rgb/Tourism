@@ -249,3 +249,22 @@ footer{border-top:1px solid var(--line);padding:25px 4.5%;display:flex;justify-c
 .event-demo-note{margin-top:28px}
 .event-demo-note b{display:block;margin-bottom:7px;font:600 15px "Space Grotesk"}
 @media(max-width:650px){.event-sources,.event-demo-note{padding:16px}.event-source-links{display:grid;grid-template-columns:1fr 1fr}.event-source-links a{font-size:10px}}
+
+/* Travel page: dedicated search controls, Google Maps embeds and ride choices */
+.travel-search-field{display:block;position:relative;font-weight:600;color:var(--text,#222);margin-bottom:12px}
+.travel-search-control{display:flex;gap:8px;margin-top:8px}
+.travel-search-control input{flex:1;min-width:0}
+.travel-search-control button{white-space:nowrap}
+.google-travel-map{overflow:hidden;border-radius:14px;border:1px solid var(--line,#ddd);background:#eee}
+.google-travel-map iframe{display:block;width:100%;height:430px;border:0}
+.ride-choice-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin:22px 0}
+.ride-choice{display:flex;align-items:center;gap:12px;text-align:left;padding:16px;border:1px solid var(--line,#ddd);border-radius:12px;background:var(--surface,#fff);color:inherit;cursor:pointer}
+.ride-choice.selected{border:2px solid var(--accent,#a4123f);background:color-mix(in srgb,var(--accent,#a4123f) 7%,var(--surface,#fff))}
+.ride-choice-icon{font-size:28px}.ride-choice>span:nth-child(2){display:flex;flex:1;flex-direction:column;gap:5px}.ride-choice small,.ride-fare span{font-size:12px;opacity:.72}.ride-choice strong{font-size:18px}
+.ride-confirm-panel{display:grid;grid-template-columns:1fr auto;gap:18px;align-items:center;padding:20px;border:1px solid var(--line,#ddd);border-radius:14px;background:var(--surface,#fff)}
+.ride-confirm-panel h3{margin:6px 0}.ride-confirm-panel p{margin:4px 0;opacity:.75}
+.ride-fare{display:flex;flex-direction:column;gap:5px;text-align:right}.ride-fare strong{font-size:28px;color:var(--accent,#a4123f)}
+.ride-confirm-panel>.solid-button{grid-column:1/-1}
+.event-source-label{display:block;margin-top:8px;font-size:11px;line-height:1.4;opacity:.72}
+.event-actions{display:flex;flex-direction:column;align-items:stretch;gap:8px}
+@media(max-width:760px){.ride-choice-grid{grid-template-columns:1fr}.ride-confirm-panel{grid-template-columns:1fr}.ride-fare{text-align:left}.google-travel-map iframe{height:340px}.travel-search-control{flex-wrap:wrap}.travel-search-control button{width:100%}}
