@@ -304,10 +304,10 @@ async function translateRemaining() {
 
   try {
     while (language === currentLanguage) {
-      // Translate one text node per request. TranslateGemma runs sequentially on
-      // the user's local machine; small requests avoid proxy timeouts that can
-      // otherwise leave an entire batch untranslated.
-      const texts = collectMissing().slice(0, 1);
+      // Translate two visible text items per request. The Python service still
+      // runs TranslateGemma sequentially to protect memory, while reducing
+      // repeated browser-to-backend request overhead on the 8 GB laptop.
+      const texts = collectMissing().slice(0, 2);
       if (!texts.length) break;
 
       const keys = texts.map(text => language + "::" + text);
