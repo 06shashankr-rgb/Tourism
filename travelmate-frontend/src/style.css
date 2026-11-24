@@ -249,3 +249,26 @@ footer{border-top:1px solid var(--line);padding:25px 4.5%;display:flex;justify-c
 .event-demo-note{margin-top:28px}
 .event-demo-note b{display:block;margin-bottom:7px;font:600 15px "Space Grotesk"}
 @media(max-width:650px){.event-sources,.event-demo-note{padding:16px}.event-source-links{display:grid;grid-template-columns:1fr 1fr}.event-source-links a{font-size:10px}}
+
+/* Travel page: independent Google Maps search panels and ride request flow */
+.travel-search-field{position:relative;display:grid;gap:8px;min-width:0;padding:15px;border:1px solid var(--line);background:var(--surface);color:var(--text);font-size:11px;font-weight:800}
+.travel-search-field>span{color:var(--accent);letter-spacing:.5px}
+.travel-search-control{display:flex;gap:8px;min-width:0}
+.travel-search-control input{flex:1;min-width:0;min-height:44px;padding:10px 12px;border:1px solid var(--line);border-radius:7px;background:var(--bg);color:var(--text);font-size:12px}
+.travel-search-control .solid-button{min-width:82px;justify-content:center}
+.travel-search-field .travel-suggestions{position:absolute;top:100%;left:15px;right:15px;z-index:50;margin-top:2px}
+.google-travel-map{margin-top:18px;padding:8px;border:1px solid var(--line);background:var(--surface);border-radius:10px;overflow:hidden}
+.google-travel-map iframe{display:block;width:100%;height:410px;border:0;border-radius:7px;background:var(--surface2)}
+.local-ride-modes{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin:18px 0}
+.local-ride-modes button{display:grid;justify-items:center;gap:7px;padding:16px 10px;border:1px solid var(--line);border-radius:9px;background:var(--surface);color:var(--text);cursor:pointer}
+.local-ride-modes button>span{font-size:25px}.local-ride-modes button b{font-size:12px}.local-ride-modes button small{font-size:10px;color:var(--muted)}
+.local-ride-modes button.active{border-color:var(--accent);box-shadow:inset 0 0 0 1px var(--accent);background:color-mix(in srgb,var(--accent) 5%,var(--surface))}
+.ride-booking-modal{position:relative;max-width:520px;width:min(520px,94vw)}
+.ride-summary{display:grid;gap:12px;margin:18px 0;padding:16px;border:1px solid var(--line);border-radius:9px;background:var(--surface2)}
+.ride-summary>div{display:grid;gap:4px}.ride-summary small{font-size:9px;letter-spacing:1px;color:var(--muted);font-weight:800}.ride-summary b{font-size:12px;overflow-wrap:anywhere}
+.ride-summary .ride-fare{padding-top:12px;border-top:1px solid var(--line)}.ride-summary .ride-fare b{font:600 26px "Space Grotesk";color:var(--accent)}
+.travel-feedback{max-width:1250px;margin:12px auto;padding:12px 15px;border:1px solid var(--line);border-left:4px solid #27865c;background:var(--surface);color:var(--text);font-size:12px;line-height:1.6}
+.travel-feedback.error{border-left-color:var(--accent)}
+.event-source-links span{display:inline-flex;align-items:center;padding:9px 12px;border:1px solid var(--line);border-radius:8px;color:var(--muted);font-size:11px;font-weight:700;background:var(--bg)}
+.event-booking-note{display:block;margin-top:5px;text-align:center;color:var(--muted);font-size:9px;line-height:1.4}
+@media(max-width:650px){.travel-search-control{align-items:stretch;flex-direction:column}.travel-search-control .solid-button{width:100%}.google-travel-map iframe{height:330px}.local-ride-modes{grid-template-columns:1fr}.event-source-links span{font-size:10px}}
