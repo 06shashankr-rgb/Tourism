@@ -238,3 +238,14 @@ footer{border-top:1px solid var(--line);padding:25px 4.5%;display:flex;justify-c
 
 /* Google Maps embed and home-page sign-in actions */
 .google-map-frame{display:block;width:100%;height:640px;border:0;background:var(--surface);touch-action:pan-x pan-y}.text-link-button{display:flex;align-items:center;gap:6px;border:0;background:transparent;color:var(--accent);font-size:11px;font-weight:800;cursor:pointer;padding:0}.feature-card{width:100%;padding:0;border:0;text-align:left;cursor:pointer;font:inherit}.feature-card:focus-visible,.text-link-button:focus-visible{outline:3px solid var(--accent);outline-offset:3px}@media(max-width:1000px){.google-map-frame{height:430px}}@media(max-width:650px){.google-map-frame{height:380px}}
+
+.event-sources,.event-demo-note{margin:22px 0 28px;padding:22px 24px;border:1px solid var(--line);border-radius:14px;background:var(--surface)}
+.event-sources>div:first-child small{font-size:9px;font-weight:800;letter-spacing:1.2px;color:var(--accent)}
+.event-sources h3{margin:7px 0;font:600 20px "Space Grotesk"}
+.event-sources p,.event-demo-note p{margin:0;color:var(--muted);font-size:12px;line-height:1.7}
+.event-source-links{display:flex;flex-wrap:wrap;gap:9px;margin:17px 0}
+.event-source-links a{padding:9px 12px;border:1px solid var(--line);border-radius:8px;color:var(--accent);font-size:11px;font-weight:700;background:var(--bg)}
+.event-sources .event-source-note{padding-top:13px;border-top:1px solid var(--line);font-size:11px}
+.event-demo-note{margin-top:28px}
+.event-demo-note b{display:block;margin-bottom:7px;font:600 15px "Space Grotesk"}
+@media(max-width:650px){.event-sources,.event-demo-note{padding:16px}.event-source-links{display:grid;grid-template-columns:1fr 1fr}.event-source-links a{font-size:10px}}
