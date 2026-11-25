@@ -33,7 +33,10 @@ function persistTranslationCache() {
   }
 }
 const pending = new Set();
+const failedKeys = new Set();
 const retryCount = new Map();
+const MAX_BATCH = 25;
+let batchSize = MAX_BATCH;
 
 let observer;
 let currentLanguage = "English";
@@ -269,7 +272,7 @@ function collectMissing() {
         /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(text) ||
         /^[\d\s.,:/()%+\-₹$]+$/.test(text)) return;
     const key = currentLanguage + "::" + text;
-    if (!remoteCache.has(key) && !pending.has(key)) missing.add(text);
+    if (!remoteCache.has(key) && !pending.has(key) && !failedKeys.has(key)) missing.add(text);
   };
 
   const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT);
@@ -304,10 +307,9 @@ async function translateRemaining() {
 
   try {
     while (language === currentLanguage) {
-      // Translate two visible text items per request. The Python service still
-      // runs TranslateGemma sequentially to protect memory, while reducing
-      // repeated browser-to-backend request overhead on the 8 GB laptop.
-      const texts = collectMissing().slice(0, 2);
+      // Large batches are fast with the online providers. If a batch fails
+      // (for example the slow offline model times out), the size is halved.
+      const texts = collectMissing().slice(0, batchSize);
       if (!texts.length) break;
 
       const keys = texts.map(text => language + "::" + text);
@@ -317,22 +319,31 @@ async function translateRemaining() {
         const result = await api.translateBatch(texts, target);
         const values = result?.translations;
 
-        if (!Array.isArray(values) || values.length !== texts.length ||
-            values.some(value => typeof value !== "string" || !value.trim())) {
+        if (!Array.isArray(values) || values.length !== texts.length) {
           throw new Error("Translation service returned an incomplete batch.");
         }
 
         if (language !== currentLanguage) break;
 
+        let translatedAny = false;
         texts.forEach((text, index) => {
-          remoteCache.set(language + "::" + text, values[index].trim());
+          const value = values[index];
+          if (typeof value === "string" && value.trim()) {
+            remoteCache.set(language + "::" + text, value.trim());
+            translatedAny = true;
+          } else {
+            // Do not retry this exact string in a loop; it is retried after a reload.
+            failedKeys.add(language + "::" + text);
+          }
         });
-        persistTranslationCache();
+        if (translatedAny) persistTranslationCache();
         retryCount.delete(language);
+        batchSize = Math.min(MAX_BATCH, batchSize * 2);
         apply();
       } catch (error) {
         const count = (retryCount.get(language) || 0) + 1;
         retryCount.set(language, count);
+        batchSize = Math.max(2, Math.floor(batchSize / 2));
         console.warn("TravelMate translation failed for " + language + ":", error.message);
 
         if (count <= 3 && language === currentLanguage) {
@@ -364,6 +375,8 @@ function schedule() {
 export function setWebsiteLanguage(language) {
   currentLanguage = languageCodes[language] ? language : "English";
   retryCount.delete(currentLanguage);
+  batchSize = MAX_BATCH;
+  failedKeys.forEach(key => { if (key.startsWith(currentLanguage + "::")) failedKeys.delete(key); });
 
   if (retryTimer) {
     clearTimeout(retryTimer);

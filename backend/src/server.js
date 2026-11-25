@@ -1,6 +1,6 @@
 import "dotenv/config";
 import express from "express";import cors from "cors";import bcrypt from "bcryptjs";import jwt from "jsonwebtoken";
-import {connectDatabase,closeDatabase,collection,isMongo,memoryStore} from "./db.js";import {distanceKm,makeId,safeUser} from "./utils.js";import {requireAuth} from "./middleware/auth.js";import {livePlacesConfigured,liveEventsConfigured,searchLivePlaces,searchLiveEvents} from "./liveData.js";
+import {connectDatabase,closeDatabase,collection,isMongo,memoryStore} from "./db.js";import {distanceKm,makeId,safeUser} from "./utils.js";import {requireAuth} from "./middleware/auth.js";import {translateTexts,SUPPORTED_TARGETS} from "./translate.js";import {livePlacesConfigured,liveEventsConfigured,searchLivePlaces,searchLiveEvents} from "./liveData.js";
 const app=express(),PORT=Number(process.env.PORT||5000),FRONTEND_URL=process.env.FRONTEND_URL||"http://localhost:5173",JWT_SECRET=process.env.JWT_SECRET||"travelmate-local-development-secret";
 const allowedOrigins=FRONTEND_URL.split(",").map(x=>x.trim()).filter(Boolean);
 app.use(cors({origin:(origin,callback)=>{if(!origin||allowedOrigins.includes(origin))return callback(null,true);return callback(new Error("CORS origin not allowed."));},methods:["GET","POST","DELETE","OPTIONS"],allowedHeaders:["Content-Type","Authorization"]}));app.use(express.json({limit:"1mb"}));
@@ -159,14 +159,6 @@ app.post("/api/assistant", async (q, r) => {
 app.post("/api/translate", async (q, r) => {
   const texts = Array.isArray(q.body?.texts) ? q.body.texts : [];
   const target = String(q.body?.target || "").trim();
-  const supportedTargets = new Set([
-    "asm_Beng", "ben_Beng", "brx_Deva", "doi_Deva", "guj_Gujr",
-    "hin_Deva", "kan_Knda", "kas_Arab", "gom_Deva", "mai_Deva",
-    "mal_Mlym", "mni_Mtei", "mar_Deva", "npi_Deva", "ory_Orya",
-    "pan_Guru", "san_Deva", "sat_Olck", "snd_Arab", "tam_Taml",
-    "tel_Telu", "urd_Arab"
-  ]);
-
   if (!texts.length || texts.length > 50 ||
       texts.some(value => typeof value !== "string" || !value.trim() || value.length > 1500)) {
     return r.status(400).json({ message: "Provide 1–50 non-empty text strings (maximum 1,500 characters each)." });
@@ -177,33 +169,19 @@ app.post("/api/translate", async (q, r) => {
   if (target === "eng_Latn") {
     return r.json({ translations: texts, source: "eng_Latn", target, provider: "identity" });
   }
-  if (!supportedTargets.has(target)) {
-    return r.status(422).json({ message: "This target language is not supported by the configured local translation service." });
+  if (!SUPPORTED_TARGETS[target]) {
+    return r.status(422).json({ message: "This target language is not supported." });
   }
 
-  const pythonUrl = (process.env.PYTHON_AI_URL || "http://127.0.0.1:8001").trim();
-  if (!pythonUrl) {
-    return r.status(503).json({ message: "Local translation is not configured. Start the TravelMate Python service on port 8001." });
-  }
   try {
-    const response = await fetch(pythonUrl.replace(/\/$/, "") + "/translate-batch", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ texts, source: "eng_Latn", target }),
-      signal: AbortSignal.timeout(180000)
-    });
-    const data = await response.json().catch(() => ({}));
-    if (!response.ok) {
-      return r.status(response.status || 503).json({ message: data.detail || "Local Ollama translation failed." });
+    const { translations, providers } = await translateTexts(texts, target);
+    if (translations.every(value => value === null)) {
+      return r.status(503).json({ message: "No translation provider is available. Check your internet connection, or start the Python service and Ollama for offline translation." });
     }
-    if (!Array.isArray(data.translations) || data.translations.length !== texts.length ||
-        data.translations.some(value => typeof value !== "string" || !value.trim())) {
-      return r.status(502).json({ message: "Local translation returned an incomplete batch." });
-    }
-    return r.json({ ...data, provider: data.provider || "local-translation" });
+    return r.json({ translations, source: "eng_Latn", target, provider: providers.join("+") });
   } catch (error) {
-    console.error("Local Ollama translation error:", error.message);
-    return r.status(503).json({ message: "Local translation service is unavailable. Check that the Python service and Ollama TranslateGemma model are running." });
+    console.error("Translation error:", error.message);
+    return r.status(503).json({ message: "Translation failed." });
   }
 });
 app.use((_q,r)=>r.status(404).json({message:"API route not found."}));
