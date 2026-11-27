@@ -1,6 +1,7 @@
 """Local English-to-Indic translation for TravelMate using Ollama TranslateGemma."""
 import json
 import os
+from functools import lru_cache
 import urllib.error
 import urllib.request
 from concurrent.futures import ThreadPoolExecutor
@@ -43,6 +44,7 @@ TRANSLATION_MODEL = os.getenv("TRANSLATION_MODEL", "translategemma:4b")
 OLLAMA_URL = os.getenv("OLLAMA_BASE_URL", "http://127.0.0.1:11434").rstrip("/")
 
 
+@lru_cache(maxsize=4000)
 def _translate_one(text: str, target: str) -> str:
     language = LANGUAGE_NAMES[target]
     language_code = next(
@@ -92,6 +94,52 @@ def _translate_one(text: str, target: str) -> str:
         raise RuntimeError(f"Ollama translation request failed ({exc.code}): {detail}") from exc
     except (urllib.error.URLError, TimeoutError, json.JSONDecodeError) as exc:
         raise RuntimeError(f"Translation model unavailable: {exc}") from exc
+
+
+def _translate_batch_once(texts: list[str], target: str) -> list[str]:
+    """Translate several UI strings in one Ollama inference to reduce model startup and latency."""
+    language = LANGUAGE_NAMES[target]
+    language_code = next(
+        (code for code, target_code in LANGUAGES.items() if target_code == target),
+        "",
+    )
+    language_code = LANGUAGE_CODES.get(language_code, language_code)
+    prompt = (
+        f"Translate each input from English into {language} ({language_code}). "
+        "Use natural grammar and the native writing system. Preserve names, numbers, "
+        "URLs and placeholders. Return ONLY valid JSON with one key named translations "
+        "whose value is an array of translated strings in exactly the same order and count. "
+        "Do not add explanations.\nINPUT STRINGS:\n"
+        + json.dumps(texts, ensure_ascii=False)
+    )
+    payload = json.dumps({
+        "model": TRANSLATION_MODEL,
+        "prompt": prompt,
+        "format": "json",
+        "stream": False,
+        "keep_alive": "10m",
+        "options": {"temperature": 0.1, "num_ctx": 4096},
+    }, ensure_ascii=False).encode("utf-8")
+    request = urllib.request.Request(
+        OLLAMA_URL + "/api/generate",
+        data=payload,
+        headers={"Content-Type": "application/json"},
+        method="POST",
+    )
+    try:
+        timeout = float(os.getenv("OLLAMA_TIMEOUT_SECONDS", "180"))
+        with urllib.request.urlopen(request, timeout=timeout) as response:
+            result = json.loads(response.read().decode("utf-8"))
+        parsed = json.loads(str(result.get("response", "")))
+        values = parsed.get("translations") if isinstance(parsed, dict) else None
+        if not isinstance(values, list) or len(values) != len(texts):
+            raise RuntimeError("Ollama returned an incomplete translation batch.")
+        output = [str(value).strip() for value in values]
+        if any(not value for value in output):
+            raise RuntimeError("Ollama returned an empty translation.")
+        return output
+    except (urllib.error.URLError, TimeoutError, json.JSONDecodeError) as exc:
+        raise RuntimeError(f"Ollama batch translation failed: {exc}") from exc
 
 
 def translation_status() -> dict:
@@ -153,9 +201,14 @@ def translate_texts(
             "Run: ollama pull " + TRANSLATION_MODEL
         )
 
-    # Translate sequentially to avoid loading concurrent inference work on low-memory devices.
-    with ThreadPoolExecutor(max_workers=1) as pool:
-        translated = list(pool.map(lambda item: _translate_one(item, target), cleaned))
+    # One model inference per batch is substantially faster than one inference per UI string.
+    # Keep a safe sequential fallback if the model cannot return the requested JSON structure.
+    try:
+        translated = _translate_batch_once(cleaned, target)
+    except RuntimeError as batch_error:
+        print(f"TravelMate batch translation fallback: {batch_error}")
+        with ThreadPoolExecutor(max_workers=1) as pool:
+            translated = list(pool.map(lambda item: _translate_one(item, target), cleaned))
     if len(translated) != len(cleaned) or any(not value.strip() for value in translated):
         raise RuntimeError("Translation engine returned an incomplete result.")
 
