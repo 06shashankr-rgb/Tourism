@@ -23,5 +23,6 @@ export const api={
  removeFavorite:placeId=>request("/personalization/favorites/"+encodeURIComponent(placeId),{method:"DELETE"}),
  submitFeedback:payload=>request("/personalization/feedback",{method:"POST",body:JSON.stringify(payload)}),
  recommendations:()=>request("/personalization/recommendations"),
+ recommendationHistory:()=>request("/personalization/history"),
  translateBatch:(texts,targetLanguage)=>request("/translate",{method:"POST",body:JSON.stringify({texts,target:targetLanguage})}),
 };
