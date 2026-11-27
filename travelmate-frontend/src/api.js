@@ -16,6 +16,7 @@ export const api={
  requestRide:p=>request("/rides",{method:"POST",body:JSON.stringify(p)}),
  rides:()=>request("/rides"),
  cancelBooking:id=>request("/bookings/"+encodeURIComponent(id),{method:"DELETE"}),
+ removeBooking:id=>request("/bookings/"+encodeURIComponent(id)+"/remove",{method:"DELETE"}),
  assistant:(question,location,language="English",history=[])=>request("/assistant",{method:"POST",body:JSON.stringify({question,lat:location?.lat,lng:location?.lng,location:location?.label||"Mysuru",language,history})}),
  personalization:()=>request("/personalization"),
  savePreferences:interests=>request("/personalization/preferences",{method:"PUT",body:JSON.stringify({interests})}),
