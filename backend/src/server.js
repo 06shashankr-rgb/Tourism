@@ -36,6 +36,64 @@ app.get("/api/location/reverse",async(q,r)=>{try{const lat=Number(q.query.lat),l
 app.get("/api/location/search",async(q,r)=>{try{const query=String(q.query.q||"").trim();if(query.length<2)return r.status(400).json({message:"Enter at least 2 characters."});r.json(await geocodeLocation(query))}catch(e){console.error(e);r.status(503).json({message:e.message||"Location search failed."})}});
 app.get("/api/places",async(q,r)=>{try{const lat=Number(q.query.lat),lng=Number(q.query.lng),radius=Number(q.query.radius||25),search=String(q.query.search||"").trim().toLowerCase(),category=String(q.query.category||"").trim().toLowerCase(),languageCode=String(q.query.languageCode||"en");if(Number.isFinite(lat)&&Number.isFinite(lng)&&livePlacesConfigured()&&!search&&!category){try{const live=await searchLivePlaces({lat,lng,radius,languageCode});if(live?.length){const curated=await findMany("places");const names=new Set(curated.map(p=>String(p.name).toLowerCase()));const merged=[...curated,...live.filter(p=>!names.has(String(p.name).toLowerCase()))];return r.json(merged.map(p=>({...p,distance:distanceKm(lat,lng,p.lat,p.lng)})).filter(p=>Number.isFinite(p.distance)&&p.distance<=radius).sort((a,b)=>a.distance-b.distance))}}catch(e){console.error("Live places fallback:",e.message)}}let all=await findMany("places");if(search)all=all.filter(p=>String(p.name).toLowerCase().includes(search)||String(p.description).toLowerCase().includes(search));if(category)all=all.filter(p=>String(p.category).toLowerCase()===category);const out=Number.isFinite(lat)&&Number.isFinite(lng)?all.map(p=>({...p,distance:distanceKm(lat,lng,p.lat,p.lng)})).filter(p=>p.distance<=radius).sort((a,b)=>a.distance-b.distance):all;r.json(out)}catch(e){console.error(e);r.status(500).json({message:"Could not load places."})}});
 app.get("/api/events",async(q,r)=>{try{const lat=Number(q.query.lat),lng=Number(q.query.lng),radius=Number(q.query.radius||10),search=String(q.query.search||"").trim(),live=String(q.query.live||"")==="true",locationLabel=String(q.query.locationLabel||"Mysuru"),language=String(q.query.language||"en");if(Number.isFinite(lat)&&Number.isFinite(lng)&&live&&liveEventsConfigured()){try{const current=await searchLiveEvents({lat,lng,locationLabel,language});return r.json((current||[]).filter(e=>{if(Number.isFinite(e.lat)&&Number.isFinite(e.lng)){e.distance=distanceKm(lat,lng,e.lat,e.lng);return e.distance<=radius}return true}).sort((a,b)=>(a.distance||0)-(b.distance||0)))}catch(e){console.error("Live events fallback:",e.message)}}let all=await findMany("events");if(search)all=all.filter(e=>String(e.name).toLowerCase().includes(search.toLowerCase())||String(e.venue).toLowerCase().includes(search.toLowerCase())||String(e.description).toLowerCase().includes(search.toLowerCase()));if(live)all=all.filter(e=>eventIsLive(e));const out=Number.isFinite(lat)&&Number.isFinite(lng)?all.map(e=>({...e,distance:distanceKm(lat,lng,e.lat,e.lng),isLive:eventIsLive(e)})).filter(e=>e.distance<=radius).sort((a,b)=>a.distance-b.distance):all.map(e=>({...e,isLive:eventIsLive(e)}));r.json(out)}catch(e){console.error(e);r.status(500).json({message:"Could not load events."})}});
+
+app.get("/api/personalization",requireAuth,async(q,r)=>{
+  const preferences=await findOne("userPreferences",{userId:q.user.id});
+  const favorites=await findMany("favorites",{userId:q.user.id});
+  const feedback=await findMany("feedback",{userId:q.user.id});
+  r.json({preferences:preferences?.interests||[],favorites,feedback});
+});
+app.put("/api/personalization/preferences",requireAuth,async(q,r)=>{
+  const allowed=["Heritage","Nature","Adventure","Food","Culture","Spiritual","Wildlife","Shopping","Family"];
+  const interests=Array.isArray(q.body?.interests)?[...new Set(q.body.interests.map(x=>String(x)))].filter(x=>allowed.includes(x)).slice(0,allowed.length):[];
+  const existing=await findOne("userPreferences",{userId:q.user.id});
+  const value={userId:q.user.id,interests,updatedAt:new Date().toISOString()};
+  if(existing)await updateOne("userPreferences",{userId:q.user.id},value);else await insertOne("userPreferences",value);
+  r.json({interests});
+});
+app.get("/api/personalization/favorites",requireAuth,async(q,r)=>r.json(await findMany("favorites",{userId:q.user.id})));
+app.post("/api/personalization/favorites",requireAuth,async(q,r)=>{
+  const place=q.body?.place;
+  if(!place?.id||!place?.name)return r.status(400).json({message:"A valid place is required."});
+  const filter={userId:q.user.id,placeId:String(place.id)};
+  const existing=await findOne("favorites",filter);
+  if(existing)return r.status(200).json(existing);
+  const saved={id:makeId("FAV"),...filter,place:{id:String(place.id),name:String(place.name),category:String(place.category||""),description:String(place.description||""),lat:Number(place.lat),lng:Number(place.lng)},createdAt:new Date().toISOString()};
+  await insertOne("favorites",saved);r.status(201).json(saved);
+});
+app.delete("/api/personalization/favorites/:placeId",requireAuth,async(q,r)=>{
+  const result=await deleteOne("favorites",{userId:q.user.id,placeId:String(q.params.placeId)});
+  if(!result.deletedCount)return r.status(404).json({message:"Favourite not found."});
+  r.json({ok:true});
+});
+app.post("/api/personalization/feedback",requireAuth,async(q,r)=>{
+  const placeId=String(q.body?.placeId||"").trim(),rating=Number(q.body?.rating),comment=String(q.body?.comment||"").trim().slice(0,1000);
+  if(!placeId||!Number.isInteger(rating)||rating<1||rating>5)return r.status(400).json({message:"Choose a place and a rating from 1 to 5."});
+  const place=await findOne("places",{id:placeId});
+  const favorite=await findOne("favorites",{userId:q.user.id,placeId});
+  const value={id:makeId("FDB"),userId:q.user.id,placeId,placeName:String(q.body?.placeName||place?.name||"Place").slice(0,120),rating,comment,createdAt:new Date().toISOString()};
+  await insertOne("feedback",value);r.status(201).json(value);
+});
+app.get("/api/personalization/recommendations",requireAuth,async(q,r)=>{
+  const [pref,favorites,feedback,planner,allPlaces]=await Promise.all([
+    findOne("userPreferences",{userId:q.user.id}),findMany("favorites",{userId:q.user.id}),
+    findMany("feedback",{userId:q.user.id}),findMany("planner",{userId:q.user.id}),findMany("places")
+  ]);
+  const interests=pref?.interests||[],favoriteIds=new Set(favorites.map(x=>x.placeId));
+  const rated=new Map(feedback.map(x=>[x.placeId,x.rating]));
+  const visited=new Set(planner.filter(x=>x.type==="place").map(x=>x.itemId));
+  const keywordMap={Heritage:["heritage","palace","historical","architecture","fort"],Nature:["nature","park","lake","garden","hill"],Adventure:["adventure","activity","amusement","trek"],Food:["food","market","restaurant","cafe"],Culture:["culture","museum","art","festival","craft"],Spiritual:["temple","church","cathedral","spiritual"],Wildlife:["wildlife","zoo","bird","animal"],Shopping:["market","shopping","bazaar"],Family:["family","park","zoo","amusement"]};
+  const recommendations=allPlaces.map(place=>{
+    const text=[place.name,place.category,place.description].join(" ").toLowerCase();
+    const matched=interests.filter(interest=>(keywordMap[interest]||[interest.toLowerCase()]).some(word=>text.includes(word)));
+    const rating=rated.get(String(place.id));
+    let score=matched.length*4+(favoriteIds.has(String(place.id))?2:0)+(rating>=4?3:rating<=2?-2:0)-(visited.has(String(place.id))?5:0);
+    if(!interests.length&&rating==null)score=Number(place.rating||0);
+    return {...place,recommendationScore:score,reasons:matched.length?matched:["Popular nearby destination"],userRating:rating||null};
+  }).filter(x=>!visited.has(String(x.id))).sort((a,b)=>b.recommendationScore-a.recommendationScore).slice(0,8);
+  r.json({recommendations,interests,favoriteCount:favorites.length,feedbackCount:feedback.length});
+});
+
 app.get("/api/planner",requireAuth,async(q,r)=>r.json(await findMany("planner",{userId:q.user.id})));
 app.post("/api/planner",requireAuth,async(q,r)=>{const {item,type}=q.body;if(!item?.id||!type)return r.status(400).json({message:"Item and type are required."});if(await findOne("planner",{userId:q.user.id,itemId:String(item.id),type}))return r.status(409).json({message:"Already in your planner."});const x={id:makeId("PLAN"),userId:q.user.id,itemId:String(item.id),type,item,createdAt:new Date().toISOString()};await insertOne("planner",x);r.status(201).json(x)});
 app.delete("/api/planner/:type/:itemId",requireAuth,async(q,r)=>{const x=await deleteOne("planner",{userId:q.user.id,type:q.params.type,itemId:String(q.params.itemId)});if(!x.deletedCount)return r.status(404).json({message:"Planner item not found."});r.json({ok:true})});
