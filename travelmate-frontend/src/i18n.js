@@ -2,10 +2,9 @@ import { translations as uiTranslations } from "./translations";
 
 export { uiTranslations as translations };
 
-// This reference dictionary is adapted from the supplied i18n.js.
-// TravelMate's existing 22-language selector and local Ollama fallback remain active.
+// The language selector contains India's 22 constitutionally scheduled languages only.
+// English remains the default source language internally and is not shown as a selector option.
 export const INDIAN_LANGUAGES = [
-  { code: "en", name: "English", native: "English" },
   { code: "as", name: "Assamese", native: "অসমীয়া" },
   { code: "bn", name: "Bengali", native: "বাংলা" },
   { code: "brx", name: "Bodo", native: "बड़ो" },
