@@ -307,3 +307,5 @@ footer{border-top:1px solid var(--line);padding:25px 4.5%;display:flex;justify-c
 .favorite-actions button{border:1px solid var(--line);border-radius:7px;background:transparent;color:var(--text);padding:8px 10px;font-size:10px;font-weight:700;cursor:pointer;}
 .favorite-actions button:first-child{border-color:var(--accent);color:var(--accent);}
 @media(max-width:600px){.favorite-actions{grid-column:2;}}
+
+.booking-remove-button{border-color:#ffffff85!important;color:#fff!important;background:#ffffff12!important}.booking-remove-button:hover{background:#ffffff24!important}
