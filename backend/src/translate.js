@@ -83,9 +83,10 @@ async function googleWeb(texts, googleCode) {
 async function ollamaLocal(texts, target) {
   const pythonUrl = (process.env.PYTHON_AI_URL || "http://127.0.0.1:8001").trim().replace(/\/$/, "");
   const out = [];
-  // Small chunks so a slow laptop never hits the per-request timeout.
-  for (let i = 0; i < texts.length; i += 3) {
-    const chunk = texts.slice(i, i + 3);
+  // Five-string chunks balance fewer model calls with the project's 8 GB RAM laptop.
+  // Python translates each chunk in one Ollama inference and falls back safely if needed.
+  for (let i = 0; i < texts.length; i += 5) {
+    const chunk = texts.slice(i, i + 5);
     const response = await fetch(pythonUrl + "/translate-batch", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
