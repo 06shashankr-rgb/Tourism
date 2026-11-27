@@ -51,6 +51,7 @@ app.put("/api/personalization/preferences",requireAuth,async(q,r)=>{
   if(existing)await updateOne("userPreferences",{userId:q.user.id},value);else await insertOne("userPreferences",value);
   r.json({interests});
 });
+app.get("/api/personalization/history",requireAuth,async(q,r)=>{const history=await findMany("recommendationHistory",{userId:q.user.id});r.json(history.sort((a,b)=>String(b.createdAt).localeCompare(String(a.createdAt))).slice(0,30))});
 app.get("/api/personalization/favorites",requireAuth,async(q,r)=>r.json(await findMany("favorites",{userId:q.user.id})));
 app.post("/api/personalization/favorites",requireAuth,async(q,r)=>{
   const place=q.body?.place;
@@ -91,6 +92,8 @@ app.get("/api/personalization/recommendations",requireAuth,async(q,r)=>{
     if(!interests.length&&rating==null)score=Number(place.rating||0);
     return {...place,recommendationScore:score,reasons:matched.length?matched:["Popular nearby destination"],userRating:rating||null};
   }).filter(x=>!visited.has(String(x.id))).sort((a,b)=>b.recommendationScore-a.recommendationScore).slice(0,8);
+  const now=new Date().toISOString();
+  if(recommendations.length)await Promise.all(recommendations.map(place=>insertOne("recommendationHistory",{id:makeId("REC"),userId:q.user.id,placeId:String(place.id),placeName:place.name,score:place.recommendationScore,createdAt:now})));
   r.json({recommendations,interests,favoriteCount:favorites.length,feedbackCount:feedback.length});
 });
 
