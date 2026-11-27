@@ -272,3 +272,28 @@ footer{border-top:1px solid var(--line);padding:25px 4.5%;display:flex;justify-c
 .event-source-links span{display:inline-flex;align-items:center;padding:9px 12px;border:1px solid var(--line);border-radius:8px;color:var(--muted);font-size:11px;font-weight:700;background:var(--bg)}
 .event-booking-note{display:block;margin-top:5px;text-align:center;color:var(--muted);font-size:9px;line-height:1.4}
 @media(max-width:650px){.travel-search-control{align-items:stretch;flex-direction:column}.travel-search-control .solid-button{width:100%}.google-travel-map iframe{height:330px}.local-ride-modes{grid-template-columns:1fr}.event-source-links span{font-size:10px}}
+
+
+/* Objective 4: user preference, favourites and feedback experience */
+.personalization-panel{margin:24px 0 30px;padding:24px;border:1px solid var(--line);border-radius:14px;background:var(--surface);box-shadow:0 8px 28px rgba(25,20,15,.035)}
+.personalization-heading small{color:var(--accent);font-size:9px;font-weight:900;letter-spacing:1.5px}
+.personalization-heading h2{margin:8px 0;font:600 clamp(22px,3vw,30px) "Space Grotesk";color:var(--text)}
+.personalization-heading p,.personalization-footnote{max-width:760px;color:var(--muted);font-size:12px;line-height:1.7}
+.interest-options{display:flex;flex-wrap:wrap;gap:8px;margin:18px 0 24px}
+.interest-options button{padding:9px 13px;border:1px solid var(--line);border-radius:999px;background:var(--bg);color:var(--text);font-size:11px;font-weight:700;cursor:pointer}
+.interest-options button.active{border-color:var(--accent);background:color-mix(in srgb,var(--accent) 9%,var(--surface));color:var(--accent)}
+.personalized-recommendations{margin:18px 0 24px}
+.personalized-place{display:flex;align-items:center;justify-content:space-between;gap:14px;padding:13px 0;border-bottom:1px solid var(--line)}
+.personalized-place>div{display:grid;gap:5px;min-width:0}
+.personalized-place b{font-size:13px;color:var(--text)}
+.personalized-place small{font-size:10px;color:var(--muted)}
+.personalized-place button{flex-shrink:0}
+.personalization-empty{font-size:12px;color:var(--muted)}
+.personalization-feedback{display:grid;gap:10px;padding-top:18px;border-top:1px solid var(--line)}
+.feedback-controls{display:grid;grid-template-columns:2fr 1fr;gap:10px}
+.feedback-controls select,.personalization-feedback textarea{width:100%;min-height:42px;padding:10px 12px;border:1px solid var(--line);border-radius:8px;background:var(--bg);color:var(--text);font:inherit;font-size:12px}
+.personalization-feedback textarea{min-height:78px;resize:vertical}
+.personalization-feedback .solid-button{justify-self:start}
+.personalization-message{margin:12px 0 0;padding:10px 12px;border-left:3px solid var(--accent);background:var(--surface2);font-size:11px;color:var(--text)}
+.personalization-footnote{margin-top:16px;font-size:10px}
+@media(max-width:600px){.personalization-panel{padding:16px}.personalized-place{align-items:flex-start;flex-direction:column}.feedback-controls{grid-template-columns:1fr}}

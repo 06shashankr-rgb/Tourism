@@ -17,5 +17,11 @@ export const api={
  rides:()=>request("/rides"),
  cancelBooking:id=>request("/bookings/"+encodeURIComponent(id),{method:"DELETE"}),
  assistant:(question,location,language="English",history=[])=>request("/assistant",{method:"POST",body:JSON.stringify({question,lat:location?.lat,lng:location?.lng,location:location?.label||"Mysuru",language,history})}),
+ personalization:()=>request("/personalization"),
+ savePreferences:interests=>request("/personalization/preferences",{method:"PUT",body:JSON.stringify({interests})}),
+ saveFavorite:place=>request("/personalization/favorites",{method:"POST",body:JSON.stringify({place})}),
+ removeFavorite:placeId=>request("/personalization/favorites/"+encodeURIComponent(placeId),{method:"DELETE"}),
+ submitFeedback:payload=>request("/personalization/feedback",{method:"POST",body:JSON.stringify(payload)}),
+ recommendations:()=>request("/personalization/recommendations"),
  translateBatch:(texts,targetLanguage)=>request("/translate",{method:"POST",body:JSON.stringify({texts,target:targetLanguage})}),
 };
