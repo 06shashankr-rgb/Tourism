@@ -299,3 +299,11 @@ footer{border-top:1px solid var(--line);padding:25px 4.5%;display:flex;justify-c
 @media(max-width:600px){.personalization-panel{padding:16px}.personalized-place{align-items:flex-start;flex-direction:column}.feedback-controls{grid-template-columns:1fr}}
 
 .personalization-history{display:grid;gap:5px;margin-top:14px;padding:12px;border:1px solid var(--line);border-radius:8px;background:var(--surface2)}.personalization-history b{font-size:11px;color:var(--text)}.personalization-history span{font-size:10px;line-height:1.6;color:var(--muted)}
+
+/* Planner usability fixes: readable booking cancellation and favourite actions */
+.booking-item .outline-button{display:flex;width:100%;min-height:42px;align-items:center;justify-content:center;margin-top:7px;padding:10px 12px;border:1px solid #ffffff85;border-radius:9px;background:transparent;color:var(--bg);font-size:11px;font-weight:800;cursor:pointer;}
+.booking-item .outline-button:hover{background:#ffffff18;border-color:#fff;}
+.favorite-actions{display:flex;gap:7px;flex-wrap:wrap;}
+.favorite-actions button{border:1px solid var(--line);border-radius:7px;background:transparent;color:var(--text);padding:8px 10px;font-size:10px;font-weight:700;cursor:pointer;}
+.favorite-actions button:first-child{border-color:var(--accent);color:var(--accent);}
+@media(max-width:600px){.favorite-actions{grid-column:2;}}
