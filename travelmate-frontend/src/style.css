@@ -297,3 +297,5 @@ footer{border-top:1px solid var(--line);padding:25px 4.5%;display:flex;justify-c
 .personalization-message{margin:12px 0 0;padding:10px 12px;border-left:3px solid var(--accent);background:var(--surface2);font-size:11px;color:var(--text)}
 .personalization-footnote{margin-top:16px;font-size:10px}
 @media(max-width:600px){.personalization-panel{padding:16px}.personalized-place{align-items:flex-start;flex-direction:column}.feedback-controls{grid-template-columns:1fr}}
+
+.personalization-history{display:grid;gap:5px;margin-top:14px;padding:12px;border:1px solid var(--line);border-radius:8px;background:var(--surface2)}.personalization-history b{font-size:11px;color:var(--text)}.personalization-history span{font-size:10px;line-height:1.6;color:var(--muted)}
