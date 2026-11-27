@@ -15,6 +15,8 @@ export const api={
  createBooking:p=>request("/bookings",{method:"POST",body:JSON.stringify(p)}),
  requestRide:p=>request("/rides",{method:"POST",body:JSON.stringify(p)}),
  rides:()=>request("/rides"),
+ cancelRide:id=>request("/rides/"+encodeURIComponent(id),{method:"DELETE"}),
+ removeRide:id=>request("/rides/"+encodeURIComponent(id)+"/remove",{method:"DELETE"}),
  cancelBooking:id=>request("/bookings/"+encodeURIComponent(id),{method:"DELETE"}),
  removeBooking:id=>request("/bookings/"+encodeURIComponent(id)+"/remove",{method:"DELETE"}),
  assistant:(question,location,language="English",history=[])=>request("/assistant",{method:"POST",body:JSON.stringify({question,lat:location?.lat,lng:location?.lng,location:location?.label||"Mysuru",language,history})}),
